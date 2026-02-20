@@ -1,0 +1,86 @@
+---
+title: "Demo Dashboard"
+format: 
+  dashboard:
+    orientation: columns
+    theme: cosmo
+---
+
+```{r}
+
+#| label: setup
+#| message: false
+library(crosstalk)
+library(dplyr)
+library(here)
+
+#| label: setup
+#| message: false
+library(crosstalk)
+library(dplyr)
+library(ggplot2)
+library(here)
+library(plotly)
+library(DT)
+
+#| label: setup
+#| message: false
+library(crosstalk)
+library(dplyr)
+library(DT)
+library(here)
+
+# 1. Carga de datos
+data_im  <- readRDS(here("vistas/informediario/data/tabla_soloIM_resumen_pordia_municipio_turno_completo.rds"))
+data_fid <- readRDS(here("vistas/informediario/data/tabla_soloFID_resumen_pordia_municipio_turno_completo.rds"))
+
+# 2. Aseguramos formato de fecha
+data_im$Fecha  <- as.Date(data_im$Fecha) 
+data_fid$Fecha <- as.Date(data_fid$Fecha)
+
+# 3. Objetos SharedData (Sincronizados por el grupo "sync_fechas")
+sd_im  <- SharedData$new(data_im,  group = "sync_fechas")
+sd_fid <- SharedData$new(data_fid, group = "sync_fechas")
+
+# 4. Unión para la tabla general
+data_total <- bind_rows(
+  mutate(data_im, Origen = "IM"),
+  mutate(data_fid, Origen = "Fideicomiso")
+)
+sd_total <- SharedData$new(data_total, group = "sync_fechas")
+
+```
+
+### 2. Filtros {.sidebar width="150px"}
+
+```{r}
+# El filtro ahora usa el objeto unificado
+filter_select(
+  id = "selector_fecha", 
+  label = "Seleccione una fecha:", 
+  sharedData = sd_total, 
+  group = ~Fecha, 
+  multiple = FALSE
+)
+  
+```
+
+## Column {width=100%} {content-title="false"}
+
+### Comparativa General (IM vs Fideicomiso)
+
+```{r}
+#| title: "Solo IM"
+datatable(
+  sd_im,
+  options = list(
+    pageLength = 15,
+    language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'),
+    dom = 't' # Muestra solo la tabla sin buscador interno (ya usamos el de Quarto)
+  ),
+  rownames = FALSE,
+  class = 'cell-border stripe'
+)
+  
+```
+

@@ -1,9 +1,13 @@
 {
     "sortOrder": [
         {
+            "columnIndex": 3,
+            "ascending": false
+        },
+        {
             "columnIndex": 2,
-            "ascending": true
+            "ascending": false
         }
     ],
-    "path": "C:/Users/im4445285/OneDrive/Trabajo IM/APP_nuevoinforme/vistas"
+    "path": "C:/Users/im4445285/OneDrive/Trabajo IM/APP_nuevoinforme"
 }

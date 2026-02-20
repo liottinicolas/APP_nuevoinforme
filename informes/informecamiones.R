@@ -4,9 +4,13 @@ library(lubridate)
 library(writexl)
 
 # Ajustá esta ruta de ser necesario según dónde esté guardado el archivo en tu máquina.
-ruta_historico <- file.path("informediario", "data", "historico_llenadoGol.rds")
+ruta_historico <- file.path("db", "GOL_reportes", "historico_llenadoGol.rds")
 gol_visitayprogramado_completo <- readRDS(ruta_historico)
 
+# me cuenta los viajes y los agrupa por
+# total
+# solo IM
+# solo por FID
 funcion_contar_viajes_por_diayturno <- function(df_llenado) {
   
   # 1. Filtros comunes para todos los reportes

@@ -15,8 +15,19 @@ except ImportError:
 # =================================================================
 # CONFIGURACIÓN DE RUTA LOCAL
 # =================================================================
-RUTA_ARCHIVO_LOCAL = os.path.join("informediario", "data", "tabla_soloIM_resumen_pordia_municipio_turno_completo.rds")
-RUTA_ARCHIVO_FID = os.path.join("informediario", "data", "tabla_soloFID_resumen_pordia_municipio_turno_completo.rds")
+# Dependiendo de cómo se corra el script (local en vistas/ o en la nube en la raíz),
+# buscamos la carpeta 'informediario'.
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Si 'informediario' está en la misma carpeta que el script (como lo tenías localmente)
+if os.path.exists(os.path.join(script_dir, "informediario")):
+    BASE_DIR = script_dir
+# Si no, asumimos que estamos corriendo desde la raíz del proyecto (modo Cloud/Deploy)
+else:
+    BASE_DIR = os.path.dirname(script_dir) # Sube un nivel respecto a vistas/
+
+RUTA_ARCHIVO_LOCAL = os.path.join(BASE_DIR, "informediario", "data", "tabla_soloIM_resumen_pordia_municipio_turno_completo.rds")
+RUTA_ARCHIVO_FID = os.path.join(BASE_DIR, "informediario", "data", "tabla_soloFID_resumen_pordia_municipio_turno_completo.rds")
 
 # Configuración de la página
 st.set_page_config(

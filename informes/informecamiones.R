@@ -50,44 +50,44 @@ viajes_porcamion_soloim <- total_viajes$solo_im
 viajes_porcamion_solofideicomiso <- total_viajes$solo_fideicomiso
 viajes_porcamion_imyfideicomiso <- total_viajes$todas_oficinas
 
-### ACA EL CRITERIO ES QUE SE TOMA 1er turno dia anterior, matutino y vespertino del día siguiente.
-total_viajesporcamionsoloim_criterioadrian <- viajes_porcamion_soloim %>%
-  mutate(
-    # 1. Aseguramos que Fecha sea formato Date
-    Fecha = as.Date(Fecha),
-    
-    # 2. Si el turno es Nocturno, sumamos 1 día
-    Fecha = if_else(Turno_levantado == "Nocturno", Fecha + days(1), Fecha),
-    
-    # 3. Actualizamos la columna Dia basándonos en la nueva Fecha
-    # label = TRUE devuelve el nombre (lunes, martes...), abbr = FALSE el nombre completo
-    Dia = wday(Fecha, label = TRUE, abbr = FALSE)
-  ) %>%
-  # Opcional: convertir Dia a caracteres simples si no lo quieres como factor ordenado
-  mutate(Dia = as.character(Dia))
+# Función para aplicar el Criterio de Adrián y guardar el RDS
+aplicar_criterio_adrian_y_guardar <- function(df_input, nombre_archivo_salida) {
+  df_procesado <- df_input %>%
+    mutate(
+      # 1. Aseguramos que Fecha sea formato Date
+      Fecha = as.Date(Fecha),
+      
+      # 2. Si el turno es Nocturno, sumamos 1 día
+      Fecha = if_else(Turno_levantado == "Nocturno", Fecha + days(1), Fecha),
+      
+      # 3. Actualizamos la columna Dia basándonos en la nueva Fecha
+      # label = TRUE devuelve el nombre (lunes, martes...), abbr = FALSE el nombre completo
+      Dia = wday(Fecha, label = TRUE, abbr = FALSE)
+    ) %>%
+    # Opcional: convertir Dia a caracteres simples si no lo quieres como factor ordenado
+    mutate(Dia = as.character(Dia))
+  
+  ruta_destino <- file.path("scripts", "visitados", nombre_archivo_salida)
+  saveRDS(df_procesado, ruta_destino)
+  
+  return(df_procesado)
+}
 
-ruta_destino <- file.path("scripts", "visitados", "total_viajesporcamionsoloim_criterioadrian.rds")
-saveRDS(total_viajesporcamionsoloim_criterioadrian, ruta_destino)
+### APLICAR FUNCIÓN A LOS TRES CASOS ###
+total_viajesporcamionsoloim_criterioadrian <- aplicar_criterio_adrian_y_guardar(
+  df_input = viajes_porcamion_soloim, 
+  nombre_archivo_salida = "total_viajesporcamionsoloim_criterioadrian.rds"
+)
 
+total_viajesporcamionsolofid_criterioadrian <- aplicar_criterio_adrian_y_guardar(
+  df_input = viajes_porcamion_solofideicomiso, 
+  nombre_archivo_salida = "total_viajesporcamionsolofid_criterioadrian.rds"
+)
 
-### ACA EL CRITERIO ES QUE SE TOMA 1er turno dia anterior, matutino y vespertino del día siguiente.
-total_viajesporcamionimyfideicomiso_criterioadrian <- viajes_porcamion_imyfideicomiso %>%
-  mutate(
-    # 1. Aseguramos que Fecha sea formato Date
-    Fecha = as.Date(Fecha),
-    
-    # 2. Si el turno es Nocturno, sumamos 1 día
-    Fecha = if_else(Turno_levantado == "Nocturno", Fecha + days(1), Fecha),
-    
-    # 3. Actualizamos la columna Dia basándonos en la nueva Fecha
-    # label = TRUE devuelve el nombre (lunes, martes...), abbr = FALSE el nombre completo
-    Dia = wday(Fecha, label = TRUE, abbr = FALSE)
-  ) %>%
-  # Opcional: convertir Dia a caracteres simples si no lo quieres como factor ordenado
-  mutate(Dia = as.character(Dia))
-
-ruta_destino <- file.path("scripts", "visitados", "viajespordiayturno_imyfideicomiso.rds_criterioadrian.rds")
-saveRDS(total_viajesporcamionimyfideicomiso_criterioadrian, ruta_destino)
+total_viajesporcamionimyfideicomiso_criterioadrian <- aplicar_criterio_adrian_y_guardar(
+  df_input = viajes_porcamion_imyfideicomiso, 
+  nombre_archivo_salida = "viajespordiayturno_imyfideicomiso.rds_criterioadrian.rds"
+)
 
 ####
 

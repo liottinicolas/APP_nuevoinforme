@@ -23,7 +23,7 @@ preparar_entorno <- function(paquetes = NULL, tz = "America/Montevideo") {
     paquetes <- c(
       "shiny", "shinydashboard", "shinyWidgets", "DT", "htmlwidgets",
       "dplyr", "tidyr", "purrr", "readr", "stringr", "stringi", "lubridate",
-      "ggplot2", "plotly", "leaflet", "leaflet.extras", "sf",
+      "ggplot2", "plotly", "leaflet", "sf",
       "knitr", "rmarkdown", "openxlsx", "writexl", "readxl",
       "rsconnect", "here", "R6", "tools", "magrittr", "httr","fs"
     )

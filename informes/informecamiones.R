@@ -7,6 +7,7 @@ library(writexl)
 ruta_historico <- file.path("db", "GOL_reportes", "historico_llenadoGol.rds")
 gol_visitayprogramado_completo <- readRDS(ruta_historico)
 
+
 # me cuenta los viajes y los agrupa por
 # total
 # solo IM
@@ -51,6 +52,9 @@ viajes_porcamion_solofideicomiso <- total_viajes$solo_fideicomiso
 viajes_porcamion_imyfideicomiso <- total_viajes$todas_oficinas
 
 # Función para aplicar el Criterio de Adrián y guardar el RDS
+# El criterio es, Turno nocturno, pasa al día siguiente.
+# df_input <- viajes_porcamion_soloim
+# nombre_archivo_salida <- "im"
 aplicar_criterio_adrian_y_guardar <- function(df_input, nombre_archivo_salida) {
   df_procesado <- df_input %>%
     mutate(
@@ -67,7 +71,7 @@ aplicar_criterio_adrian_y_guardar <- function(df_input, nombre_archivo_salida) {
     # Opcional: convertir Dia a caracteres simples si no lo quieres como factor ordenado
     mutate(Dia = as.character(Dia))
   
-  ruta_destino <- file.path("scripts", "visitados", nombre_archivo_salida)
+  ruta_destino <- file.path("vistas", "informe_levantes_camiones_porturno_IM_FID","data", nombre_archivo_salida)
   saveRDS(df_procesado, ruta_destino)
   
   return(df_procesado)
@@ -86,29 +90,28 @@ total_viajesporcamionsolofid_criterioadrian <- aplicar_criterio_adrian_y_guardar
 
 total_viajesporcamionimyfideicomiso_criterioadrian <- aplicar_criterio_adrian_y_guardar(
   df_input = viajes_porcamion_imyfideicomiso, 
-  nombre_archivo_salida = "viajespordiayturno_imyfideicomiso.rds_criterioadrian.rds"
+  nombre_archivo_salida = "total_viajesporcamionIM_fid_criterioadrian.rds"
 )
 
 ####
 
-informediarionuevo_total <- funcion_df_nuevoinformediario_porturnos(gol_visitayprogramado_completo)
-informediarionuevo_total_soloim <- informediarionuevo_total$solo_im
-informediarionuevo_total_solofideicomiso <- informediarionuevo_total$solo_fideicomiso
-informediarionuevo_total_imyfideicomiso <- informediarionuevo_total$todas_oficinas
+# Ruta carpeta donde están las tablas del nuevo informe diario
+ruta_carpeta <- "vistas/informediario/data"
 
-# filtro a partir de enero 2026
-informediarionuevo_total_soloim_2026 <- informediarionuevo_total_soloim %>% 
-  filter(Fecha > "2026-01-01")
-informediarionuevo_total_imyfideicomiso_2026 <- informediarionuevo_total_imyfideicomiso %>% 
+resumen_IM_pordiaymunicipioyturno <- readRDS(file.path(ruta_carpeta, "tabla_soloIM_resumen_pordia_municipio_turno_completo.rds"))
+resumen_FID_pordiayturno <- readRDS(file.path(ruta_carpeta, "tabla_soloFID_resumen_pordia_municipio_turno_completo.rds"))
+
+## IM
+informediarionuevo_total_soloim <- resumen_IM_pordiaymunicipioyturno %>% 
   filter(Fecha > "2026-01-01")
 
-informediarionuevo_total_soloim_criterioadrian <- informediarionuevo_total_soloim_2026 %>%
+informediarionuevo_total_soloim_criterioadrian <- informediarionuevo_total_soloim %>%
   mutate(
     # 1. Aseguramos que Fecha sea formato Date
     Fecha = as.Date(Fecha),
     
     # 2. Si el turno es Nocturno, sumamos 1 día
-    Fecha = if_else(Turno_levantado == "Nocturno", Fecha + days(1), Fecha),
+    Fecha = if_else(Turno == "Nocturno", Fecha + days(1), Fecha),
     
     # 3. Actualizamos la columna Dia basándonos en la nueva Fecha
     # label = TRUE devuelve el nombre (lunes, martes...), abbr = FALSE el nombre completo

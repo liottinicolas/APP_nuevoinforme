@@ -3,7 +3,7 @@
     "path": "C:/Users/im4445285/OneDrive/Trabajo IM/APP_nuevoinforme/nuevoinforme.R",
     "project_path": "nuevoinforme.R",
     "type": "r_source",
-    "hash": "868921837",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1771959031315.0,
@@ -12,8 +12,8 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "0,0",
-        "scrollLine": "0",
+        "cursorPosition": "67,0",
+        "scrollLine": "35",
         "docOutlineVisible": "1"
     },
     "folds": "11|63|27|0|\n34|66|52|0|\n",

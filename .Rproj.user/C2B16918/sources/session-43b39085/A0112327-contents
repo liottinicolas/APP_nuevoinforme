@@ -21,7 +21,7 @@ st.set_page_config(
 
 # 2. DEFINICIÓN DE LA FUNCIÓN CON CACHÉ
 # He unido tus dos funciones en una sola que es más robusta
-@st.cache_data(ttl=3600)  # Se borra solo cada 1 hora
+@st.cache_data(ttl=300)  # Se borra solo cada 1 hora
 def cargar_datos_rds(ruta):
     if not os.path.exists(ruta):
         return None, f"Archivo no encontrado en: {ruta}"
@@ -114,7 +114,7 @@ if 'Fecha' in df_filtrado_fid.columns:
 # --- INTERFAZ PRINCIPAL ---
 st.title("📋 Informe de Gestión diario")
 
-tab_datos, tab_fid, tab_historico = st.tabs(["📋 Detalle Diario", "� Datos FID", "�📈 Evolución Histórica"])
+tab_datos, tab_fid, tab_historico = st.tabs(["📋 Detalle Diario", "� Datos FID", "📈 Evolución Histórica"])
 
 with tab_datos:
     # =====================================================================

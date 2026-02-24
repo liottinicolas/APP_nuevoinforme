@@ -107,7 +107,7 @@ actualizar_github_datos <- function(data_dir = "vistas/") {
 }
 
 # Para actualizar los datos a GitHub, ejecutá:
-# actualizar_github_datos(data_dir = "vistas/")
+actualizar_github_datos(data_dir = "vistas/")
 ## FIN Actualizar datos en GitHub
 
 

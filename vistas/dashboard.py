@@ -12,42 +12,17 @@ try:
 except ImportError:
     PYREADR_AVAILABLE = False
 
-# =================================================================
-# CONFIGURACIÓN DE RUTA LOCAL
-# =================================================================
-# Dependiendo de cómo se corra el script (local en vistas/ o en la nube en la raíz),
-# buscamos la carpeta 'informediario'.
-
-# 1. DEFINICIÓN DE LA FUNCIÓN CON CACHÉ (Ponlo aquí)
-@st.cache_data(ttl=3600) 
-def cargar_datos(path):
-    result = pyreadr.read_r(path)
-    return result[None] # Retorna el DataFrame
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-# Si 'informediario' está en la misma carpeta que el script (como lo tenías localmente)
-if os.path.exists(os.path.join(script_dir, "informediario")):
-    BASE_DIR = script_dir
-# Si no, asumimos que estamos corriendo desde la raíz del proyecto (modo Cloud/Deploy)
-else:
-    BASE_DIR = os.path.dirname(script_dir) # Sube un nivel respecto a vistas/
-
-RUTA_ARCHIVO_LOCAL = os.path.join(BASE_DIR, "informediario", "data", "tabla_soloIM_resumen_pordia_municipio_turno_completo.rds")
-RUTA_ARCHIVO_FID = os.path.join(BASE_DIR, "informediario", "data", "tabla_soloFID_resumen_pordia_municipio_turno_completo.rds")
-
-# Configuración de la página
+# 1. CONFIGURACIÓN DE LA PÁGINA (Debe ser lo primero de Streamlit)
 st.set_page_config(
     page_title="Informe de Gestión - Datos",
     page_icon="📋",
     layout="wide"
 )
 
-# --- CARGA DE DATOS ---
-@st.cache_data
+# 2. DEFINICIÓN DE LA FUNCIÓN CON CACHÉ
+# He unido tus dos funciones en una sola que es más robusta
+@st.cache_data(ttl=3600)  # Se borra solo cada 1 hora
 def cargar_datos_rds(ruta):
-    if not PYREADR_AVAILABLE:
-        return None, "Librería 'pyreadr' no instalada."
-    
     if not os.path.exists(ruta):
         return None, f"Archivo no encontrado en: {ruta}"
     
@@ -60,24 +35,36 @@ def cargar_datos_rds(ruta):
     except Exception as e:
         return None, f"Error al procesar el archivo: {e}"
 
+# 3. LÓGICA DE RUTAS (Detectar si es local o Cloud)
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# --- PROCESO DE CARGA ---
+# Lógica para encontrar la carpeta 'informediario'
+if os.path.exists(os.path.join(script_dir, "informediario")):
+    BASE_DIR = script_dir
+else:
+    BASE_DIR = os.path.dirname(script_dir) 
+
+RUTA_ARCHIVO_LOCAL = os.path.join(BASE_DIR, "informediario", "data", "tabla_soloIM_resumen_pordia_municipio_turno_completo.rds")
+RUTA_ARCHIVO_FID = os.path.join(BASE_DIR, "informediario", "data", "tabla_soloFID_resumen_pordia_municipio_turno_completo.rds")
+
+# 4. PROCESO DE CARGA (Aquí es donde se llama a la función)
 df_im, error_carga_im = cargar_datos_rds(RUTA_ARCHIVO_LOCAL)
 df_fid, error_carga_fid = cargar_datos_rds(RUTA_ARCHIVO_FID)
 
+# 5. VALIDACIÓN Y UI
 if df_im is not None:
-    st.sidebar.success(f"✅ Datos IM cargados localmente")
+    st.sidebar.success(f"✅ Datos IM cargados")
 else:
     st.sidebar.error(f"⚠️ IM: {error_carga_im}")
-    st.stop()  # Detiene la aplicación si no hay datos
+    st.stop() 
 
 if df_fid is not None:
-    st.sidebar.success(f"✅ Datos FID cargados localmente")
+    st.sidebar.success(f"✅ Datos FID cargados")
 else:
     st.sidebar.error(f"⚠️ FID: {error_carga_fid}")
-    st.stop()  # Detiene la aplicación si no hay datos
+    st.stop() 
 
-# Mantendremos 'df' como alias de 'df_im' para minimizar impacto en el histórico o filtros base
+# Crear alias para compatibilidad
 df = df_im.copy()
 
 # --- BARRA LATERAL: FILTROS ---

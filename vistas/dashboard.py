@@ -18,6 +18,12 @@ except ImportError:
 # Dependiendo de cómo se corra el script (local en vistas/ o en la nube en la raíz),
 # buscamos la carpeta 'informediario'.
 
+# 1. DEFINICIÓN DE LA FUNCIÓN CON CACHÉ (Ponlo aquí)
+@st.cache_data(ttl=3600) 
+def cargar_datos(path):
+    result = pyreadr.read_r(path)
+    return result[None] # Retorna el DataFrame
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # Si 'informediario' está en la misma carpeta que el script (como lo tenías localmente)
 if os.path.exists(os.path.join(script_dir, "informediario")):

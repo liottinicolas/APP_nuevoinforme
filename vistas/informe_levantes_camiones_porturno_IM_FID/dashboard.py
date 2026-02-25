@@ -86,10 +86,11 @@ st.sidebar.header("Filtros")
 # Rango de fechas
 min_date = min(prueba_adrian['Fecha'].min(), total_viajes['Fecha'].min())
 max_date = max(prueba_adrian['Fecha'].max(), total_viajes['Fecha'].max())
+default_start_date = max(min_date, max_date - timedelta(days=30))
 
 rango_fechas = st.sidebar.date_input(
     "Seleccione el período:",
-    value=(min_date, max_date),
+    value=(default_start_date, max_date),
     min_value=min_date,
     max_value=max_date
 )
@@ -107,20 +108,26 @@ turnos_seleccionados = st.sidebar.multiselect(
 # Aplicar filtros
 if len(rango_fechas) == 2:
     start_date, end_date = rango_fechas
+elif len(rango_fechas) == 1:
+    # Si el usuario solo ha seleccionado la primera fecha en el calendario
+    start_date = end_date = rango_fechas[0]
+else:
+    st.warning("Por favor, seleccione un rango de fechas.")
+    st.stop()
     
-    # Filtrar prueba_adrian (Vaciados)
-    df_vaciados = prueba_adrian[
-        (prueba_adrian['Fecha'] >= start_date) & 
-        (prueba_adrian['Fecha'] <= end_date) &
-        (prueba_adrian['Turno_levantado'].isin(turnos_seleccionados))
-    ]
-    
-    # Filtrar total_viajes (Camiones)
-    df_camiones = total_viajes[
-        (total_viajes['Fecha'] >= start_date) & 
-        (total_viajes['Fecha'] <= end_date) &
-        (total_viajes['Turno_levantado'].isin(turnos_seleccionados))
-    ]
+# Filtrar prueba_adrian (Vaciados)
+df_vaciados = prueba_adrian[
+    (prueba_adrian['Fecha'] >= start_date) & 
+    (prueba_adrian['Fecha'] <= end_date) &
+    (prueba_adrian['Turno_levantado'].isin(turnos_seleccionados))
+]
+
+# Filtrar total_viajes (Camiones)
+df_camiones = total_viajes[
+    (total_viajes['Fecha'] >= start_date) & 
+    (total_viajes['Fecha'] <= end_date) &
+    (total_viajes['Turno_levantado'].isin(turnos_seleccionados))
+]
 
 # ----------------- TABS (PESTAÑAS) -----------------
 tab1, tab2 = st.tabs(["Resultados principales (Vaciados)", "Datos camiones"])
@@ -148,7 +155,7 @@ with tab1:
         
         # Gráfico Vaciados
         fig_vaciados = px.bar(
-            vaciados_agrupados, 
+            vaciados_agrupados[vaciados_agrupados['Vaciados_Suma'] > 0], 
             x='Fecha', 
             y='Vaciados_Suma', 
             color='Turno_levantado',
@@ -160,14 +167,15 @@ with tab1:
         
         # Añadir totales encima
         for index, row in totales_dia_vaciados.iterrows():
-            fig_vaciados.add_annotation(
-                x=row['Fecha'],
-                y=row['Vaciados_Suma'],
-                text=str(int(row['Vaciados_Suma'])),
-                showarrow=False,
-                yshift=10,
-                font=dict(color="black", size=12)
-            )
+            if row['Vaciados_Suma'] > 0:
+                fig_vaciados.add_annotation(
+                    x=row['Fecha'],
+                    y=row['Vaciados_Suma'],
+                    text=str(int(row['Vaciados_Suma'])),
+                    showarrow=False,
+                    yshift=10,
+                    font=dict(color="black", size=12)
+                )
             
         fig_vaciados.update_layout(
             barmode='stack',
@@ -217,7 +225,7 @@ with tab2:
     totales_dia_camiones = df_camiones.groupby('Fecha')['Camiones'].sum().reset_index()
     
     fig_camiones = px.bar(
-        df_camiones, 
+        df_camiones[df_camiones['Camiones'] > 0], 
         x='Fecha', 
         y='Camiones', 
         color='Turno_levantado',
@@ -228,14 +236,15 @@ with tab2:
     
     # Añadir totales encima
     for index, row in totales_dia_camiones.iterrows():
-        fig_camiones.add_annotation(
-            x=row['Fecha'],
-            y=row['Camiones'],
-            text=str(int(row['Camiones'])),
-            showarrow=False,
-            yshift=10,
-            font=dict(color="black", size=12)
-        )
+        if row['Camiones'] > 0:
+            fig_camiones.add_annotation(
+                x=row['Fecha'],
+                y=row['Camiones'],
+                text=str(int(row['Camiones'])),
+                showarrow=False,
+                yshift=10,
+                font=dict(color="black", size=12)
+            )
         
     fig_camiones.update_layout(
         barmode='stack',

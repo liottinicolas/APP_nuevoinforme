@@ -200,12 +200,11 @@ def create_pdf_report_reportlab(opcion, output_filename):
     # Posibilidad de agregar el logo "adelante" del título
     ruta_logo = os.path.join(base_dir, "logo.png")
     if os.path.exists(ruta_logo):
-        # Se alinea a la izquierda o al centro, según la estética (usamos CENTER por defecto, o LEFT si prefieres al lado del texto)
-        img_logo = Image(ruta_logo, width=3*cm, height=3*cm, hAlign='CENTER')
+        # Alineado a la izquierda, más ancho
+        img_logo = Image(ruta_logo, width=8*cm, height=3*cm, hAlign='LEFT')
         elementos.append(img_logo)
         elementos.append(Spacer(1, 10))
 
-    elementos.append(Paragraph("<b>Intendencia de Montevideo</b>", estilo_titulo))
     elementos.append(Paragraph("DEPARTAMENTO DESARROLLO AMBIENTAL", estilos['Normal']))
     elementos.append(Paragraph("DIVISIÓN LIMPIEZA Y GESTIÓN DE RESIDUOS", estilos['Normal']))
     elementos.append(Spacer(1, 10))

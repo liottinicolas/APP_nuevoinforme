@@ -52,15 +52,11 @@ df_im, error_carga_im = cargar_datos_rds(RUTA_ARCHIVO_LOCAL)
 df_fid, error_carga_fid = cargar_datos_rds(RUTA_ARCHIVO_FID)
 
 # 5. VALIDACIÓN Y UI
-if df_im is not None:
-    st.sidebar.success(f"✅ Datos IM cargados")
-else:
+if df_im is None:
     st.sidebar.error(f"⚠️ IM: {error_carga_im}")
     st.stop() 
 
-if df_fid is not None:
-    st.sidebar.success(f"✅ Datos FID cargados")
-else:
+if df_fid is None:
     st.sidebar.error(f"⚠️ FID: {error_carga_fid}")
     st.stop() 
 

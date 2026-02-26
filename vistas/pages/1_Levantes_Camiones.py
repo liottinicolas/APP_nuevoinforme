@@ -22,9 +22,9 @@ opcion_datos = st.sidebar.radio(
 @st.cache_data(ttl=300) # Expira y recarga datos cada 5 minutos
 def load_data(opcion):
     try:
-        # Cargar los datos desde los archivos .rds alojados en la carpeta "data"
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        data_dir = os.path.join(base_dir, "data")
+        # Cargar los datos desde los archivos .rds alojados en la carpeta original "data"
+        base_dir = os.path.dirname(os.path.abspath(__file__)) # apuntaría a vistas/pages
+        data_dir = os.path.join(base_dir, "..", "informe_levantes_camiones_porturno_IM_FID", "data")
         
         if opcion == "Solo IM":
             path_prueba = os.path.join(data_dir, "informediarionuevo_total_soloim_criterioadrian.rds")

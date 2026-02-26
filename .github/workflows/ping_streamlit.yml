@@ -1,0 +1,14 @@
+name: Ping Streamlit App
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # Se ejecuta cada 10 minutos automáticamente
+  workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub si quieres
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hacer ping al dashboard
+        # IMPORTANTE: Reemplaza la URL de abajo por el link real de tu dashboard
+        run: curl -sL "https://datoseindicadores.streamlit.app/" > /dev/null

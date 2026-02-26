@@ -1,4 +1,6 @@
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg') # backend sin GUI
 import matplotlib.pyplot as plt
 import io
 import os
@@ -36,9 +38,9 @@ def load_and_prepare_data(base_dir, opcion):
     if 'Turno' in total_viajes.columns:
         total_viajes.rename(columns={'Turno': 'Turno_levantado'}, inplace=True)
         
-    # Filtrar últimos 30 días respecto al día de ayer
-    ayer = datetime.now().date() - timedelta(days=1)
-    hace_30_dias = ayer - timedelta(days=29)
+    # Filtrar últimos 30 días aprox respecto al día de ayer (para dejar un buen rango)
+    ayer = datetime.now().date()
+    hace_30_dias = ayer - timedelta(days=32)
     
     prueba_adrian = prueba_adrian[(prueba_adrian['Fecha'] >= hace_30_dias) & (prueba_adrian['Fecha'] <= ayer)]
     total_viajes = total_viajes[(total_viajes['Fecha'] >= hace_30_dias) & (total_viajes['Fecha'] <= ayer)]
@@ -47,36 +49,31 @@ def load_and_prepare_data(base_dir, opcion):
 
 def procesar_datos_pivot(df, col_valores, turnos):
     if df.empty:
-        return pd.DataFrame()
-        
+        return pd.DataFrame()     
     agrupado = df.groupby(['Fecha', 'Turno_levantado'])[col_valores].sum().reset_index()
     pivot = agrupado.pivot(index='Fecha', columns='Turno_levantado', values=col_valores).fillna(0)
-    
     for t in turnos:
         if t not in pivot.columns:
             pivot[t] = 0
             
     pivot = pivot[turnos]
     pivot['Total general'] = pivot.sum(axis=1)
-    
     return pivot.reset_index()
 
-def crear_grafico_apilado(df, titulo, ylabel, colores_turno):
-    # Usar un tamaño más apto para hoja horizontal (landscape)
-    fig, ax = plt.subplots(figsize=(14, 8))
+def crear_grafico_apilado(df, titulo, ylabel):
+    colores = ['#ffff00', '#ffcc00', '#555555'] 
     
+    # Volvemos a hacerla un poco más proporcionada y centrada
+    fig, ax = plt.subplots(figsize=(14, 8))
     turnos = ["Matutino", "Vespertino", "Nocturno"]
     df_plot = df.set_index('Fecha')[turnos]
-    
-    # Colores institucionales
-    colores_lista = [colores_turno[t] for t in turnos]
     
     bottom = np.zeros(len(df_plot))
     x_labels = df_plot.index.astype(str).tolist()
     
     for i, turno in enumerate(turnos):
         values = df_plot[turno].values
-        bars = ax.bar(x_labels, values, bottom=bottom, label=turno, color=colores_lista[i], edgecolor='black')
+        bars = ax.bar(x_labels, values, bottom=bottom, label=turno, color=colores[i], edgecolor='black', width=0.8)
         
         # Etiquetar cada barra
         for bar, val in zip(bars, values):
@@ -94,13 +91,13 @@ def crear_grafico_apilado(df, titulo, ylabel, colores_turno):
         if total > 0:
             ax.text(idx, total + (total * 0.02), f'{int(total)}', ha='center', va='bottom', fontsize=10, fontweight='bold')
 
-    ax.set_title(titulo, fontsize=14, pad=15)
+    ax.set_title(titulo, fontsize=12, pad=15)
     ax.set_ylabel(ylabel)
-    # Movemos la leyenda abajo, al centro, en columnas horizontales
     ax.legend(title="Turno", loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
+    
+    x_labels = df_plot.index.astype(str).tolist()
     ax.set_xticks(range(len(x_labels)))
     ax.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=8)
-    ax.grid(axis='y', linestyle='--', alpha=0.7)
     
     plt.tight_layout()
     img_buffer = io.BytesIO()
@@ -124,7 +121,7 @@ def generar_tabla(df_pivot, turnos):
     t = Table(datos_tabla, colWidths=[3*cm, 2.5*cm, 2.5*cm, 2.5*cm, 3*cm])
     
     estilo_t = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.85, 0.85, 0.85)),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('LINEBELOW', (0, 0), (-1, 0), 1.5, colors.dodgerblue),
@@ -142,7 +139,6 @@ def pie_de_pagina(canvas, doc):
     linea1 = "Edificio Sede. Av. 18 de Julio 1360. Piso 6 y 2. CP 11200. Montevideo, Uruguay."
     linea2 = "Tel: (598 2) 1950 3740. Spaa.planificacion@imm.gub.uy"
     
-    # Tomar el ancho actual de la página (portrait o landscape)
     ancho_pagina = canvas._pagesize[0]
     canvas.drawCentredString(ancho_pagina/2, 1.5*cm, linea1)
     canvas.drawCentredString(ancho_pagina/2, 1.1*cm, linea2)
@@ -167,60 +163,68 @@ def create_pdf_report_reportlab(opcion, output_filename):
     pivot_vaciados = procesar_datos_pivot(df_vaciados, col_vaciados, turnos)
     pivot_camiones = procesar_datos_pivot(df_camiones, 'Camiones', turnos)
     
+    # == CALCULAR FECHA DINÁMICA ==
+    pivot_vaciados['Fecha_dt'] = pd.to_datetime(pivot_vaciados['Fecha'], dayfirst=False)
+    ultima_fecha_dataset = pivot_vaciados['Fecha_dt'].max()
+    fecha_reporte = ultima_fecha_dataset - pd.Timedelta(days=1)
+    
+    # Filtrar datos (descartar la última fecha real)
+    pivot_vaciados = pivot_vaciados[pivot_vaciados['Fecha_dt'] <= fecha_reporte].copy()
+    pivot_vaciados = pivot_vaciados.drop(columns=['Fecha_dt'])
+    
+    pivot_camiones['Fecha_dt'] = pd.to_datetime(pivot_camiones['Fecha'], dayfirst=False)
+    pivot_camiones = pivot_camiones[pivot_camiones['Fecha_dt'] <= fecha_reporte].copy()
+    pivot_camiones = pivot_camiones.drop(columns=['Fecha_dt'])
+    
+    fecha_str = fecha_reporte.strftime("%d/%m/%Y")
+
     output_path = os.path.join(base_dir, output_filename)
     
-    # Usar BaseDocTemplate en vez de SimpleDocTemplate para permitir múltiples tamaños de página
+    # Configurar diseño en una sola columna continua (BaseDocTemplate)
     doc = BaseDocTemplate(output_path, pagesize=A4, 
-                          rightMargin=1.5*cm, leftMargin=1.5*cm, 
-                          topMargin=1.5*cm, bottomMargin=2.5*cm)
-                          
-    # Definir marcos para Portrait
+                            rightMargin=1.5*cm, leftMargin=1.5*cm, 
+                            topMargin=1.5*cm, bottomMargin=2.5*cm)
+
     frame_portrait = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='portrait_frame')
-    
-    # Definir marcos para Landscape
     ancho_landscape = A4[1]
     alto_landscape = A4[0]
     frame_landscape = Frame(doc.leftMargin, doc.bottomMargin, ancho_landscape - 3*cm, alto_landscape - 4*cm, id='landscape_frame')
 
-    # Crear los PageTemplates y asociar el pie de página
     template_portrait = PageTemplate(id='Portrait', frames=frame_portrait, onPage=pie_de_pagina, pagesize=A4)
     template_landscape = PageTemplate(id='Landscape', frames=frame_landscape, onPage=pie_de_pagina, pagesize=landscape(A4))
-    
     doc.addPageTemplates([template_portrait, template_landscape])
-
+                          
     elementos = []
     estilos = getSampleStyleSheet()
     
     estilo_titulo = ParagraphStyle('Titulo', parent=estilos['Heading1'], fontSize=12, spaceAfter=10)
     estilo_sub = ParagraphStyle('Subtitulo', parent=estilos['Heading2'], fontSize=11, spaceAfter=5, textColor=colors.dodgerblue)
     
-    fecha_ayer = (datetime.now().date() - timedelta(days=1)).strftime("%d/%m/%Y")
-    
-    # La cabecera se agrega UNA sola vez al principio
-    # Posibilidad de agregar el logo "adelante" del título
+    # --- ENCABEZADO ---
     ruta_logo = os.path.join(base_dir, "logo.png")
     if os.path.exists(ruta_logo):
-        # Alineado a la izquierda, más ancho
-        img_logo = Image(ruta_logo, width=8*cm, height=3*cm, hAlign='LEFT')
+        img_logo = Image(ruta_logo, width=4*cm, height=1.5*cm, hAlign='LEFT')
         elementos.append(img_logo)
-        elementos.append(Spacer(1, 10))
+        elementos.append(Spacer(1, 5))
 
-    elementos.append(Paragraph("DEPARTAMENTO DESARROLLO AMBIENTAL", estilos['Normal']))
-    elementos.append(Paragraph("DIVISIÓN LIMPIEZA Y GESTIÓN DE RESIDUOS", estilos['Normal']))
+    linea_divisoria = Table([['']], colWidths=[18*cm], rowHeights=[1])
+    linea_divisoria.setStyle(TableStyle([('LINEABOVE', (0,0), (-1,-1), 1, colors.black)]))
+
+    elementos.append(linea_divisoria)
+    elementos.append(Spacer(1, 5))
+    elementos.append(Paragraph("<b>DEPARTAMENTO DESARROLLO AMBIENTAL<br/>DIVISIÓN LIMPIEZA Y GESTIÓN DE RESIDUOS</b>", estilos['Normal']))
+    elementos.append(Spacer(1, 5))
+    elementos.append(linea_divisoria)
     elementos.append(Spacer(1, 10))
-    elementos.append(Paragraph(f"<b>ANÁLISIS DE CONTENEDORES Y CAMIONES POR TURNO - {fecha_ayer}</b>", estilo_titulo))
+    
     if opcion == "Solo IM":
-        subt = "<i>Ámbito: Sólo IM. Se toma como inicial el turno Nocturno del día anterior. Datos extraídos del sistema GOL.</i>"
+        texto_opcion = "MUNICIPALES"
     else:
-        subt = "<i>Ámbito: IM y Fideicomiso. Se toma como inicial el turno Nocturno del día anterior. Datos extraídos del sistema GOL.</i>"
-    elementos.append(Paragraph(subt, estilos['Italic']))
-    elementos.append(Spacer(1, 15))
+        texto_opcion = "MUNICIPALES Y FIDEICOMISO"
 
-    colores_turno = {
-        "Matutino": "#FFFF00", 
-        "Vespertino": "#FFCC00", 
-        "Nocturno": "#555555"
-    }
+    # Título del reporte dinámico
+    elementos.append(Paragraph(f"<b>ANÁLISIS DE CONTENEDORES {texto_opcion} VACIADOS POR TURNO - {fecha_str}</b>", estilo_titulo))
+    elementos.append(Spacer(1, 3))
     
     # === SECCIÓN VACIADOS ===
     elementos.append(Paragraph("<b>1. Contenedores Vaciados</b>", estilo_sub))
@@ -229,9 +233,9 @@ def create_pdf_report_reportlab(opcion, output_filename):
     
     elementos.append(NextPageTemplate('Landscape'))
     elementos.append(PageBreak())
+    elementos.append(Spacer(1, 1.5*cm)) # Añadido para centrar verticalmente
     
-    grafico_v = crear_grafico_apilado(pivot_vaciados, f"Suma de Contenedores Vaciados por Turno\n{opcion} (Últimos 30 días)", "Suma de contenedores", colores_turno)
-    # Tamaño para ocupar gran parte de la hoja horizontal
+    grafico_v = crear_grafico_apilado(pivot_vaciados, f"Contenedores vaciados por turno - Últimos 30 días", "Cantidad de contenedores")
     elementos.append(Image(grafico_v, width=26*cm, height=14*cm))
     
     elementos.append(NextPageTemplate('Portrait'))
@@ -244,8 +248,9 @@ def create_pdf_report_reportlab(opcion, output_filename):
     
     elementos.append(NextPageTemplate('Landscape'))
     elementos.append(PageBreak())
+    elementos.append(Spacer(1, 1.5*cm)) # Añadido para centrar verticalmente
     
-    grafico_c = crear_grafico_apilado(pivot_camiones, f"Cantidad de Camiones por Turno\n{opcion} (Últimos 30 días)", "Cantidad de Camiones", colores_turno)
+    grafico_c = crear_grafico_apilado(pivot_camiones, f"Cantidad de Camiones por Turno - Últimos 30 días", "Cantidad de Camiones")
     elementos.append(Image(grafico_c, width=26*cm, height=14*cm))
     
     doc.build(elementos)

@@ -1,6 +1,7 @@
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg') # backend sin GUI
 import matplotlib.pyplot as plt
-import io
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -43,6 +44,18 @@ def pie_de_pagina(canvas, doc):
 
 # 3. CONSTRUCCIÓN DEL PDF
 def generar_reporte_completo(df, nombre_salida):
+    # Calcular fecha para el título y filtrar el dataframe
+    # "que la ultima fecha del informe, sea el dia anterior a esa ultima fecha"
+    df['Fecha_dt'] = pd.to_datetime(df['Fecha'], dayfirst=True)
+    ultima_fecha_dataset = df['Fecha_dt'].max()
+    fecha_reporte = ultima_fecha_dataset - pd.Timedelta(days=1)
+    
+    # Filtrar datos (descartar la última fecha real)
+    df = df[df['Fecha_dt'] <= fecha_reporte].copy()
+    df = df.drop(columns=['Fecha_dt'])
+    
+    fecha_str = fecha_reporte.strftime("%d/%m/%Y")
+
     doc = SimpleDocTemplate(nombre_salida, pagesize=A4, 
                             rightMargin=1.5*cm, leftMargin=1.5*cm, 
                             topMargin=1.5*cm, bottomMargin=2.5*cm)
@@ -51,13 +64,22 @@ def generar_reporte_completo(df, nombre_salida):
 
     # --- ENCABEZADO ---
     estilo_titulo = ParagraphStyle('Titulo', parent=estilos['Heading1'], fontSize=12, spaceAfter=10)
+    
+    import os
+    ruta_logo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logo.png")
+    if os.path.exists(ruta_logo):
+        # Logo achicado a 4 cm de ancho x 1.5 cm de alto
+        img_logo = Image(ruta_logo, width=4*cm, height=1.5*cm, hAlign='LEFT')
+        elementos.append(img_logo)
+        elementos.append(Spacer(1, 5))
+
     elementos.append(Paragraph("<b>Intendencia de Montevideo</b>", estilo_titulo))
     elementos.append(Paragraph("DEPARTAMENTO DESARROLLO AMBIENTAL", estilos['Normal']))
     elementos.append(Paragraph("DIVISIÓN LIMPIEZA Y GESTIÓN DE RESIDUOS", estilos['Normal']))
     elementos.append(Spacer(1, 10))
     
-    # Título del reporte
-    elementos.append(Paragraph("<b>ANÁLISIS DE CONTENEDORES MUNICIPALES Y FIDEICOMISO VACIADOS POR TURNO-23/02/2026</b>", estilo_titulo))
+    # Título del reporte dinámico
+    elementos.append(Paragraph(f"<b>ANÁLISIS DE CONTENEDORES MUNICIPALES Y FIDEICOMISO VACIADOS POR TURNO - {fecha_str}</b>", estilo_titulo))
     elementos.append(Paragraph("<i>Se toma como inicial el turno Nocturno del día anterior. Los datos son extraídos del sistema GOL.</i>", estilos['Italic']))
     elementos.append(Spacer(1, 15))
 

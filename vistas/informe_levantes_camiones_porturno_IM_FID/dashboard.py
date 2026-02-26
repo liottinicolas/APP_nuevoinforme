@@ -19,7 +19,7 @@ opcion_datos = st.sidebar.radio(
     ("Solo IM", "IM y Fideicomiso")
 )
 
-@st.cache_data
+@st.cache_data(ttl=300) # Expira y recarga datos cada 5 minutos
 def load_data(opcion):
     try:
         # Cargar los datos desde los archivos .rds alojados en la carpeta "data"

@@ -26,4 +26,5 @@ a <- inf_deldia$im
 b <- inf_deldia$fideicomiso
 
 
-file.exists("vistas/generar_pdfs.py")
+# Ejecutar el script de Python para generar el PDF
+system2("python", args = "vistas/informe_operativa/informeOP_generar_pdf.py")

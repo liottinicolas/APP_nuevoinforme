@@ -153,17 +153,23 @@ with tab1:
         # Totales diarios para etiquetas
         totales_dia_vaciados = vaciados_agrupados.groupby('Fecha')['Vaciados_Suma'].sum().reset_index()
         
+        # Columna de texto para ocultar 0s
+        vaciados_agrupados = vaciados_agrupados.copy()
+        vaciados_agrupados['Texto_Vaciados'] = vaciados_agrupados['Vaciados_Suma'].apply(lambda x: str(int(x)) if x > 0 else "")
+        
         # Gráfico Vaciados
         fig_vaciados = px.bar(
-            vaciados_agrupados[vaciados_agrupados['Vaciados_Suma'] > 0], 
+            vaciados_agrupados, 
             x='Fecha', 
             y='Vaciados_Suma', 
             color='Turno_levantado',
             color_discrete_map=colores_turno,
-            text='Vaciados_Suma',
+            text='Texto_Vaciados',
             title='Suma de contenedores vaciados',
             category_orders={"Turno_levantado": ["Matutino", "Vespertino", "Nocturno"]}
         )
+        
+        fig_vaciados.update_traces(textangle=0, textposition='inside')
         
         # Añadir totales encima
         for index, row in totales_dia_vaciados.iterrows():
@@ -182,7 +188,8 @@ with tab1:
             xaxis_title="Fecha",
             yaxis_title="Suma de contenedores",
             xaxis=dict(tickangle=-45, tickformat="%d/%m/%y"),
-            hovermode="x unified"
+            hovermode="x unified",
+            legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5)
         )
         
         st.plotly_chart(fig_vaciados, use_container_width=True)
@@ -224,15 +231,22 @@ with tab2:
     # Totales diarios para etiquetas
     totales_dia_camiones = df_camiones.groupby('Fecha')['Camiones'].sum().reset_index()
     
+    # Columna de texto para ocultar 0s
+    df_camiones_plot = df_camiones.copy()
+    df_camiones_plot['Texto_Camiones'] = df_camiones_plot['Camiones'].apply(lambda x: str(int(x)) if x > 0 else "")
+    
     fig_camiones = px.bar(
-        df_camiones[df_camiones['Camiones'] > 0], 
+        df_camiones_plot, 
         x='Fecha', 
         y='Camiones', 
         color='Turno_levantado',
         color_discrete_map=colores_turno,
+        text='Texto_Camiones',
         title='Cantidad de Camiones por Turno',
         category_orders={"Turno_levantado": ["Matutino", "Vespertino", "Nocturno"]}
     )
+    
+    fig_camiones.update_traces(textangle=0, textposition='inside')
     
     # Añadir totales encima
     for index, row in totales_dia_camiones.iterrows():
@@ -251,7 +265,7 @@ with tab2:
         xaxis_title="Día",
         yaxis_title="Cantidad de Camiones",
         xaxis=dict(tickangle=-45, tickformat="%d/%m/%y"),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5)
     )
     
     st.plotly_chart(fig_camiones, use_container_width=True)

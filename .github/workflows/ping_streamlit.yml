@@ -15,4 +15,4 @@ jobs:
         
       - name: Hacer ping al segundo dashboard (informe_levantes_camiones)
         # IMPORTANTE: Reemplaza la URL de abajo por el link real de tu SEGUNDO dashboard
-        run: curl -sL "REEMPLAZA_ESTO_POR_TU_LINK_DEL_SEGUNDO_DASHBOARD" > /dev/null
+        run: curl -sL "https://appnuevoinforme.streamlit.app/" > /dev/null

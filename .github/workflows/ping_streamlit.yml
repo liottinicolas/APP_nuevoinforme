@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Hacer ping al dashboard principal
         # IMPORTANTE: Reemplaza la URL de abajo por el link real de tu dashboard
-        run: curl -sL "https://datoseindicadores.streamlit.app/" > /dev/null
+        run: curl -sL "https://infocamiones.streamlit.app/" > /dev/null
         
       - name: Hacer ping al segundo dashboard (informe_levantes_camiones)
         # IMPORTANTE: Reemplaza la URL de abajo por el link real de tu SEGUNDO dashboard

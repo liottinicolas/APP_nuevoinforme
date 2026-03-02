@@ -136,8 +136,8 @@ def generar_tabla(df_pivot, turnos):
 def pie_de_pagina(canvas, doc):
     canvas.saveState()
     canvas.setFont('Helvetica', 8)
-    linea1 = "Edificio Sede. Av. 18 de Julio 1360. Piso 6 y 2. CP 11200. Montevideo, Uruguay."
-    linea2 = "Tel: (598 2) 1950 3740. Spaa.planificacion@imm.gub.uy"
+    linea1 = "Edificio Sede. Av. 18 de Julio 1360. Piso 6 y 1/2. CP 11200. Montevideo, Uruguay."
+    linea2 = "Tel: (598 2) 1950 3744. Spaa.planificacion@imm.gub.uy"
     
     ancho_pagina = canvas._pagesize[0]
     canvas.drawCentredString(ancho_pagina/2, 1.5*cm, linea1)
@@ -177,6 +177,12 @@ def create_pdf_report_reportlab(opcion, output_filename):
     pivot_camiones = pivot_camiones.drop(columns=['Fecha_dt'])
     
     fecha_str = fecha_reporte.strftime("%d/%m/%Y")
+
+    if "{fecha}" in output_filename:
+        # Se usa fecha_reporte para que coincida con los datos mostrados en el reporte
+        # Se hace replace(".") para quitar posibles puntos que agregue strftime("%b") dependiendo el locale
+        fecha_fich = fecha_reporte.strftime("%b-%d-%m").replace(".", "").capitalize()
+        output_filename = output_filename.format(fecha=fecha_fich)
 
     output_path = os.path.join(base_dir, output_filename)
     
@@ -257,5 +263,5 @@ def create_pdf_report_reportlab(opcion, output_filename):
     print(f"Reporte '{output_filename}' generado exitosamente.")
 
 if __name__ == "__main__":
-    create_pdf_report_reportlab("Solo IM", "Reporte_IM_Ultimos_30_Dias_ReportLab.pdf")
-    create_pdf_report_reportlab("IM y Fideicomiso", "Reporte_IM_Fideicomiso_Ultimos_30_Dias_ReportLab.pdf")
+    create_pdf_report_reportlab("Solo IM", "IM-Contenedores-Vaciados-Turno_{fecha}-Camiones Utilizados.pdf")
+    create_pdf_report_reportlab("IM y Fideicomiso", "IM+Fid-Contenedores-Vaciados-Turno_{fecha}-Camiones Utilizados.pdf")

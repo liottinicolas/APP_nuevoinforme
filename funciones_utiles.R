@@ -4,7 +4,7 @@
 ### ---------------------------------------------------------------------------
 
 ### Camiones
-generar_reporte_pdf_camionesylevantesIMFID <- function(instalar_librerias = FALSE) {
+generar_reporte_pdf_camionesylevantesIMFID <- function(fecha = NULL, instalar_librerias = FALSE) {
     library(reticulate)
 
     # 1. Le decimos a R que use el entorno donde instalamos todo
@@ -29,10 +29,20 @@ generar_reporte_pdf_camionesylevantesIMFID <- function(instalar_librerias = FALS
         py_install(c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "pyreadr", "streamlit", "plotly"))
     }
 
-    # 2. Ahora sí, corremos el script de los levantes de camiones
+    # 2. Configurar la fecha enviada desde R hacia Python usando reticulate directamente
+    if (!is.null(fecha)) {
+        py_run_string(paste0("import os; os.environ['FECHA_REPORTE'] = '", as.character(fecha), "'"))
+        Sys.setenv(FECHA_REPORTE = as.character(fecha)) # Por si acaso también a nivel sistema
+    } else {
+        py_run_string("import os; os.environ.pop('FECHA_REPORTE', None)")
+        Sys.unsetenv("FECHA_REPORTE")
+    }
+
+    # 3. Ahora sí, corremos el script de los levantes de camiones
     message("Generando PDFs...")
     py_run_file("vistas/informe_levantes_camiones_porturno_IM_FID/generar_pdfs_reportlab.py")
     message("Generación de PDFs completada.")
+    Sys.unsetenv("FECHA_REPORTE") # Limpieza tras ejecutar
 }
 
 # Para ejecutar la generación de PDFs, descomentá la siguiente línea:

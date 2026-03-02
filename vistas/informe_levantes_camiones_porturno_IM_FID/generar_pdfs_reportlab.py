@@ -38,8 +38,17 @@ def load_and_prepare_data(base_dir, opcion):
     if 'Turno' in total_viajes.columns:
         total_viajes.rename(columns={'Turno': 'Turno_levantado'}, inplace=True)
         
-    # Filtrar últimos 30 días aprox respecto al día de ayer (para dejar un buen rango)
-    ayer = datetime.now().date()
+    # Filtrar últimos 30 días aprox respecto al día de reporte (para dejar un buen rango)
+    # Por defecto 'ayer' es ayer respecto a "hoy" real. Si hay FECHA_REPORTE, 'ayer' pasa a ser esa FECHA_REPORTE
+    fecha_env = os.environ.get("FECHA_REPORTE")
+    if fecha_env:
+        try:
+            ayer = pd.to_datetime(fecha_env).date()
+        except Exception:
+            ayer = datetime.now().date()
+    else:
+        ayer = datetime.now().date()
+        
     hace_30_dias = ayer - timedelta(days=32)
     
     prueba_adrian = prueba_adrian[(prueba_adrian['Fecha'] >= hace_30_dias) & (prueba_adrian['Fecha'] <= ayer)]
@@ -128,7 +137,9 @@ def generar_tabla(df_pivot, turnos):
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('FONTSIZE', (0, 0), (-1, -1), 8), # Letra más pequeña
+        ('TOPPADDING', (0, 0), (-1, -1), 2), # Menos espacio interior arriba
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2), # Menos espacio interior abajo
     ])
     t.setStyle(estilo_t)
     return t
@@ -166,7 +177,21 @@ def create_pdf_report_reportlab(opcion, output_filename):
     # == CALCULAR FECHA DINÁMICA ==
     pivot_vaciados['Fecha_dt'] = pd.to_datetime(pivot_vaciados['Fecha'], dayfirst=False)
     ultima_fecha_dataset = pivot_vaciados['Fecha_dt'].max()
-    fecha_reporte = ultima_fecha_dataset - pd.Timedelta(days=1)
+    
+    fecha_env = os.environ.get("FECHA_REPORTE")
+    if fecha_env:
+        try:
+            fecha_ingresada = pd.to_datetime(fecha_env).normalize()
+            if fecha_ingresada > ultima_fecha_dataset.normalize():
+                raise ValueError(f"Error: La fecha ingresada ({fecha_ingresada.strftime('%Y-%m-%d')}) es mayor al último dato disponible ({ultima_fecha_dataset.strftime('%Y-%m-%d')}).")
+            fecha_reporte = fecha_ingresada
+        except ValueError as e:
+            if "Error: La fecha ingresada" in str(e):
+                raise e
+            print(f"Advertencia: No se pudo interpretar la fecha ingresada '{fecha_env}'. Se usará la fecha por defecto.")
+            fecha_reporte = ultima_fecha_dataset - pd.Timedelta(days=1)
+    else:
+        fecha_reporte = ultima_fecha_dataset - pd.Timedelta(days=1)
     
     # Filtrar datos (descartar la última fecha real)
     pivot_vaciados = pivot_vaciados[pivot_vaciados['Fecha_dt'] <= fecha_reporte].copy()
@@ -203,7 +228,7 @@ def create_pdf_report_reportlab(opcion, output_filename):
     elementos = []
     estilos = getSampleStyleSheet()
     
-    estilo_titulo = ParagraphStyle('Titulo', parent=estilos['Heading1'], fontSize=12, spaceAfter=10)
+    estilo_titulo = ParagraphStyle('Titulo', parent=estilos['Heading1'], fontSize=10, spaceAfter=2)
     estilo_sub = ParagraphStyle('Subtitulo', parent=estilos['Heading2'], fontSize=11, spaceAfter=5, textColor=colors.dodgerblue)
     
     # --- ENCABEZADO ---
@@ -230,7 +255,8 @@ def create_pdf_report_reportlab(opcion, output_filename):
 
     # Título del reporte dinámico
     elementos.append(Paragraph(f"<b>ANÁLISIS DE CONTENEDORES {texto_opcion} VACIADOS POR TURNO - {fecha_str}</b>", estilo_titulo))
-    elementos.append(Spacer(1, 3))
+    # Se remueve el espaciador adicional aquí
+    elementos.append(Spacer(1, 0))
     
     # === SECCIÓN VACIADOS ===
     elementos.append(Paragraph("<b>1. Contenedores Vaciados</b>", estilo_sub))

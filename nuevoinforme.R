@@ -16,7 +16,8 @@ source("funciones_utiles.R")
 
 
 ## pruebo hacer el pdf
-generar_reporte_pdf_camionesylevantesIMFID(instalar_librerias = TRUE)
+generar_reporte_pdf_camionesylevantesIMFID(fecha = "2026-02-17", instalar_librerias = FALSE)
+
 
 a <- ver$resumen_pordia_IM
 b <- ver$resumen_pordiaymunicipio_IM

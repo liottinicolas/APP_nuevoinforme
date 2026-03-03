@@ -179,31 +179,24 @@ def crear_tabla_contenedores(df, es_fideicomiso=False):
     return t
 
 def crear_tabla_disponibilidad(df):
-    headers_1 = ["", "DISPONIBILIDAD RECOLECCIÓN LATERAL/TURNO", "", "", ""]
     headers_2 = ["TURNO", "CAM.\nINICIO", "CAM.\nUSADOS", "CHOFERES", "AUXILIARES"]
     
-    data = [headers_1, headers_2] + df.astype(str).values.tolist()
+    data = [headers_2] + df.astype(str).values.tolist()
     col_widths = [1.4*cm, 1.9*cm, 1.9*cm, 1.9*cm, 1.9*cm]
     t = Table(data, colWidths=col_widths)
     
     estilo = TableStyle([
-        ('SPAN', (1, 0), (-1, 0)),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Oblique'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Oblique'),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
         ('TOPPADDING', (0, 0), (-1, -1), 1),
-        ('TEXTCOLOR', (1, 0), (1, 0), celeste_texto),
-        ('FONTNAME', (1, 0), (1, 0), 'Helvetica-BoldOblique'),
-        ('LINEBELOW', (1, 0), (-1, 0), 1, colors.black),
-        ('LINEABOVE', (0, 1), (-1, 1), 1, colors.black),
-        ('LINEBELOW', (0, 1), (-1, 1), 1, colors.black),
-        ('TEXTCOLOR', (1, 1), (-1, 1), colors.black),
+        ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),
         
         # Color cyan a 'TURNO' column y 'CAM INICIO'
-        ('TEXTCOLOR', (1, 2), (1, 4), celeste_texto),
-        ('TEXTCOLOR', (0, 2), (0, 4), celeste_texto),
+        ('TEXTCOLOR', (1, 1), (1, 3), celeste_texto),
+        ('TEXTCOLOR', (0, 1), (0, 3), celeste_texto),
 
         # Total fila
         ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
@@ -213,17 +206,16 @@ def crear_tabla_disponibilidad(df):
         ('LINEBELOW', (0, -1), (-1, -1), 1, colors.black),
     ])
     
-    # Fondos intercalados dinámicos (empezando en la fila 2 de datos)
-    for i in range(2, len(data) - 1):
+    # Fondos intercalados dinámicos (empezando en la fila 1 de datos)
+    for i in range(1, len(data) - 1):
         if i % 2 == 1: # Equivalente visual a las grises
             estilo.add('BACKGROUND', (0, i), (-1, i), gris_claro)
     t.setStyle(estilo)
     return t
 
 def crear_tabla_instalados(df):
-    headers_1 = ["", "CONTENEDORES INSTALADOS/MUNCIPIO"]
     headers_2 = ["MUNICIPIO", "CONT. INSTALADOS EN VÍA PÚBLICA"]
-    data = [headers_1, headers_2] + df.astype(str).values.tolist()
+    data = [headers_2] + df.astype(str).values.tolist()
     
     col_widths = [2.5*cm, 6.5*cm]
     t = Table(data, colWidths=col_widths)
@@ -231,17 +223,13 @@ def crear_tabla_instalados(df):
     estilo = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('FONTNAME', (1, 0), (1, 0), 'Helvetica-BoldOblique'),
-        ('TEXTCOLOR', (1, 0), (1, 0), celeste_texto),
-        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Oblique'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Oblique'),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
         ('TOPPADDING', (0, 0), (-1, -1), 1),
         
         # Lineas Negras
-        ('LINEBELOW', (1, 0), (1, 0), 1, colors.black),
-        ('LINEABOVE', (0, 1), (-1, 1), 1, colors.black),
-        ('LINEBELOW', (0, 1), (-1, 1), 1, colors.black),
+        ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),
         
         # Total Fila
         ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
@@ -250,7 +238,7 @@ def crear_tabla_instalados(df):
     ])
     
     # Intercalado dinámico
-    for i in range(2, len(data) - 1):
+    for i in range(1, len(data) - 1):
         if i % 2 == 1:
             estilo.add('BACKGROUND', (0, i), (-1, i), gris_claro)
     t.setStyle(estilo)
@@ -277,6 +265,9 @@ def crear_toneladas_bloque(sdfr, pta):
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        # Agrandar alto de números
+        ('TOPPADDING', (0, 2), (-1, 2), 12),
+        ('BOTTOMPADDING', (0, 2), (-1, 2), 16),
         ('LINEABOVE', (0, 1), (-1, 1), 1, colors.black),
         ('LINEBELOW', (0, 1), (-1, 1), 1, colors.black),
         ('LINEBELOW', (0, 2), (-1, 2), 1, colors.black),
@@ -336,20 +327,41 @@ def generar_informe_diario_pdf(output_path):
     b_disp = crear_tabla_disponibilidad(df_disp)
     b_inst = crear_tabla_instalados(df_inst)
     
+    titulo_disp = Paragraph("<u>DISPONIBILIDAD RECOLECCIÓN LATERAL/TURNO</u>", ParagraphStyle('tit3', parent=estilos['Normal'], fontName='Helvetica-BoldOblique', fontSize=10, textColor=celeste_texto, spaceAfter=5, spaceBefore=4))
+    titulo_inst = Paragraph("<u>CONTENEDORES INSTALADOS/MUNICIPIO</u>", ParagraphStyle('tit4', parent=estilos['Normal'], fontName='Helvetica-BoldOblique', fontSize=10, textColor=celeste_texto, spaceAfter=5, spaceBefore=4))
+    
     # Calculo y Alineación Dinámica de los Pies (Bottoms)
     w_izq, h_izq = t_izq.wrap(17.7*cm, 800)
     w_ton, h_ton = b_ton.wrap(9.0*cm, 800)
     w_disp, h_disp = b_disp.wrap(9.0*cm, 800)
     w_inst, h_inst = b_inst.wrap(9.0*cm, 800)
+    w_td, h_td = titulo_disp.wrap(9.0*cm, 800)
+    w_ti, h_ti = titulo_inst.wrap(9.0*cm, 800)
     
-    h_derecha_fija = h_ton + h_disp + h_inst
+    h_derecha_fija = h_ton + h_disp + h_inst + h_td + h_ti
     espacio_restante = h_izq - h_derecha_fija
     
     if espacio_restante > 0:
         espacio_medio = espacio_restante / 2.0
-        datos_der = [[b_ton], [Spacer(1, espacio_medio)], [b_disp], [Spacer(1, espacio_medio)], [b_inst]]
+        datos_der = [
+            [b_ton], 
+            [Spacer(1, espacio_medio/2)], 
+            [titulo_disp],
+            [b_disp], 
+            [Spacer(1, espacio_medio/2)], 
+            [titulo_inst],
+            [b_inst]
+        ]
     else:
-        datos_der = [[b_ton], [Spacer(1, 0.4*cm)], [b_disp], [Spacer(1, 0.4*cm)], [b_inst]]
+        datos_der = [
+            [b_ton], 
+            [Spacer(1, 0.2*cm)], 
+            [titulo_disp],
+            [b_disp], 
+            [Spacer(1, 0.2*cm)], 
+            [titulo_inst],
+            [b_inst]
+        ]
         
     t_der = Table(datos_der)
     t_der.setStyle(TableStyle([

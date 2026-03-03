@@ -24,17 +24,10 @@ def get_dummy_data_extra():
     }
     df_disponibilidad = pd.DataFrame(data_disponibilidad)
 
-    # Tabla 3: CONTENEDORES INSTALADOS
-    data_instalados = {
-        'MUNICIPIO': ['A', 'B', 'C', 'CH', 'D', 'E', 'F', 'G', 'Total'],
-        'CONT_INSTALADOS': [1366, 1342, 1575, 1156, 1369, 1548, 1359, 1370, 11085]
-    }
-    df_instalados = pd.DataFrame(data_instalados)
-
     # Datos Sueltos: Toneladas
     toneladas_sdfr = "269"
     toneladas_pta = "3,5"
-    return df_disponibilidad, df_instalados, toneladas_sdfr, toneladas_pta
+    return df_disponibilidad, toneladas_sdfr, toneladas_pta
 
 def load_real_data(base_dir):
     data_dir = os.path.join(base_dir, "data")
@@ -46,7 +39,7 @@ def load_real_data(base_dir):
         df_fid_full = pyreadr.read_r(path_fid)[None]
     except Exception as e:
         print(f"Error cargando RDS: {e}")
-        return pd.DataFrame(), pd.DataFrame(), pd.Timestamp.now().date()
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(columns=['MUNICIPIO', 'CONT_INSTALADOS']), pd.Timestamp.now().date()
 
     df_im_full['Fecha_dt'] = pd.to_datetime(df_im_full['Fecha'], dayfirst=False)
     df_fid_full['Fecha_dt'] = pd.to_datetime(df_fid_full['Fecha'], dayfirst=False)
@@ -94,11 +87,37 @@ def load_real_data(base_dir):
         df = pd.concat([df, pd.DataFrame([total_dict])], ignore_index=True)
         return df
 
-    return procesar_tabla(df_im), procesar_tabla(df_fid), fecha_reporte
+    # --- DATOS DE UBICACIONES INSTALADOS ---
+    path_ubicaciones = os.path.join(base_dir, "../../db/10393_ubicaciones/historico_ubicaciones.rds")
+    df_inst_final = pd.DataFrame(columns=['MUNICIPIO', 'CONT_INSTALADOS'])
+    try:
+        df_ubic = pyreadr.read_r(path_ubicaciones)[None]
+        df_ubic['Fecha_dt'] = pd.to_datetime(df_ubic['Fecha'], dayfirst=False)
+        df_ubic_filtrado = df_ubic[df_ubic['Fecha_dt'].dt.normalize() == fecha_reporte].copy()
+
+        # Filtrar solo Estado NA (donde .isna() en Pandas atrapa NAs de R)
+        df_ubic_instalados = df_ubic_filtrado[df_ubic_filtrado['Estado'].isna()].copy()
+        
+        if not df_ubic_instalados.empty:
+            counts = df_ubic_instalados.groupby('Municipio').size().reset_index(name='CONT_INSTALADOS')
+            counts.rename(columns={'Municipio': 'MUNICIPIO'}, inplace=True)
+            
+            # Ordenar por Municipio
+            counts = counts.sort_values(by='MUNICIPIO')
+
+            total_inst = counts['CONT_INSTALADOS'].sum()
+            total_row_inst = pd.DataFrame([{'MUNICIPIO': 'Total', 'CONT_INSTALADOS': total_inst}])
+            
+            df_inst_final = pd.concat([counts, total_row_inst], ignore_index=True)
+
+    except Exception as e:
+        print(f"Error procesando historico_ubicaciones.rds: {e}")
+
+    return procesar_tabla(df_im), procesar_tabla(df_fid), df_inst_final, fecha_reporte
 
 
 # --- 2. FUNCIONES DE DISEÑO Y TABLAS ---
-azul_header = colors.HexColor("#0044CC")
+azul_header = colors.HexColor("#0046E3")
 celeste_texto = colors.HexColor("#0070C0")
 celeste_linea = colors.HexColor("#3399FF")
 gris_claro = colors.HexColor("#EAEAEA")
@@ -112,19 +131,26 @@ def draw_header_footer(canvas, doc):
     # Barra Azul Inferior (Reducida)
     canvas.rect(0, 0, doc.pagesize[0], 1*cm, stroke=0, fill=1)
 
-    # Logo Texto (Placeholder ya que no tenemos la imagen exacta)
-    canvas.setFillColor(colors.white)
-    canvas.setFont("Helvetica-Bold", 18)
-    canvas.drawString(1.5*cm, doc.pagesize[1] - 1.2*cm, "Intendencia")
-    canvas.drawString(1.5*cm, doc.pagesize[1] - 1.7*cm, "Montevideo")
+    # Logo Imagen (logoazul.png) en la esquina superior izquierda
+    # Asumiendo que el archivo se ejecuta desde un archivo de Python dentro de `vistas/informediario/`
+    ruta_logo = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "logoazul.png")
+    if os.path.exists(ruta_logo):
+        canvas.drawImage(ruta_logo, 1.0*cm, doc.pagesize[1] - 1.8*cm, width=4*cm, height=1.5*cm, preserveAspectRatio=True, mask='auto')
 
     canvas.restoreState()
 
-def crear_tabla_contenedores(df):
-    headers = ["MUNICIPIO", "TURNO", "PLANIF.", "PROGRAMADOS", "VISITADOS", "NO VISITADOS", "VACIADOS", "NO VACIADOS"]
-    data = [headers] + df.astype(str).values.tolist()
+def crear_tabla_contenedores(df, es_fideicomiso=False):
+    if es_fideicomiso:
+        headers = ["MUNICIPIO", "TURNO", "PROGRAMADOS", "VISITADOS", "NO VISITADOS", "VACIADOS", "NO VACIADOS"]
+        col_widths = [1.8*cm, 2.5*cm, 3.6*cm, 2.5*cm, 2.8*cm, 2.5*cm, 2.0*cm]
+        df_copy = df.drop(columns=['PLANIF.']) if 'PLANIF.' in df.columns else df.copy()
+    else:
+        headers = ["MUNICIPIO", "TURNO", "PLANIF.", "PROGRAMADOS", "VISITADOS", "NO VISITADOS", "VACIADOS", "NO VACIADOS"]
+        col_widths = [1.8*cm, 2.5*cm, 1.8*cm, 2.8*cm, 2.1*cm, 2.6*cm, 2.1*cm, 2.0*cm]
+        df_copy = df.copy()
+        
+    data = [headers] + df_copy.astype(str).values.tolist()
     
-    col_widths = [1.8*cm, 2.5*cm, 1.8*cm, 2.8*cm, 2.1*cm, 2.6*cm, 2.1*cm, 2.0*cm]
     t = Table(data, colWidths=col_widths)
     
     estilo = TableStyle([
@@ -264,8 +290,8 @@ def generar_informe_diario_pdf(output_path):
     if "informe_test_visual.pdf" in output_path:
         base_dir = os.path.dirname(os.path.abspath(__file__))
 
-    df_cont, df_fid, fecha_objetivo = load_real_data(base_dir)
-    df_disp, df_inst, t_sdfr, t_pta = get_dummy_data_extra()
+    df_cont, df_fid, df_inst, fecha_objetivo = load_real_data(base_dir)
+    df_disp, t_sdfr, t_pta = get_dummy_data_extra()
     
     # Doc config (Usar Landscape de A4)
     doc = BaseDocTemplate(output_path, pagesize=landscape(A4),
@@ -279,15 +305,24 @@ def generar_informe_diario_pdf(output_path):
     elementos = []
     
     # --- Estructura Master Tabla (1 fila, 2 columnas grandes) ---
-    t_im = crear_tabla_contenedores(df_cont)
-    t_fid = crear_tabla_contenedores(df_fid)
+    t_im = crear_tabla_contenedores(df_cont, es_fideicomiso=False)
+    t_fid = crear_tabla_contenedores(df_fid, es_fideicomiso=True)
 
     estilos = getSampleStyleSheet()
     titulo_im = Paragraph("<u>CONTENEDORES/MUNICIPIO (MUNICIPALES)</u>", ParagraphStyle('tit1', parent=estilos['Normal'], fontName='Helvetica-BoldOblique', fontSize=10, textColor=celeste_texto, spaceAfter=5))
     titulo_fid = Paragraph("<u>CONTENEDORES/MUNICIPIO (FIDEICOMISO)</u>", ParagraphStyle('tit2', parent=estilos['Normal'], fontName='Helvetica-BoldOblique', fontSize=10, textColor=celeste_texto, spaceAfter=5, spaceBefore=10))
 
-    # Alinear título izquierdo con Fila 2 derecha (empujando 14 puntos)
-    datos_izq = [[Spacer(1, 14)], [titulo_im], [t_im], [titulo_fid], [t_fid]]
+    # Distribuir algo de espacio conservando el límite de altura
+    datos_izq = [
+        [Spacer(1, 2)], 
+        [titulo_im], 
+        [Spacer(1, 7)], 
+        [t_im], 
+        [Spacer(1, 10)], 
+        [titulo_fid], 
+        [Spacer(1, 7)], 
+        [t_fid]
+    ]
     t_izq = Table(datos_izq)
     t_izq.setStyle(TableStyle([
         ('LEFTPADDING', (0, 0), (-1, -1), 0),

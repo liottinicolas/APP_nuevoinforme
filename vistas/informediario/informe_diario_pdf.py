@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import pandas as pd
+import pyreadr
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import cm
@@ -11,33 +12,8 @@ from reportlab.platypus import (
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
-# --- 1. DATOS DE PRUEBA (DUMMY DATA) ---
-def get_dummy_data():
-    # Tabla 1: CONTENEDORES/MUNICIPIO
-    data_contenedores = {
-        'MUNICIPIO': ['A', 'A', 'A', 'B', 'B', 'B', 'C', 'C', 'C', 'CH', 'CH', 'CH', 'D', 'D', 'D', 'E', 'E', 'E', 'F', 'F', 'F', 'G', 'G', 'G', 'Total'],
-        'TURNO': ['Matutino', 'Vespertino', 'Nocturno', 'Matutino', 'Vespertino', 'Nocturno', 'Matutino', 'Vespertino', 'Nocturno', 'Matutino', 'Vespertino', 'Nocturno', 'Matutino', 'Vespertino', 'Nocturno', 'Matutino', 'Vespertino', 'Nocturno', 'Matutino', 'Vespertino', 'Nocturno', 'Matutino', 'Vespertino', 'Nocturno', ''],
-        'PLANIF.': [303, 0, 0, 0, 0, 45, 0, 0, 952, 0, 0, 1158, 235, 0, 0, 0, 40, 177, 174, 93, 0, 100, 0, 187, 3464],
-        'PROGRAMADOS': [370, 101, 0, 0, 0, 95, 0, 0, 954, 0, 0, 1161, 155, 0, 0, 308, 0, 195, 188, 0, 0, 425, 0, 0, 3952],
-        'VISITADOS': [225, 79, 0, 0, 0, 67, 0, 0, 680, 0, 0, 1100, 108, 0, 0, 112, 0, 189, 150, 0, 0, 346, 0, 0, 3056],
-        'NO VISITADOS': [145, 22, 0, 0, 0, 28, 0, 0, 274, 0, 0, 61, 47, 0, 0, 196, 0, 6, 38, 0, 0, 79, 0, 0, 896],
-        'VACIADOS': [201, 69, 0, 0, 0, 65, 0, 0, 659, 0, 0, 1088, 94, 0, 0, 102, 0, 188, 126, 0, 0, 309, 0, 0, 2901],
-        'NO VACIADOS': [24, 10, 0, 0, 0, 2, 0, 0, 21, 0, 0, 12, 14, 0, 0, 10, 0, 1, 24, 0, 0, 37, 0, 0, 155]
-    }
-    df_contenedores = pd.DataFrame(data_contenedores)
-    # Tabla 1b: FIDEICOMISO
-    data_fideicomiso = {
-        'MUNICIPIO': ['B', 'B', 'Total'],
-        'TURNO': ['Matutino', 'Nocturno', ''],
-        'PLANIF.': [100, 150, 250],
-        'PROGRAMADOS': [110, 140, 250],
-        'VISITADOS': [90, 130, 220],
-        'NO VISITADOS': [20, 10, 30],
-        'VACIADOS': [85, 125, 210],
-        'NO VACIADOS': [5, 5, 10]
-    }
-    df_fideicomiso = pd.DataFrame(data_fideicomiso)
-
+# --- 1. DATOS DE PRUEBA (DUMMY DATA) PARA DISPONIBILIDAD Y TONELADAS ---
+def get_dummy_data_extra():
     # Tabla 2: DISPONIBILIDAD RECOLECCIÓN LATERAL
     data_disponibilidad = {
         'TURNO': ['M', 'V', 'N', 'Total'],
@@ -58,7 +34,68 @@ def get_dummy_data():
     # Datos Sueltos: Toneladas
     toneladas_sdfr = "269"
     toneladas_pta = "3,5"
-    return df_contenedores, df_fideicomiso, df_disponibilidad, df_instalados, toneladas_sdfr, toneladas_pta
+    return df_disponibilidad, df_instalados, toneladas_sdfr, toneladas_pta
+
+def load_real_data(base_dir):
+    data_dir = os.path.join(base_dir, "data")
+    path_im = os.path.join(data_dir, "tabla_soloIM_resumen_pordia_municipio_turno_completo.rds")
+    path_fid = os.path.join(data_dir, "tabla_soloFID_resumen_pordia_municipio_turno_completo.rds")
+
+    try:
+        df_im_full = pyreadr.read_r(path_im)[None]
+        df_fid_full = pyreadr.read_r(path_fid)[None]
+    except Exception as e:
+        print(f"Error cargando RDS: {e}")
+        return pd.DataFrame(), pd.DataFrame(), pd.Timestamp.now().date()
+
+    df_im_full['Fecha_dt'] = pd.to_datetime(df_im_full['Fecha'], dayfirst=False)
+    df_fid_full['Fecha_dt'] = pd.to_datetime(df_fid_full['Fecha'], dayfirst=False)
+
+    ultima_fecha = max(df_im_full['Fecha_dt'].max(), df_fid_full['Fecha_dt'].max())
+
+    fecha_env = os.environ.get("FECHA_REPORTE")
+    if fecha_env:
+        try:
+            fecha_ingresada = pd.to_datetime(fecha_env).normalize()
+            if fecha_ingresada > ultima_fecha.normalize():
+                raise ValueError(f"Error: La fecha ingresada ({fecha_ingresada.strftime('%Y-%m-%d')}) es mayor al último dato disponible.")
+            fecha_reporte = fecha_ingresada
+        except ValueError as e:
+            print(f"Advertencia al parsear FECHA_REPORTE: {e}. Se usará la fecha por defecto.")
+            fecha_reporte = ultima_fecha.normalize()
+    else:
+        fecha_reporte = ultima_fecha.normalize()
+
+    df_im = df_im_full[df_im_full['Fecha_dt'].dt.normalize() == fecha_reporte].copy()
+    df_fid = df_fid_full[df_fid_full['Fecha_dt'].dt.normalize() == fecha_reporte].copy()
+
+    def procesar_tabla(df_in):
+        if df_in.empty:
+            return pd.DataFrame(columns=['MUNICIPIO', 'TURNO', 'PLANIF.', 'PROGRAMADOS', 'VISITADOS', 'NO VISITADOS', 'VACIADOS', 'NO VACIADOS'])
+
+        for col in ['Planificados', 'Programado', 'Visitados', 'No_visitados', 'Vaciados', 'No_Vaciados']:
+            if col not in df_in.columns:
+                df_in[col] = 0
+
+        df = df_in[['Municipio', 'Turno', 'Planificados', 'Programado', 'Visitados', 'No_visitados', 'Vaciados', 'No_Vaciados']].copy()
+
+        for col in ['Planificados', 'Programado', 'Visitados', 'No_visitados', 'Vaciados', 'No_Vaciados']:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+
+        df.columns = ['MUNICIPIO', 'TURNO', 'PLANIF.', 'PROGRAMADOS', 'VISITADOS', 'NO VISITADOS', 'VACIADOS', 'NO VACIADOS']
+
+        total_row = df[['PLANIF.', 'PROGRAMADOS', 'VISITADOS', 'NO VISITADOS', 'VACIADOS', 'NO VACIADOS']].sum()
+        total_dict = {
+            'MUNICIPIO': 'Total',
+            'TURNO': '',
+            **total_row.to_dict()
+        }
+
+        df = pd.concat([df, pd.DataFrame([total_dict])], ignore_index=True)
+        return df
+
+    return procesar_tabla(df_im), procesar_tabla(df_fid), fecha_reporte
+
 
 # --- 2. FUNCIONES DE DISEÑO Y TABLAS ---
 azul_header = colors.HexColor("#0044CC")
@@ -222,8 +259,13 @@ def crear_toneladas_bloque(sdfr, pta):
     return t
 
 # --- 3. GENERADOR PRINCIPAL ---
-def generar_informe_diario_pdf(output_path, fecha="01/03/2026"):
-    df_cont, df_fid, df_disp, df_inst, t_sdfr, t_pta = get_dummy_data()
+def generar_informe_diario_pdf(output_path):
+    base_dir = os.path.dirname(os.path.abspath(output_path))
+    if "informe_test_visual.pdf" in output_path:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    df_cont, df_fid, fecha_objetivo = load_real_data(base_dir)
+    df_disp, df_inst, t_sdfr, t_pta = get_dummy_data_extra()
     
     # Doc config (Usar Landscape de A4)
     doc = BaseDocTemplate(output_path, pagesize=landscape(A4),
@@ -298,7 +340,8 @@ def generar_informe_diario_pdf(output_path, fecha="01/03/2026"):
     elementos.append(master_table)
     
     doc.build(elementos)
-    print(f"Informe Diario generado: {output_path}")
+    fecha_fmt = fecha_objetivo.strftime('%d/%m/%Y')
+    print(f"Informe Diario generado: {output_path} (Fecha de datos: {fecha_fmt})")
 
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))

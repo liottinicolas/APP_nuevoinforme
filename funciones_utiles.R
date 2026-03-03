@@ -48,6 +48,46 @@ generar_reporte_pdf_camionesylevantesIMFID <- function(fecha = NULL, instalar_li
 # Para ejecutar la generación de PDFs, descomentá la siguiente línea:
 # generar_reporte_pdf_camionesylevantesIMFID(instalar_librerias = FALSE)
 
+### Informe Diario
+generar_reporte_pdf_informediario <- function(fecha = NULL, instalar_librerias = FALSE) {
+    library(reticulate)
+
+    if (!virtualenv_exists("r-reticulate")) {
+        message("El entorno virtual no existe. Intentando crearlo...")
+        tryCatch(
+            {
+                virtualenv_create("r-reticulate")
+            },
+            error = function(e) {
+                message("No se encontró Python instalarlo automáticamente...")
+                install_python()
+                virtualenv_create("r-reticulate")
+            }
+        )
+    }
+    use_virtualenv("r-reticulate", required = TRUE)
+    if (instalar_librerias) {
+        message("Instalando/verificando librerías de Python...")
+        py_install(c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "pyreadr", "streamlit", "plotly"))
+    }
+
+    if (!is.null(fecha)) {
+        py_run_string(paste0("import os; os.environ['FECHA_REPORTE'] = '", as.character(fecha), "'"))
+        Sys.setenv(FECHA_REPORTE = as.character(fecha))
+    } else {
+        py_run_string("import os; os.environ.pop('FECHA_REPORTE', None)")
+        Sys.unsetenv("FECHA_REPORTE")
+    }
+
+    message("Generando PDF Informe Diario...")
+    py_run_file("vistas/informediario/informe_diario_pdf.py")
+    message("Generación de PDF Informe Diario completada.")
+    Sys.unsetenv("FECHA_REPORTE")
+}
+
+# Para ejecutar la generación del PDF de informe diario, descomentá la siguiente línea:
+# generar_reporte_pdf_informediario(fecha = NULL, instalar_librerias = FALSE)
+
 ## Ejecutar en el navegador.
 correr_dashboard_camiones <- function(instalar_paquetes = FALSE) {
     if (instalar_paquetes) {

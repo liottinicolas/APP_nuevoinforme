@@ -7,7 +7,7 @@ source("informes/informecamiones.R")
 # dia sobre informe, debe ser el mismo día que se solicita (como al finalizar turno nocturno.)
 # inf_deldia <- generar_reporte_dia("2026-02-17",historico_ubicaciones, historico_llenado)
 
-
+# historico_llenadoGol <- readRDS("C:/Users/nico9/Downloads/APP_nuevoinforme/db/GOL_reportes/historico_llenadoGol.rds")
 ### Cargar funciones útiles
 source("funciones_utiles.R")
 
@@ -18,6 +18,9 @@ source("funciones_utiles.R")
 ## pruebo hacer el pdf
 generar_reporte_pdf_camionesylevantesIMFID(fecha = "2026-02-17", instalar_librerias = FALSE)
 generar_reporte_pdf_camionesylevantesIMFID(fecha = NULL, instalar_librerias = FALSE)
+
+generar_reporte_pdf_informediario(fecha = "2026-02-17", instalar_librerias = FALSE)
+generar_reporte_pdf_informediario(fecha = NULL, instalar_librerias = FALSE)
 
 
 a <- ver$resumen_pordia_IM

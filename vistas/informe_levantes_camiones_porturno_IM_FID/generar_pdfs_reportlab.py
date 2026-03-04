@@ -73,7 +73,7 @@ def crear_grafico_apilado(df, titulo, ylabel):
     colores = ['#ffff00', '#ffcc00', '#555555'] 
     
     # Volvemos a hacerla un poco más proporcionada y centrada
-    fig, ax = plt.subplots(figsize=(14, 8))
+    fig, ax = plt.subplots(figsize=(16, 9))
     turnos = ["Matutino", "Vespertino", "Nocturno"]
     df_plot = df.set_index('Fecha')[turnos]
     
@@ -110,7 +110,7 @@ def crear_grafico_apilado(df, titulo, ylabel):
     
     plt.tight_layout()
     img_buffer = io.BytesIO()
-    plt.savefig(img_buffer, format='png', bbox_inches='tight', dpi=150)
+    plt.savefig(img_buffer, format='png', bbox_inches='tight', dpi=300)
     img_buffer.seek(0)
     plt.close(fig)
     return img_buffer
@@ -265,10 +265,9 @@ def create_pdf_report_reportlab(opcion, output_filename):
     
     elementos.append(NextPageTemplate('Landscape'))
     elementos.append(PageBreak())
-    elementos.append(Spacer(1, 1.5*cm)) # Añadido para centrar verticalmente
     
     grafico_v = crear_grafico_apilado(pivot_vaciados, f"Contenedores vaciados por turno - Últimos 30 días", "Cantidad de contenedores")
-    elementos.append(Image(grafico_v, width=26*cm, height=14*cm))
+    elementos.append(Image(grafico_v, width=26.5*cm, height=16.5*cm, hAlign='CENTER'))
     
     elementos.append(NextPageTemplate('Portrait'))
     elementos.append(PageBreak())
@@ -280,10 +279,9 @@ def create_pdf_report_reportlab(opcion, output_filename):
     
     elementos.append(NextPageTemplate('Landscape'))
     elementos.append(PageBreak())
-    elementos.append(Spacer(1, 1.5*cm)) # Añadido para centrar verticalmente
     
     grafico_c = crear_grafico_apilado(pivot_camiones, f"Cantidad de Camiones por Turno - Últimos 30 días", "Cantidad de Camiones")
-    elementos.append(Image(grafico_c, width=26*cm, height=14*cm))
+    elementos.append(Image(grafico_c, width=26.5*cm, height=16.5*cm, hAlign='CENTER'))
     
     doc.build(elementos)
     print(f"Reporte '{output_filename}' generado exitosamente.")

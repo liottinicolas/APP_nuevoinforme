@@ -33,3 +33,8 @@ b <- inf_deldia$fideicomiso
 
 # Ejecutar el script de Python para generar el PDF
 system2("python", args = "vistas/informe_operativa/informeOP_generar_pdf.py")
+
+# Ejecutar los scripts de Python para el informe diario
+system2("python", args = "vistas/informediario/reportes/actualizar_ayer.py")
+## Antes de ejecutar para mapas, tiene que actuzliar archivo.
+system2("python", args = "vistas/informediario/reportes/generar_mapas.py")

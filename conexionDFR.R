@@ -54,6 +54,7 @@ lista_sf <- list()
 # Esto hará que el script sea MUCHO más rápido.
 capas_interes <- ft_names[str_detect(ft_names, "^dfr:")]
 
+
 cat("Se encontraron", length(capas_interes), "capas del área DFR para descargar.\n")
 
 for (nombre_ft in capas_interes) { 

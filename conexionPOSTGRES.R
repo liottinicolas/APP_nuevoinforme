@@ -163,51 +163,66 @@ saveWidget(mapa_completo, "Mapa_Total_Montevidex.html", selfcontained = TRUE)
 
 #### mapa base + contenedores historico ----
 library(leaflet)
+library(leaflet.extras)
 library(sf)
+library(htmlwidgets)
 
-# 1. Preparar la capa histórica (Transformar a WGS84)
-# Asumiendo que HISTORICO_posiciones_de_baja ya es un objeto sf
-historico_wgs84 <- st_transform(HISTORICO_posiciones_de_baja, 4326)
+# 1. Transformación de capas
+municipios_web <- st_transform(capa_imm_municipios, 4326)
+historico_web  <- st_transform(HISTORICO_posiciones_de_baja, 4326)
 
-# 2. Definir la URL del WMS de la Intendencia
-wms_url <- "https://montevideo.gub.uy/app/geowebcache/service/wms"
-
-# 3. Construir el mapa
-mapa_historico <- leaflet() %>%
-  # --- Capa Base WMS ---
+# 2. Construcción del Mapa
+mapa_final <- leaflet() %>%
   addWMSTiles(
-    baseUrl = wms_url,
+    baseUrl = "https://montevideo.gub.uy/app/geowebcache/service/wms",
     layers = "mapstore-base:capas_base",
     options = WMSTileOptions(format = "image/png", transparent = TRUE),
-    group = "Cartografía IM"
+    group = "Mapa Base (IM)"
   ) %>%
   
-  # --- Capa de Posiciones (Puntos) ---
+  addPolygons(
+    data = municipios_web,
+    color = "#444444", weight = 1, fillColor = "blue", fillOpacity = 0.1,
+    label = ~paste0("Municipio ", muninom),
+    group = "Municipios"
+  ) %>%
+  
   addCircleMarkers(
-    data = historico_wgs84,
-    radius = 4,               # Tamaño del punto
-    color = "#E41A1C",        # Color rojo para destacar
-    stroke = FALSE,           # Sin borde para que se vea más limpio
-    fillOpacity = 0.8,
-    # Etiqueta rápida al pasar el mouse
-    label = ~paste0("Recorrido: ", COD_RECORRIDO),
-    # Información detallada al hacer click
-    popup = ~paste0("<b>ID: </b>", GID, "<br>",
-                    "<b>Fecha Desde: </b>", FECHA_DESDE, "<br>",
-                    "<b>Observaciones: </b>", OBSERVACIONES),
-    group = "Histórico Bajas",
-    # Opcional: si son miles de puntos, descomenta la siguiente línea:
-    # clusterOptions = markerClusterOptions() 
+    data = historico_web,
+    radius = 5, color = "red", stroke = FALSE, fillOpacity = 0.7,
+    group = "Puntos de Baja",
+    label = ~as.character(GID),
+    popup = ~paste0("<b>GID:</b> ", GID, "<br><b>Recorrido:</b> ", COD_RECORRIDO)
   ) %>%
   
-  # --- Control de capas ---
+  # --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
+  # Usamos searchOptions() para pasarle el placeholder correctamente
+  addSearchOSM(
+    options = searchOptions(
+      textPlaceholder = "Buscar dirección (ej: 18 de Julio y Ejido)",
+      zoom = 16,
+      collapsed = FALSE # Para que el buscador aparezca ya abierto
+    )
+  ) %>%
+  
+  # Buscador de tus datos (GID)
+  addSearchFeatures(
+    targetGroups = "Puntos de Baja",
+    options = searchFeaturesOptions(
+      zoom = 18, 
+      openPopup = TRUE,
+      textPlaceholder = "Buscar por GID..."
+    )
+  ) %>%
+  
   addLayersControl(
-    overlayGroups = c("Cartografía IM", "Histórico Bajas"),
+    overlayGroups = c("Municipios", "Puntos de Baja"),
     options = layersControlOptions(collapsed = FALSE)
   ) %>%
   setView(lng = -56.16, lat = -34.85, zoom = 12)
 
-# Mostrar mapa
-mapa_historico
+# 3. Guardar el archivo
+saveWidget(mapa_final, file = "Reporte_Geografico_IM.html", selfcontained = TRUE)
 
-saveWidget(mapa_historico, "Mapa_historico_Montevidex.html", selfcontained = TRUE)
+# Mostrar el mapa
+mapa_final

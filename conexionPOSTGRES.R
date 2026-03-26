@@ -33,35 +33,35 @@ capa_pos_ferias <- st_read(con, Id(schema = "public", table = "pos_ferias"))
 capa_imm_municipios <- st_read(con, Id(schema = "public", table = "imm_municipios"))
 capa_DEPARTAMENTO <- st_read(con, Id(schema = "public", table = "DEPARTAMENTO"))
 capa_ESPACIOS_LIBRES <- st_read(con, Id(schema = "public", table = "ESPACIOS LIBRES"))
-
-15       public                                      FIDEICOMISO_POSICIONES_MR
-16       public                                            FIDEICOMISO_RUTA_MR
-17       public                                            FIDEICOMISO_ZONA_MR
-
-19       public                                    INTRADOMICILIARIO_PROPUESTA
-20       public                                                  Intra_proximo
-21       public                                    Intradomiciliario_operativo
-
-26       public                          Obras Viales (Afectaciones laterales)
-27       public                                                   Obras viales
-28       public                                  Obras viales (cambio de ruta)
-
-32       public                                              PLUMA_movimientos
-
-44       public                             Puntos operativos de Div. Limpieza
-45       public                                                  RBB_Operativo
-46       public                                              RBB_beneficiarios
-47       public                                                     RBB_puntos
-
-50       public                                       RECOLECCION MANUAL A PIE
-51       public                                      RECOLECCION MANUAL PUNTOS
-52       public                                       RECOLECCION MANUAL RUTAS
-53       public                                       RECOLECCION MANUAL ZONAS
-
-65       public                                                        barrios
-67       public                                   ide:ide_v_sig_comunales_ubic
-68       public                                  ide:ide_v_sig_municipios_ubic
-71       public                          imm:mobile_v_mdg_vias_multilinestring
+# 
+# 15       public                                      FIDEICOMISO_POSICIONES_MR
+# 16       public                                            FIDEICOMISO_RUTA_MR
+# 17       public                                            FIDEICOMISO_ZONA_MR
+# 
+# 19       public                                    INTRADOMICILIARIO_PROPUESTA
+# 20       public                                                  Intra_proximo
+# 21       public                                    Intradomiciliario_operativo
+# 
+# 26       public                          Obras Viales (Afectaciones laterales)
+# 27       public                                                   Obras viales
+# 28       public                                  Obras viales (cambio de ruta)
+# 
+# 32       public                                              PLUMA_movimientos
+# 
+# 44       public                             Puntos operativos de Div. Limpieza
+# 45       public                                                  RBB_Operativo
+# 46       public                                              RBB_beneficiarios
+# 47       public                                                     RBB_puntos
+# 
+# 50       public                                       RECOLECCION MANUAL A PIE
+# 51       public                                      RECOLECCION MANUAL PUNTOS
+# 52       public                                       RECOLECCION MANUAL RUTAS
+# 53       public                                       RECOLECCION MANUAL ZONAS
+# 
+# 65       public                                                        barrios
+# 67       public                                   ide:ide_v_sig_comunales_ubic
+# 68       public                                  ide:ide_v_sig_municipios_ubic
+# 71       public                          imm:mobile_v_mdg_vias_multilinestring
 
 
 

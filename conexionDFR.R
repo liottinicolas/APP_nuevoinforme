@@ -7,6 +7,9 @@ library(xml2)
 library(sf)
 library(stringr)
 library(rstudioapi)
+library(leaflet)
+library(leaflet.extras)
+library(htmlwidgets)
 
 ## 2) PARÁMETROS DE CONEXIÓN (INTERACTIVOS) ----
 
@@ -94,11 +97,13 @@ cat("\nProceso terminado. Capas cargadas en la lista 'lista_sf'.\n")
 
 # Leer las capas ----
 
+# Actualizar una vez por mes.
+
 HISTORICO_posiciones_de_baja <- lista_sf[["dfr:C_DF_POSICIONES_RECORRIDO_HISTORICO"]]
 HISTORICO_Rutas_recorrido_de_baja <- lista_sf[["dfr:C_DF_RUTAS_RECORRIDO_HISTORICO"]]
-# C_DF_ZONA_RECORRIDO_HISTORICO <- lista_sf[["dfr:C_DF_ZONA_RECORRIDO_HISTORICO"]]
+HISTORICO_Circuitos_de_baja <- lista_sf[["dfr:C_DF_ZONA_RECORRIDO_HISTORICO"]]
 # C_DIRECCIONES <- lista_sf[["dfr:C_DIRECCIONES"]]
-# E_DF_CAP_CIRCUITOS <- lista_sf[["dfr:E_DF_CAP_CIRCUITOS"]]
+Vigente_Circuitos_CAP <- lista_sf[["dfr:E_DF_CAP_CIRCUITOS"]]
 # E_DF_CAP_CONTENEDORES <- lista_sf[["dfr:E_DF_CAP_CONTENEDORES"]]
 # E_DF_CONTENEDORES_SOTERRADOS <- lista_sf[["dfr:E_DF_CONTENEDORES_SOTERRADOS"]]
 # E_DF_POSICIONES_RECORRIDO <- lista_sf[["dfr:E_DF_POSICIONES_RECORRIDO"]]
@@ -225,3 +230,112 @@ mapa2 <- drawRutasPorCodigoLeaflet(E_DF_RUTAS_RECORRIDO, valores = c("B_DU_RM_CL
 
 
 dbDisconnect(con)
+
+library(leaflet)
+library(leaflet.extras)
+library(sf)
+library(dplyr)
+
+library(leaflet)
+library(leaflet.extras)
+library(sf)
+library(dplyr)
+
+drawMapa_IM_Pro <- function(zona_df, 
+                            col_id = "id",        
+                            col_label = "nombre", 
+                            filtro_ids = NULL,    
+                            color_relleno = "darkgreen", 
+                            opacidad = 0.3) {
+  
+  # 1. FILTRADO Y PREPARACIÓN
+  data_mapa <- zona_df
+  
+  if (!is.null(filtro_ids)) {
+    # Filtramos usando el nombre de columna dinámico
+    data_mapa <- data_mapa %>% filter(.data[[col_id]] %in% filtro_ids)
+  }
+  
+  # Verificación: ¿quedó algo después del filtro?
+  if (nrow(data_mapa) == 0) {
+    stop("El filtro no devolvió resultados. Verificá si los IDs existen en la columna seleccionada.")
+  }
+  
+  # 2. CREAR COLUMNAS ESTÁTICAS (Esto evita el error de 'type list')
+  # Extraemos los valores como vectores simples para que leaflet no se confunda
+  data_mapa$.id_display <- as.character(data_mapa[[col_id]])
+  data_mapa$.label_display <- as.character(data_mapa[[col_label]])
+  
+  # Reproyectar a WGS84
+  data_mapa <- st_transform(data_mapa, 4326)
+  
+  # 3. LÓGICA DE COLORES
+  if (color_relleno %in% names(data_mapa)) {
+    pal <- colorFactor(palette = "Set1", domain = data_mapa[[color_relleno]])
+    fill_color_final <- pal(data_mapa[[color_relleno]])
+  } else {
+    fill_color_final <- color_relleno
+  }
+  
+  # 4. CONSTRUCCIÓN DEL MAPA
+  leaflet(data_mapa) %>%
+    addWMSTiles(
+      baseUrl = "https://montevideo.gub.uy/app/geowebcache/service/wms",
+      layers = "mapstore-base:capas_base",
+      options = WMSTileOptions(format = "image/png", transparent = TRUE),
+      group = "Mapa Base IM"
+    ) %>%
+    addPolygons(
+      color = "black", weight = 1, 
+      fillColor = fill_color_final, 
+      fillOpacity = opacidad,
+      # Usamos las columnas estáticas que creamos arriba con ~
+      label = ~.label_display, 
+      popup = ~paste0("<strong>ID:</strong> ", .id_display, "<br>",
+                      "<strong>Etiqueta:</strong> ", .label_display),
+      group = "Capa Activa"
+    ) %>%
+    addSearchOSM(
+      options = searchOptions(textPlaceholder = "Buscar dirección...", collapsed = FALSE)
+    ) %>%
+    addSearchFeatures(
+      targetGroups = "Capa Activa",
+      options = searchFeaturesOptions(zoom = 16, openPopup = TRUE, textPlaceholder = "Buscar por ID...")
+    ) %>%
+    addLayersControl(
+      overlayGroups = c("Capa Activa"),
+      options = layersControlOptions(collapsed = FALSE)
+    )
+}
+
+# Todos
+drawMapa_IM_Pro(Vigente_Circuitos_CAP, 
+                col_id = "GID", 
+                col_label = "CIRCUITO", 
+                color_relleno = "orange")
+
+# Para dibujar circuitos específicos con color fijo
+mapa_especifico <- drawMapa_IM_Pro(
+  Vigente_Circuitos_CAP, 
+  col_id = "CIRCUITO", 
+  col_label = "CIRCUITO", 
+  filtro_ids = c(1, 9, 6), # Asegurate que estos GID existan
+  color_relleno = "red"
+)
+
+# Para dibujar circuitos específicos con color diferentes
+mapa_especifico <- drawMapa_IM_Pro(
+  Vigente_Circuitos_CAP, 
+  col_id = "CIRCUITO", 
+  col_label = "CIRCUITO", 
+  color_relleno = "CIRCUITO"
+)
+
+mapa_especifico
+# 
+# Guía rápida de personalización (Comentarios para vos):
+#   Para dibujar TODO el data frame: Simplemente no pongas el argumento filtro_ids (quedará como NULL por defecto).
+# 
+# Para colores diferentes por polígono: Si querés que cada circuito tenga un color distinto, usá color_relleno = "CIRCUITO". La función detectará que es una columna y creará una paleta de colores.
+# 
+# Para cambiar la transparencia: Si los polígonos tapan mucho el mapa base de la IM, bajá la opacidad a 0.1 o 0.2.

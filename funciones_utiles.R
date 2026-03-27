@@ -8,9 +8,11 @@ generar_reporte_pdf_camionesylevantesIMFID <- function(fecha = NULL, instalar_li
     library(reticulate)
 
     # 1. Le decimos a R que use el entorno donde instalamos todo
-    # Si el entorno no existe, lo creamos primero para evitar errores
-    if (!virtualenv_exists("r-reticulate")) {
-        message("El entorno virtual no existe. Intentando crearlo...")
+    # Usamos una ruta local fuera de OneDrive para mayor estabilidad
+    venv_path <- file.path(Sys.getenv("USERPROFILE"), ".virtualenvs", "r-reticulate")
+
+    if (!virtualenv_exists(venv_path)) {
+        message("El entorno virtual no existe en: ", venv_path, ". Intentando crearlo...")
         tryCatch(
             {
                 virtualenv_create("r-reticulate")
@@ -26,7 +28,7 @@ generar_reporte_pdf_camionesylevantesIMFID <- function(fecha = NULL, instalar_li
     # Ejecutar esto para tener el kit completo de análisis y reporte solo si es necesario
     if (instalar_librerias) {
         message("Instalando/verificando librerías de Python...")
-        py_install(c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "pyreadr", "streamlit", "plotly"))
+        py_install(c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "odfpy", "xlwings", "pyreadr", "streamlit", "plotly"))
     }
 
     # 2. Configurar la fecha enviada desde R hacia Python usando reticulate directamente
@@ -68,7 +70,7 @@ generar_reporte_pdf_informediario <- function(fecha = NULL, instalar_librerias =
     use_virtualenv("r-reticulate", required = TRUE)
     if (instalar_librerias) {
         message("Instalando/verificando librerías de Python...")
-        py_install(c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "pyreadr", "streamlit", "plotly"))
+        py_install(c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "odfpy", "xlwings", "pyreadr", "streamlit", "plotly"))
     }
 
     if (!is.null(fecha)) {
@@ -100,7 +102,8 @@ correr_dashboard_camiones <- function(instalar_paquetes = FALSE) {
     library(processx)
 
     message("Iniciando dashboard en Streamlit...")
-    px <- run("C:/Users/im4445285/Documents/.virtualenvs/r-reticulate/Scripts/streamlit.exe",
+    streamlit_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Documentos y papeles importantes", ".virtualenvs", "r-reticulate", "Scripts", "streamlit.exe")
+    px <- run(streamlit_path,
         args = c("run", "vistas/Informe_diario.py"), # Actualizado al nuevo nombre
         echo = TRUE
     )

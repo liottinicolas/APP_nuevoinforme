@@ -1,3 +1,12 @@
+### Funciones de utilidad global ----
+escribir_log <- function(nivel, mensaje) {
+  cat(paste0("[", nivel, "] ", Sys.time(), ": ", mensaje, "\n"))
+}
+
+manejar_error <- function(err, contexto) {
+  message(paste("❌ Error", contexto, ":", err$message))
+}
+
 ### Función para cargar archivos con manejo de errores ----
 cargar_archivo <- function(ruta_archivo) {
   tryCatch({
@@ -25,7 +34,8 @@ preparar_entorno <- function(paquetes = NULL, tz = "America/Montevideo") {
       "dplyr", "tidyr", "purrr", "readr", "stringr", "stringi", "lubridate",
       "ggplot2", "plotly", "leaflet", "sf",
       "knitr", "rmarkdown", "openxlsx", "writexl", "readxl",
-      "rsconnect", "here", "R6", "tools", "magrittr", "httr","fs"
+      "rsconnect", "here", "R6", "tools", "magrittr", "httr","fs","reticulate",
+      "cachem", "bslib", "fastmap", "sass"
     )
   }
   

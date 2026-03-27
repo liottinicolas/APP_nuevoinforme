@@ -1,4 +1,7 @@
-
+library(here)
+library(dplyr)
+library(lubridate)
+library(readxl)
 
 # Esto construye la ruta desde la raíz de tu proyecto automáticamente
 ruta_RDS_datos <- here("db", "10393_ubicaciones", "historico_ubicaciones.rds")

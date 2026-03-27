@@ -2,6 +2,8 @@
 library(dplyr)
 library(lubridate)
 library(writexl)
+library(openxlsx)
+library(here)
 
 # Ajustá esta ruta de ser necesario según dónde esté guardado el archivo en tu máquina.
 ruta_historico <- file.path("db", "GOL_reportes", "historico_llenadoGol.rds")

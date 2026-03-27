@@ -31,13 +31,17 @@ a <- inf_deldia$im
 b <- inf_deldia$fideicomiso
 
 
+# Ruta al Python del entorno virtual de reticulate
+python_venv <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Documentos y papeles importantes",
+                         ".virtualenvs", "r-reticulate", "Scripts", "python.exe")
+
 # Ejecutar el script de Python para generar el PDF
-system2("python", args = "vistas/informe_operativa/informeOP_generar_pdf.py")
+system2(python_venv, args = "vistas/informe_operativa/informeOP_generar_pdf.py")
 
 # Ejecutar los scripts de Python para el informe diario
-system2("python", args = "vistas/informediario/reportes/actualizar_ayer.py")
-## Antes de ejecutar para mapas, tiene que actuzliar archivo.
-system2("python", args = "vistas/informediario/reportes/generar_mapas.py")
+system2(python_venv, args = "vistas/informediario/reportes/actualizar_ayer.py")
+## Antes de ejecutar para mapas, tiene que actualizar archivo.
+system2(python_venv, args = "vistas/informediario/reportes/generar_mapas.py")
 
 
 

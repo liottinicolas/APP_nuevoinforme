@@ -31,9 +31,8 @@ a <- inf_deldia$im
 b <- inf_deldia$fideicomiso
 
 
-# Ruta al Python del entorno virtual de reticulate
-python_venv <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Documentos y papeles importantes",
-                         ".virtualenvs", "r-reticulate", "Scripts", "python.exe")
+# Ruta al Python del entorno virtual de reticulate (detecta automáticamente en cualquier PC)
+python_venv <- reticulate::virtualenv_python("r-reticulate")
 
 # Ejecutar el script de Python para generar el PDF
 system2(python_venv, args = "vistas/informe_operativa/informeOP_generar_pdf.py")

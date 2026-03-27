@@ -8,8 +8,8 @@ generar_reporte_pdf_camionesylevantesIMFID <- function(fecha = NULL, instalar_li
     library(reticulate)
 
     # 1. Le decimos a R que use el entorno donde instalamos todo
-    # Usamos una ruta local fuera de OneDrive para mayor estabilidad
-    venv_path <- file.path(Sys.getenv("USERPROFILE"), ".virtualenvs", "r-reticulate")
+    # Detectamos automáticamente la raíz de virtualenvs según la PC
+    venv_path <- file.path(virtualenv_root(), "r-reticulate")
 
     if (!virtualenv_exists(venv_path)) {
         message("El entorno virtual no existe en: ", venv_path, ". Intentando crearlo...")

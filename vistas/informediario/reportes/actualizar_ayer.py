@@ -297,6 +297,15 @@ def update_excel_with_xlwings(filepath, output_filename):
                     hoja_v.range('L3').number_format = 'dd/mm/aaaa'
                 except: pass
 
+        # === LIMPIAR RANGO B4:D8 EN HOJA 'DRIVE-Disp.' ===
+        if 'DRIVE-Disp.' in hojas:
+            hoja_drive_disp = wb.sheets['DRIVE-Disp.']
+            print("Limpiando rango B4:D8 en hoja 'DRIVE-Disp.'...")
+            hoja_drive_disp.range('B4:D8').clear_contents()
+            print("  -> Rango B4:D8 de 'DRIVE-Disp.' limpiado correctamente.")
+        else:
+            print("Advertencia: No se encontró la hoja 'DRIVE-Disp.' en el libro.")
+
         # Guardar cambios en el archivo abierto (que es nuestra copia: archivo_madre_nuevo.xlsx)
         app.display_alerts = False
         

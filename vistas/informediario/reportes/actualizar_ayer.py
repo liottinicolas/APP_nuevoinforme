@@ -14,12 +14,20 @@ def update_excel_with_xlwings(filepath, output_filename):
     
     print("Iniciando Excel en segundo plano para procesar la copia...")
     
-    # Inicia Excel de modo invisible
-    app = xw.App(visible=False)
-    
+# add_book=False evita que Excel cree un "Libro1" vacío al abrirse
+    app = xw.App(visible=False, add_book=False)
+    app.display_alerts = False       # Desactiva avisos (ej: "Desea guardar cambios")
+    app.screen_updating = False      # Evita parpadeos y acelera el proceso
+    # --------------------------
+
     try:
+        # Si estás en OneDrive, un pequeño delay ayuda a evitar el bloqueo por sincronización
+        import time
+        time.sleep(1) 
+        
         # Abrir el workbook (la copia que ya hicimos)
         wb = app.books.open(output_path)
+        
         hojas = [sheet.name for sheet in wb.sheets]
         
         if 'Hoy' not in hojas:

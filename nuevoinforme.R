@@ -46,7 +46,6 @@ system2(python_venv, args = "vistas/informediario/reportes/generar_mapas.py")
 
 
 
-
 ver <- historico_llenado %>% 
   filter(Fecha >= "2026-01-15") %>%
   filter(Fecha <= "2026-02-28") %>%

@@ -33,6 +33,10 @@ capa_pos_ferias <- st_read(con, Id(schema = "public", table = "pos_ferias"))
 capa_imm_municipios <- st_read(con, Id(schema = "public", table = "imm_municipios"))
 capa_DEPARTAMENTO <- st_read(con, Id(schema = "public", table = "DEPARTAMENTO"))
 capa_ESPACIOS_LIBRES <- st_read(con, Id(schema = "public", table = "ESPACIOS LIBRES"))
+
+capa_Intradomiciliario_operativo <- st_read(con, Id(schema = "public", table = "ESPACIOS LIBRES"))
+
+
 # 
 # 15       public                                      FIDEICOMISO_POSICIONES_MR
 # 16       public                                            FIDEICOMISO_RUTA_MR
@@ -78,6 +82,35 @@ capa_intra_proximo <- st_read(con, Id(schema = "public", table = "Intra_proximo"
 
 
 
+## PRUEBA MAPAS
+#st_write(capa_intra, "vistas/mapas/capa_intra_montevideo.geojson", driver = "GeoJSON", delete_dsn = TRUE)
+capa_filtrada_CAPURRO_2 <- capa_intra[capa_intra$nombre == "CAPURRO 2", ] # Ejemplo de filtro
+
+# --- 1. PREPARAR CAPA TERRITORIAL FILTRADA ---
+temp_path_intra <- tempfile(fileext = ".geojson")
+st_write(capa_filtrada_CAPURRO_2, temp_path_intra, driver = "GeoJSON")
+
+# Capa json del recorrido del camion
+capa_recorrido <- st_read("vistas/mapas/SIM.json")
+
+# --- 2. CALCULAR PUNTOS SUPERPUESTOS (INTERSECCIÓN) ---
+# Aseguramos misma proyección
+capa_recorrido <- st_transform(capa_recorrido, st_crs(capa_filtrada_CAPURRO_2))
+# Intersección: Solo los puntos que cayeron dentro de Capurro
+puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada_CAPURRO_2) %>% 
+  filter(velocidad <= 5)
+
+temp_path_puntos <- tempfile(fileext = ".geojson")
+st_write(puntos_solapados, temp_path_puntos, driver = "GeoJSON")
+
+# --- 3. LLAMAR A PYTHON CON DOS ARGUMENTOS ---
+# El primer argumento será sys.argv[1] y el segundo sys.argv[2]
+system2(python_venv, args = c("vistas/mapas/mapa_intra.py", 
+                              temp_path_intra, 
+                              temp_path_puntos))
+
+
+system2(python_venv, args = "vistas/mapas/mapa_intra_hormiga.py")
 
 
 
@@ -145,6 +178,16 @@ mapa_completo <- leaflet() %>%
     fillOpacity = 0.2,       # Opacidad baja para ver las calles debajo
     label = ~muninom,        # Etiqueta al pasar el mouse
     group = "Municipios"
+  ) %>%
+  
+  addPolygons(
+    data = capa_intra,
+    color = "red",          # Borde rojo
+    weight = 1,
+    fillColor = "orange",   # Relleno naranja
+    fillOpacity = 0.3,
+    label = ~nombre, # Cambia esto por el nombre de la columna en tus datos
+    group = "nombre"       # Nombre del grupo para el control
   ) %>%
   
   # --- EXTRAS: Controles ---

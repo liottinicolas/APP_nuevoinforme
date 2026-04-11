@@ -97,8 +97,7 @@ capa_recorrido <- st_read("vistas/mapas/SIM.json")
 # Aseguramos misma proyección
 capa_recorrido <- st_transform(capa_recorrido, st_crs(capa_filtrada_CAPURRO_2))
 # Intersección: Solo los puntos que cayeron dentro de Capurro
-puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada_CAPURRO_2) %>% 
-  filter(velocidad <= 5)
+puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada_CAPURRO_2)
 
 temp_path_puntos <- tempfile(fileext = ".geojson")
 st_write(puntos_solapados, temp_path_puntos, driver = "GeoJSON")

@@ -79,6 +79,37 @@ capa_intra <- st_read(con, Id(schema = "public", table = "Intradomiciliario_oper
 capa_intra_proximo <- st_read(con, Id(schema = "public", table = "Intra_proximo"))
 
 
+########################## CREO LAS MATRICULAS CON SUS CAMIONES Y CSOO
+
+# Crear el data frame con la información de la flota
+df_flota <- data.frame(
+  Matricula = c(
+    1858, 2196, 2198, 2199, 2202, 2203, 2640, 2980, 3156, 3157, 3159, 3160, 3161, 3162, # Canton 2
+    1862, 3008, 1891, 1900, 3014, 2619, 3114, 3116, 3117, 3119,                         # Sin Base
+    2184, 2185, 2188, 2200, 2201, 2204, 2205, 2463, 3115, 3128, 3129, 3155              # Haiti
+  ),
+  Marca = c(
+    rep("Freighliner", 8), rep("Scania 280", 6), # Canton 2
+    rep("Freighliner", 6), rep("Scania 280", 4), # Sin Base
+    rep("Freighliner", 8), rep("Scania 280", 4)  # Haiti
+  ),
+  Base = c(
+    rep("Canton 2", 14),
+    rep("", 10),
+    rep("Haiti", 12)
+  ),
+  Servicio = c(
+    rep("Mezclado", 24),
+    rep("Reciclable", 12)
+  ),
+  stringsAsFactors = FALSE
+)
+
+# Agregar el prefijo "SIM" a la columna Matricula
+df_flota$Matricula <- paste0("SIM", df_flota$Matricula)
+
+
+########################
 
 
 
@@ -99,8 +130,26 @@ capa_recorrido <- st_transform(capa_recorrido, st_crs(capa_filtrada_CAPURRO_2))
 # Intersección: Solo los puntos que cayeron dentro de Capurro
 puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada_CAPURRO_2)
 
+# Extraemos el valor de referencia
+matricula_ref <- puntos_solapados$matricula[1]
+
+# Buscamos el servicio
+servicio_encontrado <- df_flota %>% 
+  filter(Matricula == matricula_ref) %>% 
+  pull(Servicio)
+
+# Asignamos (si el resultado tiene datos)
+if(length(servicio_encontrado) > 0) {
+  puntos_solapados <- puntos_solapados %>% 
+    mutate(FRACCION = servicio_encontrado[1])
+}
+
 temp_path_puntos <- tempfile(fileext = ".geojson")
 st_write(puntos_solapados, temp_path_puntos, driver = "GeoJSON")
+
+
+
+
 
 # --- 3. LLAMAR A PYTHON CON DOS ARGUMENTOS ---
 # El primer argumento será sys.argv[1] y el segundo sys.argv[2]
@@ -108,8 +157,12 @@ system2(python_venv, args = c("vistas/mapas/mapa_intra.py",
                               temp_path_intra, 
                               temp_path_puntos))
 
+system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py", 
+                              temp_path_intra, 
+                              temp_path_puntos))
 
-system2(python_venv, args = "vistas/mapas/mapa_intra_hormiga.py")
+
+# system2(python_venv, args = "vistas/mapas/mapa_intra_hormiga.py")
 
 
 

@@ -117,18 +117,21 @@ df_flota$Matricula <- paste0("SIM", df_flota$Matricula)
 #st_write(capa_intra, "vistas/mapas/capa_intra_montevideo.geojson", driver = "GeoJSON", delete_dsn = TRUE)
 capa_filtrada_CAPURRO_2 <- capa_intra[capa_intra$nombre == "CAPURRO 2", ] # Ejemplo de filtro
 
+capa_filtrada_CARRASCO_2 <- capa_intra[capa_intra$nombre == "CARRASCO 2", ] # Ejemplo de filtro
+
+
 # --- 1. PREPARAR CAPA TERRITORIAL FILTRADA ---
 temp_path_intra <- tempfile(fileext = ".geojson")
-st_write(capa_filtrada_CAPURRO_2, temp_path_intra, driver = "GeoJSON")
+st_write(capa_filtrada_CARRASCO_2, temp_path_intra, driver = "GeoJSON")
 
 # Capa json del recorrido del camion
-capa_recorrido <- st_read("vistas/mapas/SIM.json")
+capa_recorrido <- st_read("vistas/mapas/SIM_reciclable.json")
 
 # --- 2. CALCULAR PUNTOS SUPERPUESTOS (INTERSECCIÓN) ---
 # Aseguramos misma proyección
-capa_recorrido <- st_transform(capa_recorrido, st_crs(capa_filtrada_CAPURRO_2))
+capa_recorrido <- st_transform(capa_recorrido, st_crs(capa_filtrada_CARRASCO_2))
 # Intersección: Solo los puntos que cayeron dentro de Capurro
-puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada_CAPURRO_2)
+puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada_CARRASCO_2)
 
 # Extraemos el valor de referencia
 matricula_ref <- puntos_solapados$matricula[1]

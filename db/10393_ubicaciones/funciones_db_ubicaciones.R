@@ -28,14 +28,19 @@ funcion_actualizar_ubicaciones_10393 <- function(rutas_completas, rutas_relativa
           escape_double = FALSE,
           trim_ws = TRUE,
           locale = locale(encoding = "ISO-8859-1"),
-          show_col_types = FALSE
+          show_col_types = FALSE,
+          # AGREGA ESTA LÍNEA:
+          col_types = cols(Numero = col_character()) 
         )
-
+        
         # Transformaciones iniciales
         df <- df %>%
           mutate(Fecha = fecha_dt) %>%
           rename(gid = GID, Circuito = Recorrido) %>%
-          mutate(gid = as.character(gid))
+          mutate(
+            gid = as.character(gid),
+            Numero = as.character(Numero) # Aseguramos consistencia
+          )
 
         return(df)
       },

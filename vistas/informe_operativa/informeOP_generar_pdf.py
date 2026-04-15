@@ -58,15 +58,49 @@ def compactar_tramos(tramos_str):
         
     return ", ".join(rangos)
 
-def load_data(archivo="pruebaods.ods"):
+def buscar_archivo_contenedores():
+    """Busca el único archivo Contenedores_AAAAMMDD_HHMM.ods en el directorio del script.
+    Retorna (ruta_completa, datetime_archivo) o lanza un error si no se encuentra."""
+    import glob
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    ruta_archivo = os.path.join(base_dir, archivo)
+    patron = os.path.join(base_dir, "Contenedores_*.ods")
+    archivos = glob.glob(patron)
+    
+    if len(archivos) == 0:
+        raise FileNotFoundError(
+            f"No se encontró ningún archivo 'Contenedores_*.ods' en: {base_dir}"
+        )
+    if len(archivos) > 1:
+        raise FileNotFoundError(
+            f"Se encontraron múltiples archivos Contenedores_*.ods en {base_dir}: {archivos}\n"
+            "Debe haber exactamente uno."
+        )
+    
+    ruta = archivos[0]
+    nombre = os.path.basename(ruta)  # e.g. Contenedores_20260415_1414.ods
+    
+    # Extraer fecha y hora del nombre: Contenedores_AAAAMMDD_HHMM.ods
+    m = re.match(r'Contenedores_(\d{8})_(\d{4})\.ods', nombre)
+    if not m:
+        raise ValueError(
+            f"El archivo '{nombre}' no tiene el formato esperado 'Contenedores_AAAAMMDD_HHMM.ods'"
+        )
+    
+    fecha_str = m.group(1)  # '20260415'
+    hora_str = m.group(2)   # '1414'
+    dt_archivo = datetime.strptime(fecha_str + hora_str, "%Y%m%d%H%M")
+    
+    return ruta, dt_archivo
+
+
+def load_data():
+    ruta_archivo, dt_archivo = buscar_archivo_contenedores()
     
     try:
         df = pd.read_excel(ruta_archivo, engine='odf')
     except Exception as e:
         print(f"Error cargando {ruta_archivo}: {e}")
-        return pd.DataFrame()
+        return pd.DataFrame(), None
         
     # Convertir fechas
     for col in ['Fecha No Levante', 'Fecha Último Levante']:
@@ -92,7 +126,7 @@ def load_data(archivo="pruebaods.ods"):
     
     df['Acumulacion_dias_calendario'] = (pd.to_datetime(now.date()) - df['Fecha Último Levante'].dt.floor('D')).dt.days
     
-    return df
+    return df, dt_archivo
     
 def procesar_atrasos(df):
     MOTIVOS_EXCLUIR_ATRASO = [
@@ -443,8 +477,17 @@ def export_to_excel(dic_tablas, output_filename="Reporte_Operativa.xlsx"):
                 worksheet.column_dimensions[get_column_letter(i+1)].width = adjusted_width
 
 if __name__ == "__main__":
+    print('Buscando archivo de datos...')
+    try:
+        _, dt_archivo = buscar_archivo_contenedores()
+    except (FileNotFoundError, ValueError) as e:
+        print(f"ERROR: {e}")
+        exit(1)
+
+    print(f"Archivo encontrado. Fecha/hora del archivo: {dt_archivo.strftime('%d/%m/%Y %H:%M')}")
+
     print('Cargando datos...')
-    df = load_data()
+    df, dt_archivo = load_data()
     if not df.empty:
         print('Procesando Atrasos...')
         tabla_final, detalle_at = procesar_atrasos(df)
@@ -453,12 +496,23 @@ if __name__ == "__main__":
         print('Procesando Fuego...')
         res_fuego = procesar_fuego(df)
         print('Procesando No Esta...')
-        res_ne, det_ne = procesar_no_esta(df) # Detalle omitido temporalmente por SQL historico
-        
-        fecha = datetime.now().strftime("%d-%m-%Y")
-        pdf_out = f"Reporte_Operativa_{fecha}.pdf"
-        excel_out = f"Reporte_Operativa_{fecha}.xlsx"
-        
+        res_ne, det_ne = procesar_no_esta(df)
+
+        # Determinar el slot de hora según la hora del archivo
+        # < 11:00 → 0915 | >= 12:00 → 1220
+        hora_archivo = dt_archivo.hour
+        if hora_archivo < 11:
+            slot_hora = "0915"
+        else:
+            slot_hora = "1220"
+
+        # Fecha en formato DD-MM-YY
+        fecha_str = dt_archivo.strftime("%d-%m-%y")
+
+        nombre_base = f"Reporte_Atrasos_Grua_No_esta_Fuego-{fecha_str}_{slot_hora}"
+        pdf_out = f"{nombre_base}.pdf"
+        excel_out = f"{nombre_base}.xlsx"
+
         export_to_pdf(tabla_final, detalle_at, res_grua, listado_grua, res_ne, res_fuego, det_ne, pdf_out)
         
         # Diccionario relacionando nombre de hoja Excel con dataframe procesado (Mismo orden que R)

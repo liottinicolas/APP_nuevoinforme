@@ -23,5 +23,11 @@ obtener_posiciones <- function(matricula, desde, hasta, grupo = "sisconve", stop
   return(datos)
 }
 
+# Valor (clave) Descripción
+ # sisconve - Vehículos propios de la IM
+ # waste - Transportistas de residuos privados
+ # crane - Grúas
+ # hired - Vehículos de alquiler
+
 # Ejemplo de uso:
 df_posiciones <- obtener_posiciones("SIM3024", "2026-04-10T13:49:11", "2026-04-14T13:49:11")

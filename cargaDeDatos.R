@@ -47,14 +47,14 @@ actualizar_planillas_RDS <- function(
       # 1. Leer el histórico si existe
       historico <- if (file.exists(ruta_RDS_datos)) readRDS(ruta_RDS_datos) else NULL
       
-      # 2. Transformar 'Numero' a character en el histórico (si existe)
-      if (!is.null(historico)) {
-        historico <- historico %>% mutate(Numero = as.character(Numero))
-      }
-      
-      # 3. Transformar 'Numero' a character en los datos nuevos
-      datos_nuevos <- resultado_proceso$datos %>% 
-        mutate(Numero = as.character(Numero))
+      # # 2. Transformar 'Numero' a character en el histórico (si existe)
+      # if (!is.null(historico)) {
+      #   historico <- historico %>% mutate(Numero = as.character(Numero))
+      # }
+      # 
+      # # 3. Transformar 'Numero' a character en los datos nuevos
+       datos_nuevos <- resultado_proceso$datos #%>% 
+      #    mutate(Numero = as.character(Numero))
       
       # 4. Unir sin miedo
       historico <- bind_rows(historico, datos_nuevos) %>% 

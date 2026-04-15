@@ -2,29 +2,181 @@ library(DBI)
 library(RPostgres)
 library(sf)
 
-# 1. Creamos la conexión (usando los datos de tu cadena de texto)
-con <- dbConnect(
-  RPostgres::Postgres(),
-  dbname = 'qgis',
-  host = 'pdbqgistest.imm.gub.uy',
-  port = 5411,
-  user = 'qgis',      # El usuario que mencionaste
-  password = 'mapa22' # La contraseña que mencionaste
-)
+# =============================================================================
+## CONEXIÓN A POSTGRESQL ----
+# =============================================================================
 
-# Consultar el catálogo de la base de datos
-query <- "
-  SELECT table_schema, table_name 
-  FROM information_schema.tables 
-  WHERE table_type = 'BASE TABLE' 
-  AND table_schema NOT IN ('information_schema', 'pg_catalog')
-  ORDER BY table_schema, table_name;
-"
+#' Abre una conexión a la base de datos PostgreSQL/QGIS de la IMM.
+#'
+#' Usá dbDisconnect(con) cuando termines de trabajar para liberar la conexión.
+#'
+#' @param host     Host del servidor.
+#' @param port     Puerto.
+#' @param dbname   Nombre de la base de datos.
+#' @param user     Usuario.
+#' @param password Contraseña.
+#' @return Objeto de conexión DBI.
+conectar_postgres <- function(
+  host     = "pdbqgistest.imm.gub.uy",
+  port     = 5411,
+  dbname   = "qgis",
+  user     = "qgis",
+  password = "mapa22"
+) {
+  con <- DBI::dbConnect(
+    RPostgres::Postgres(),
+    dbname   = dbname,
+    host     = host,
+    port     = port,
+    user     = user,
+    password = password
+  )
+  cat("Conectado a:", dbname, "en", host, "\n")
+  con
+}
 
-info_tablas <- dbGetQuery(con, query)
-print(info_tablas)
+#' Lista todas las tablas disponibles en la base de datos.
+#'
+#' @param con Conexión DBI activa.
+#' @return Data frame con columnas table_schema y table_name.
+listar_tablas_postgres <- function(con) {
+  DBI::dbGetQuery(con, "
+    SELECT table_schema, table_name
+    FROM information_schema.tables
+    WHERE table_type = 'BASE TABLE'
+      AND table_schema NOT IN ('information_schema', 'pg_catalog')
+    ORDER BY table_schema, table_name;
+  ")
+}
 
-#####
+# =============================================================================
+## LLAMADA ----
+# =============================================================================
+
+con <- conectar_postgres()
+
+# Opcional: ver qué tablas hay disponibles
+# tablas <- listar_tablas_postgres(con)
+# print(tablas)
+
+# Al terminar de trabajar, cerrar la conexión:
+# dbDisconnect(con)
+
+# =============================================================================
+## LEER CAPAS ----
+# =============================================================================
+
+#' Carga una capa espacial (o tabla) desde PostgreSQL.
+#'
+#' @param con     Conexión DBI activa (salida de conectar_postgres()).
+#' @param tabla   Nombre de la tabla en la base de datos.
+#' @param schema  Esquema donde está la tabla (por defecto "public").
+#' @return Objeto sf con la capa cargada.
+leer_capa_postgres <- function(con, tabla, schema = "public") {
+  cat("Leyendo:", schema, "::", tabla, "...\n")
+  tryCatch(
+    sf::st_read(con, DBI::Id(schema = schema, table = tabla), quiet = TRUE),
+    error = function(e) {
+      message("Error al leer '", tabla, "': ", e$message)
+      NULL
+    }
+  )
+}
+
+#' Descarga una capa desde PostgreSQL y la guarda en disco (RDS + GPKG).
+#'
+#' Estructura generada:
+#'   <base_dir>/RDS/<tabla>.rds
+#'   <base_dir>/GPKG/capas.gpkg  (la capa se agrega/reemplaza dentro del GPKG)
+#'
+#' @param con      Conexión DBI activa.
+#' @param tabla    Nombre de la tabla.
+#' @param schema   Esquema (por defecto "public").
+#' @param base_dir Carpeta raíz de almacenamiento.
+#' @return El objeto sf descargado (invisible).
+actualizar_capa_postgres <- function(con, tabla, schema = "public", base_dir = "db/POSTGRES") {
+
+  # 1. Leer desde la base
+  sf_obj <- leer_capa_postgres(con, tabla, schema)
+  if (is.null(sf_obj)) {
+    message("No se pudo actualizar '", tabla, "': la capa no se descargó.")
+    return(invisible(NULL))
+  }
+
+  # Nombre de archivo seguro (reemplaza espacios y caracteres especiales)
+  nombre_archivo <- gsub("[^a-zA-Z0-9_]", "_", tabla)
+
+  # 2. Guardar RDS
+  dir_rds <- file.path(base_dir, "RDS")
+  dir.create(dir_rds, recursive = TRUE, showWarnings = FALSE)
+  ruta_rds <- file.path(dir_rds, paste0(nombre_archivo, ".rds"))
+  saveRDS(sf_obj, ruta_rds)
+  cat("  RDS  guardado:", ruta_rds, "\n")
+
+  # 3. Guardar GPKG (reemplaza la capa si ya existe)
+  dir_gpkg  <- file.path(base_dir, "GPKG")
+  dir.create(dir_gpkg, recursive = TRUE, showWarnings = FALSE)
+  gpkg_path <- file.path(dir_gpkg, "capas.gpkg")
+
+  # Borramos la capa del GPKG si ya existe para actualizarla limpia
+  if (file.exists(gpkg_path)) {
+    capas_existentes <- tryCatch(sf::st_layers(gpkg_path)$name, error = function(e) character(0))
+    if (nombre_archivo %in% capas_existentes) {
+      sf::st_delete(gpkg_path, layer = nombre_archivo)
+    }
+  }
+  sf::st_write(sf_obj, dsn = gpkg_path, layer = nombre_archivo,
+               driver = "GPKG", append = TRUE, quiet = TRUE)
+  cat("  GPKG guardado:", gpkg_path, "(capa:", nombre_archivo, ")\n")
+
+  invisible(sf_obj)
+}
+
+# ---------------------------------------------------------------
+
+#' Carga una capa desde disco (sin necesitar conexión a la base de datos).
+#'
+#' @param tabla    Nombre de la tabla (el mismo que se usó en actualizar_capa_postgres).
+#' @param base_dir Carpeta raíz de almacenamiento.
+#' @param formato  "RDS" o "GPKG".
+#' @return Objeto sf.
+cargar_capa_local_postgres <- function(tabla, base_dir = "db/POSTGRES", formato = c("RDS", "GPKG")) {
+  formato        <- match.arg(formato)
+  nombre_archivo <- gsub("[^a-zA-Z0-9_]", "_", tabla)
+
+  if (formato == "RDS") {
+    ruta <- file.path(base_dir, "RDS", paste0(nombre_archivo, ".rds"))
+    if (!file.exists(ruta)) stop("No existe el archivo: ", ruta)
+    cat("Cargando desde RDS:", ruta, "\n")
+    readRDS(ruta)
+
+  } else {
+    gpkg_path <- file.path(base_dir, "GPKG", "capas.gpkg")
+    if (!file.exists(gpkg_path)) stop("No existe el archivo: ", gpkg_path)
+    cat("Cargando desde GPKG:", gpkg_path, "(capa:", nombre_archivo, ")\n")
+    sf::st_read(gpkg_path, layer = nombre_archivo, quiet = TRUE)
+  }
+}
+
+# =============================================================================
+## PRUEBA / EJEMPLOS DE USO ----
+# =============================================================================
+
+# --- PASO 1: actualizar desde la base (requiere conexión) ---
+con <- conectar_postgres()
+capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
+dbDisconnect(con)
+
+# --- PASO 2: la próxima vez, cargar desde disco (sin conexión) ---
+# capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")
+# capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo", formato = "GPKG")
+
+# --- Verificar que cargó bien ---
+# nrow(capa_intra)
+# names(capa_intra)
+# plot(sf::st_geometry(capa_intra))
+
+# =============================================================================
 
 capa_Circuitos_intradomiciliaria <- st_read(con, Id(schema = "public", table = "Circuitos_intradomiciliaria"))
 capa_circuitos_con_turnos_y_frecuencias <- st_read(con, Id(schema = "public", table = "Circuitos con turnos y frecuencias"))

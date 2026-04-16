@@ -190,17 +190,19 @@ actualizar_capas_wfs <- function(base_dir = "db/DFR", ...) {
 # actualizar_capas_wfs(base_dir = "db/DFR")
 
 # --- Uso diario: cargar desde disco, sin credenciales ---
-lista_sf <- cargar_capas_local(base_dir = "db/DFR", formato = "RDS")
+# lista_sf <- cargar_capas_local(base_dir = "db/DFR", formato = "RDS")
 # lista_sf <- cargar_capas_local(base_dir = "db/DFR", formato = "GPKG")
 
 # --- Ejemplos con prefijo o usuario fijos ---
 # actualizar_capas_wfs(base_dir = "db/DFR", usuario = "im4445285")
 # actualizar_capas_wfs(base_dir = "db/DFR", prefijo = "^urb:")
 
+posiciones_dfr <- lista_sf[["dfr_E_DF_POSICIONES:RECORRIDO"]]
+recorridos_dfr <- lista_sf[["dfr_E_DF_RUTAS:RECORRIDO"]]
 
 ## RUTAS ----
 
-Rutas_recorrido_vigente <- lista_sf[["dfr:E_DF_RUTAS_RECORRIDO"]]
+# Rutas_recorrido_vigente <- lista_sf[["dfr:E_DF_RUTAS_RECORRIDO"]]
 
 ### Funcion para dibujar rutas ----
 
@@ -213,214 +215,203 @@ Rutas_recorrido_vigente <- lista_sf[["dfr:E_DF_RUTAS_RECORRIDO"]]
 #'                          Si es FALSE, todas serán de color único.
 #' @param color_unico color para todas las líneas si colorear_distinto es FALSE.
 #' @return htmlwidget leaflet.
-drawRutasPorCodigoLeaflet <- function(rutas_df,
-                                      valores = NULL,
-                                      campo = "NOM_RUT",
-                                      geom_col = NULL,
-                                      colorear_distinto = FALSE, # NUEVO PARÁMETRO
-                                      color_unico = "blue", # NUEVO PARÁMETRO
-                                      tile_provider = c("OpenStreetMap", "CartoDB", "Stamen")) {
-  tile_provider <- match.arg(tile_provider)
-  stopifnot(inherits(rutas_df, "sf"))
-
-  if (!is.null(geom_col)) sf::st_geometry(rutas_df) <- geom_col
-  if (is.na(sf::st_crs(rutas_df))) stop("Definí el CRS del sf antes de transformar.")
-  if (!campo %in% names(rutas_df)) stop("Campo inexistente para identificar: ", campo)
-
-  # --- Lógica de Filtrado (igual que antes) ---
-  if (is.null(valores)) {
-    sel <- rutas_df
-  } else {
-    vals <- unique(as.character(valores))
-    sel <- rutas_df[rutas_df[[campo]] %in% vals, , drop = FALSE]
-  }
-
-  if (!nrow(sel)) stop("El dataframe está vacío o no hay coincidencias.")
-
-  # --- Procesamiento Geográfico ---
-  sel <- sf::st_make_valid(sel)
-  rutas_ll <- sf::st_transform(sel, 4326)
-
-  # Popup robusto (igual que antes)
-  cols <- intersect(c("id", "COD_RECORRIDO", "NOM_RUT", "FECHA_DESDE", "FECHA_HASTA", "MUNICIPIO"), names(rutas_ll))
-  if (length(cols)) {
-    parts <- lapply(cols, function(k) sprintf("<strong>%s:</strong> %s", k, as.character(rutas_ll[[k]])))
-    rutas_ll$popup <- vapply(seq_len(nrow(rutas_ll)), function(i) paste(vapply(parts, `[`, "", i), collapse = "<br/>"), "")
-  } else {
-    rutas_ll$popup <- "Ruta"
-  }
-
-  # --- Renderizado Leaflet ---
-  m <- leaflet::leaflet(rutas_ll)
-  m <- switch(tile_provider,
-    CartoDB       = leaflet::addProviderTiles(m, "CartoDB.Positron"),
-    Stamen        = leaflet::addProviderTiles(m, "Stamen.TonerLite"),
-    OpenStreetMap = leaflet::addTiles(m)
-  )
-
-  # --- NUEVA LÓGICA DE COLOR Y LEYENDA ---
-
-  if (colorear_distinto) {
-    # 1. Crear paleta dinámica basada en los nombres únicos del campo
-    # Usamos 'viridis' porque es buena para distinguir colores, pero puedes cambiarla.
-    pal <- leaflet::colorFactor(palette = "viridis", domain = rutas_ll[[campo]])
-
-    # 2. Dibujar polilíneas usando la paleta (~pal(...))
-    # NOTA: Usamos get(campo) para extraer dinámicamente el valor de la columna
-    m <- leaflet::addPolylines(m, color = ~ pal(get(campo)), weight = 3, opacity = 0.8, popup = ~popup)
-
-    # 3. Agregar leyenda completa que mapea colores a nombres
-    m <- leaflet::addLegend(m,
-      position = "bottomright",
-      pal = pal,
-      values = ~ get(campo),
-      title = paste("Rutas (", campo, ")", sep = "")
-    )
-  } else {
-    # Lógica de color ÚNICO (como antes)
-    m <- leaflet::addPolylines(m, color = color_unico, weight = 3, opacity = 0.7, popup = ~popup)
-
-    # Leyenda simple
-    if (is.null(valores)) {
-      label_leyenda <- "Todas las rutas"
-    } else {
-      label_leyenda <- paste0(campo, ": ", paste(valores, collapse = ", "))
-    }
-
-    m <- leaflet::addLegend(m,
-      position = "bottomright",
-      colors = color_unico,
-      labels = label_leyenda,
-      title = "Líneas"
-    )
-  }
-
-  return(m)
-}
+# drawRutasPorCodigoLeaflet <- function(rutas_df,
+#                                       valores = NULL,
+#                                       campo = "NOM_RUT",
+#                                       geom_col = NULL,
+#                                       colorear_distinto = FALSE, # NUEVO PARÁMETRO
+#                                       color_unico = "blue", # NUEVO PARÁMETRO
+#                                       tile_provider = c("OpenStreetMap", "CartoDB", "Stamen")) {
+#   tile_provider <- match.arg(tile_provider)
+#   stopifnot(inherits(rutas_df, "sf"))
+# 
+#   if (!is.null(geom_col)) sf::st_geometry(rutas_df) <- geom_col
+#   if (is.na(sf::st_crs(rutas_df))) stop("Definí el CRS del sf antes de transformar.")
+#   if (!campo %in% names(rutas_df)) stop("Campo inexistente para identificar: ", campo)
+# 
+#   # --- Lógica de Filtrado (igual que antes) ---
+#   if (is.null(valores)) {
+#     sel <- rutas_df
+#   } else {
+#     vals <- unique(as.character(valores))
+#     sel <- rutas_df[rutas_df[[campo]] %in% vals, , drop = FALSE]
+#   }
+# 
+#   if (!nrow(sel)) stop("El dataframe está vacío o no hay coincidencias.")
+# 
+#   # --- Procesamiento Geográfico ---
+#   sel <- sf::st_make_valid(sel)
+#   rutas_ll <- sf::st_transform(sel, 4326)
+# 
+#   # Popup robusto (igual que antes)
+#   cols <- intersect(c("id", "COD_RECORRIDO", "NOM_RUT", "FECHA_DESDE", "FECHA_HASTA", "MUNICIPIO"), names(rutas_ll))
+#   if (length(cols)) {
+#     parts <- lapply(cols, function(k) sprintf("<strong>%s:</strong> %s", k, as.character(rutas_ll[[k]])))
+#     rutas_ll$popup <- vapply(seq_len(nrow(rutas_ll)), function(i) paste(vapply(parts, `[`, "", i), collapse = "<br/>"), "")
+#   } else {
+#     rutas_ll$popup <- "Ruta"
+#   }
+# 
+#   # --- Renderizado Leaflet ---
+#   m <- leaflet::leaflet(rutas_ll)
+#   m <- switch(tile_provider,
+#     CartoDB       = leaflet::addProviderTiles(m, "CartoDB.Positron"),
+#     Stamen        = leaflet::addProviderTiles(m, "Stamen.TonerLite"),
+#     OpenStreetMap = leaflet::addTiles(m)
+#   )
+# 
+#   # --- NUEVA LÓGICA DE COLOR Y LEYENDA ---
+# 
+#   if (colorear_distinto) {
+#     # 1. Crear paleta dinámica basada en los nombres únicos del campo
+#     # Usamos 'viridis' porque es buena para distinguir colores, pero puedes cambiarla.
+#     pal <- leaflet::colorFactor(palette = "viridis", domain = rutas_ll[[campo]])
+# 
+#     # 2. Dibujar polilíneas usando la paleta (~pal(...))
+#     # NOTA: Usamos get(campo) para extraer dinámicamente el valor de la columna
+#     m <- leaflet::addPolylines(m, color = ~ pal(get(campo)), weight = 3, opacity = 0.8, popup = ~popup)
+# 
+#     # 3. Agregar leyenda completa que mapea colores a nombres
+#     m <- leaflet::addLegend(m,
+#       position = "bottomright",
+#       pal = pal,
+#       values = ~ get(campo),
+#       title = paste("Rutas (", campo, ")", sep = "")
+#     )
+#   } else {
+#     # Lógica de color ÚNICO (como antes)
+#     m <- leaflet::addPolylines(m, color = color_unico, weight = 3, opacity = 0.7, popup = ~popup)
+# 
+#     # Leyenda simple
+#     if (is.null(valores)) {
+#       label_leyenda <- "Todas las rutas"
+#     } else {
+#       label_leyenda <- paste0(campo, ": ", paste(valores, collapse = ", "))
+#     }
+# 
+#     m <- leaflet::addLegend(m,
+#       position = "bottomright",
+#       colors = color_unico,
+#       labels = label_leyenda,
+#       title = "Líneas"
+#     )
+#   }
+# 
+#   return(m)
+# }
 
 # Dibujar todo, mismo color.
-rutas_completas <- drawRutasPorCodigoLeaflet(Rutas_recorrido_vigente)
+# rutas_completas <- drawRutasPorCodigoLeaflet(Rutas_recorrido_vigente)
 
 # Dibujar todo, distinto color.
-rutas_completas_pintado <- drawRutasPorCodigoLeaflet(Rutas_recorrido_vigente,
-  colorear_distinto = TRUE
-)
+# rutas_completas_pintado <- drawRutasPorCodigoLeaflet(Rutas_recorrido_vigente,
+#   colorear_distinto = TRUE
+# )
 
 # Por defecto filtra por "COD_RECORRIDO"
-mapa1 <- drawRutasPorCodigoLeaflet(E_DF_RUTAS_RECORRIDO, valores = "B_DU_RM_CL_101")
+# mapa1 <- drawRutasPorCodigoLeaflet(E_DF_RUTAS_RECORRIDO, valores = "B_DU_RM_CL_101")
 
 # Varios códigos
-mapa2 <- drawRutasPorCodigoLeaflet(E_DF_RUTAS_RECORRIDO,
-  valores = c("B_DU_RM_CL_101", "B_DU_RM_CL_102"),
-  colorear_distinto = TRUE
-)
+# mapa2 <- drawRutasPorCodigoLeaflet(E_DF_RUTAS_RECORRIDO,
+#   valores = c("B_DU_RM_CL_101", "B_DU_RM_CL_102"),
+#   colorear_distinto = TRUE
+# )
 
 
-dbDisconnect(con)
 
-library(leaflet)
-library(leaflet.extras)
-library(sf)
-library(dplyr)
-
-library(leaflet)
-library(leaflet.extras)
-library(sf)
-library(dplyr)
-
-drawMapa_IM_Pro <- function(zona_df,
-                            col_id = "id",
-                            col_label = "nombre",
-                            filtro_ids = NULL,
-                            color_relleno = "darkgreen",
-                            opacidad = 0.3) {
-  # 1. FILTRADO Y PREPARACIÓN
-  data_mapa <- zona_df
-
-  if (!is.null(filtro_ids)) {
-    # Filtramos usando el nombre de columna dinámico
-    data_mapa <- data_mapa %>% filter(.data[[col_id]] %in% filtro_ids)
-  }
-
-  # Verificación: ¿quedó algo después del filtro?
-  if (nrow(data_mapa) == 0) {
-    stop("El filtro no devolvió resultados. Verificá si los IDs existen en la columna seleccionada.")
-  }
-
-  # 2. CREAR COLUMNAS ESTÁTICAS (Esto evita el error de 'type list')
-  # Extraemos los valores como vectores simples para que leaflet no se confunda
-  data_mapa$.id_display <- as.character(data_mapa[[col_id]])
-  data_mapa$.label_display <- as.character(data_mapa[[col_label]])
-
-  # Reproyectar a WGS84
-  data_mapa <- st_transform(data_mapa, 4326)
-
-  # 3. LÓGICA DE COLORES
-  if (color_relleno %in% names(data_mapa)) {
-    pal <- colorFactor(palette = "Set1", domain = data_mapa[[color_relleno]])
-    fill_color_final <- pal(data_mapa[[color_relleno]])
-  } else {
-    fill_color_final <- color_relleno
-  }
-
-  # 4. CONSTRUCCIÓN DEL MAPA
-  leaflet(data_mapa) %>%
-    addWMSTiles(
-      baseUrl = "https://montevideo.gub.uy/app/geowebcache/service/wms",
-      layers = "mapstore-base:capas_base",
-      options = WMSTileOptions(format = "image/png", transparent = TRUE),
-      group = "Mapa Base IM"
-    ) %>%
-    addPolygons(
-      color = "black", weight = 1,
-      fillColor = fill_color_final,
-      fillOpacity = opacidad,
-      # Usamos las columnas estáticas que creamos arriba con ~
-      label = ~.label_display,
-      popup = ~ paste0(
-        "<strong>ID:</strong> ", .id_display, "<br>",
-        "<strong>Etiqueta:</strong> ", .label_display
-      ),
-      group = "Capa Activa"
-    ) %>%
-    addSearchOSM(
-      options = searchOptions(textPlaceholder = "Buscar dirección...", collapsed = FALSE)
-    ) %>%
-    addSearchFeatures(
-      targetGroups = "Capa Activa",
-      options = searchFeaturesOptions(zoom = 16, openPopup = TRUE, textPlaceholder = "Buscar por ID...")
-    ) %>%
-    addLayersControl(
-      overlayGroups = c("Capa Activa"),
-      options = layersControlOptions(collapsed = FALSE)
-    )
-}
-
-# Todos
-drawMapa_IM_Pro(Vigente_Circuitos_CAP,
-  col_id = "GID",
-  col_label = "CIRCUITO",
-  color_relleno = "orange"
-)
-
-# Para dibujar circuitos específicos con color fijo
-mapa_especifico <- drawMapa_IM_Pro(
-  Vigente_Circuitos_CAP,
-  col_id = "CIRCUITO",
-  col_label = "CIRCUITO",
-  filtro_ids = c(1, 9, 6), # Asegurate que estos GID existan
-  color_relleno = "red"
-)
-
-# Para dibujar circuitos específicos con color diferentes
-mapa_especifico <- drawMapa_IM_Pro(
-  Vigente_Circuitos_CAP,
-  col_id = "CIRCUITO",
-  col_label = "CIRCUITO",
-  color_relleno = "CIRCUITO"
-)
-
-mapa_especifico
+# drawMapa_IM_Pro <- function(zona_df,
+#                             col_id = "id",
+#                             col_label = "nombre",
+#                             filtro_ids = NULL,
+#                             color_relleno = "darkgreen",
+#                             opacidad = 0.3) {
+#   # 1. FILTRADO Y PREPARACIÓN
+#   data_mapa <- zona_df
+# 
+#   if (!is.null(filtro_ids)) {
+#     # Filtramos usando el nombre de columna dinámico
+#     data_mapa <- data_mapa %>% filter(.data[[col_id]] %in% filtro_ids)
+#   }
+# 
+#   # Verificación: ¿quedó algo después del filtro?
+#   if (nrow(data_mapa) == 0) {
+#     stop("El filtro no devolvió resultados. Verificá si los IDs existen en la columna seleccionada.")
+#   }
+# 
+#   # 2. CREAR COLUMNAS ESTÁTICAS (Esto evita el error de 'type list')
+#   # Extraemos los valores como vectores simples para que leaflet no se confunda
+#   data_mapa$.id_display <- as.character(data_mapa[[col_id]])
+#   data_mapa$.label_display <- as.character(data_mapa[[col_label]])
+# 
+#   # Reproyectar a WGS84
+#   data_mapa <- st_transform(data_mapa, 4326)
+# 
+#   # 3. LÓGICA DE COLORES
+#   if (color_relleno %in% names(data_mapa)) {
+#     pal <- colorFactor(palette = "Set1", domain = data_mapa[[color_relleno]])
+#     fill_color_final <- pal(data_mapa[[color_relleno]])
+#   } else {
+#     fill_color_final <- color_relleno
+#   }
+# 
+#   # 4. CONSTRUCCIÓN DEL MAPA
+#   leaflet(data_mapa) %>%
+#     addWMSTiles(
+#       baseUrl = "https://montevideo.gub.uy/app/geowebcache/service/wms",
+#       layers = "mapstore-base:capas_base",
+#       options = WMSTileOptions(format = "image/png", transparent = TRUE),
+#       group = "Mapa Base IM"
+#     ) %>%
+#     addPolygons(
+#       color = "black", weight = 1,
+#       fillColor = fill_color_final,
+#       fillOpacity = opacidad,
+#       # Usamos las columnas estáticas que creamos arriba con ~
+#       label = ~.label_display,
+#       popup = ~ paste0(
+#         "<strong>ID:</strong> ", .id_display, "<br>",
+#         "<strong>Etiqueta:</strong> ", .label_display
+#       ),
+#       group = "Capa Activa"
+#     ) %>%
+#     addSearchOSM(
+#       options = searchOptions(textPlaceholder = "Buscar dirección...", collapsed = FALSE)
+#     ) %>%
+#     addSearchFeatures(
+#       targetGroups = "Capa Activa",
+#       options = searchFeaturesOptions(zoom = 16, openPopup = TRUE, textPlaceholder = "Buscar por ID...")
+#     ) %>%
+#     addLayersControl(
+#       overlayGroups = c("Capa Activa"),
+#       options = layersControlOptions(collapsed = FALSE)
+#     )
+# }
+# 
+# # Todos
+# drawMapa_IM_Pro(Vigente_Circuitos_CAP,
+#   col_id = "GID",
+#   col_label = "CIRCUITO",
+#   color_relleno = "orange"
+# )
+# 
+# # Para dibujar circuitos específicos con color fijo
+# mapa_especifico <- drawMapa_IM_Pro(
+#   Vigente_Circuitos_CAP,
+#   col_id = "CIRCUITO",
+#   col_label = "CIRCUITO",
+#   filtro_ids = c(1, 9, 6), # Asegurate que estos GID existan
+#   color_relleno = "red"
+# )
+# 
+# # Para dibujar circuitos específicos con color diferentes
+# mapa_especifico <- drawMapa_IM_Pro(
+#   Vigente_Circuitos_CAP,
+#   col_id = "CIRCUITO",
+#   col_label = "CIRCUITO",
+#   color_relleno = "CIRCUITO"
+# )
+# 
+# mapa_especifico
 #
 # Guía rápida de personalización (Comentarios para vos):
 #   Para dibujar TODO el data frame: Simplemente no pongas el argumento filtro_ids (quedará como NULL por defecto).

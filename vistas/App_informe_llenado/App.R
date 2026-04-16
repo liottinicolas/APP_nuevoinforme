@@ -5,6 +5,8 @@ library(sf)
 library(pins)
 library(dplyr)
 library(DT)
+library(bs4Dash)
+
 
 
 # 1. CARGA Y PREPROCESAMIENTO DE DATOS
@@ -25,44 +27,76 @@ historico_llenado <- board %>% pin_read("historico_llenado")
 lat_mvd <- -34.8636
 lng_mvd <- -56.1679
 
-ui <- fluidPage(
+ui <- dashboardPage(
   
-  titlePanel("Gestión de GIDs - Montevideo"),
+  # 1. Barra Superior
+  header = dashboardHeader(
+    title = "Gestión de GIDs",
+    skin = "light"
+  ),
   
-  # Estructura de Pestañas
-  tabsetPanel(
-    # PESTAÑA 1: MAPA
-    tabPanel("Mapa Interactivo",
-             sidebarLayout(
-               sidebarPanel(
-                 radioButtons("seleccion_estado", "Ver en el mapa:",
-                              choices = list("GIDs Activos" = "act", 
-                                             "GIDs Inactivos" = "inact"),
-                              selected = "act"),
-                 hr(),
-                 helpText("Usa la lupa en el mapa para buscar un GID específico.")
-               ),
-               mainPanel(
-                 tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}"),
-                 leafletOutput("map")
-               )
-             )
-    ),
-    
-    # PESTAÑA 2: HISTÓRICO
-    tabPanel("Histórico de Llenado",
-             fluidRow(
-               column(4, 
-                      wellPanel(
-                        textInput("busqueda_gid", "Ingrese GID para consultar:", value = ""),
-                        helpText("Presione Enter o espere un momento para actualizar la tabla.")
-                      )
-               ),
-               column(8,
-                      h4("Registros de Llenado"),
-                      DTOutput("tabla_historico")
-               )
-             )
+  # 2. Menú Lateral (Tus antiguas pestañas van aquí)
+  sidebar = dashboardSidebar(
+    skin = "dark",
+    sidebarMenu(
+      menuItem("Mapa Interactivo", tabName = "mapa", icon = icon("map")),
+      menuItem("Histórico de Llenado", tabName = "hist", icon = icon("table"))
+    )
+  ),
+  
+  # 3. Cuerpo Principal (El contenido de cada pestaña)
+  body = dashboardBody(
+    tabItems(
+      
+      # Contenido de la pestaña MAPA
+      tabItem(tabName = "mapa",
+              fluidRow(
+                # Una tarjeta (box) para los controles
+                box(
+                  title = "Controles", width = 3, status = "primary",
+                  radioButtons("seleccion_estado", "Ver en el mapa:",
+                               choices = list("GIDs Activos" = "act", "GIDs Inactivos" = "inact"))
+                ),
+                # Una tarjeta para el mapa
+                box(
+                  title = "Visor Geográfico", width = 9, maximizable = TRUE, status = "info",
+                  leafletOutput("map", height = "600px")
+                )
+              )
+      ),
+      
+      # Contenido de la pestaña HISTÓRICO
+      tabItem(tabName = "hist",
+              
+              # Fila 1: Buscador (Arriba)
+              fluidRow(
+                box(
+                  title = "Búsqueda de Contenedor", 
+                  width = 12, # Ocupa todo el ancho
+                  status = "primary", 
+                  solidHeader = TRUE, # Le da un fondo de color al título de la caja
+                  icon = icon("search"),
+                  
+                  textInput("busqueda_gid", "Ingrese el número de GID para consultar su historial:", 
+                            placeholder = "Ej: 12345"),
+                  helpText("Presione Enter para ver los resultados.")
+                )
+              ),
+              
+              # Fila 2: Tabla de Resultados (Debajo)
+              fluidRow(
+                box(
+                  title = "Historial de Llenado", 
+                  width = 12, # Ocupa todo el ancho
+                  status = "success", 
+                  solidHeader = TRUE,
+                  icon = icon("list"),
+                  
+                  # Aquí va la tabla
+                  DTOutput("tabla_historico")
+                )
+              )
+      )
     )
   )
 )

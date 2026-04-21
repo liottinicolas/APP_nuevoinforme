@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_b78eb35a131a90237c02a86d3e5aaad6 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_b78eb35a131a90237c02a86d3e5aaad6" ></div>
+        
+    
+    <div id='info-card' style='
+        position: fixed; bottom: 50px; left: 50px; width: 260px; height: auto; 
+        background-color: #0046E3; border: 1px solid white; z-index:9999; 
+        font-size: 13px; color: white; padding: 15px; border-radius: 12px; 
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3); font-family: sans-serif;'>
+        <div style='text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px;'>
+            RESUMEN DE ANÁLISIS
+        </div>
+        <div style='line-height: 1.7;'>
+            <b>Matrícula:</b> <span style='font-size: 14px;'>SIM3128</span><br>
+            <b>Zona:</b> COOPERATIVA PLAN JUNTOS <br>
+            <b>Fracción:</b> MEZCLADO/RECICLABLE <br>
+            <hr style='margin: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.3);'>
+            <b>Inicio:</b> 08:17:31 <br>
+            <b>Fin:</b> 08:17:31 <br>
+            <div style='text-align: center; margin-top: 15px;'>
+                <img src="https://montevideo.gub.uy/modules/custom/im_logo/images/logo_im.png" 
+                     style="width: 130px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script>
+    
+    
+            var map_b78eb35a131a90237c02a86d3e5aaad6 = L.map(
+                "map_b78eb35a131a90237c02a86d3e5aaad6",
+                {
+                    center: [-34.85, -56.16],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_a3a1b5d4865b0a5e233fb1853c89c4aa = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_a3a1b5d4865b0a5e233fb1853c89c4aa.addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+        
+    
+        function geo_json_d67e68935fe05cff9801f210611c458c_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.15};
+            }
+        }
+
+        function geo_json_d67e68935fe05cff9801f210611c458c_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_d67e68935fe05cff9801f210611c458c = L.geoJson(null, {
+                onEachFeature: geo_json_d67e68935fe05cff9801f210611c458c_onEachFeature,
+            
+                style: geo_json_d67e68935fe05cff9801f210611c458c_styler,
+            ...{
+}
+        });
+
+        function geo_json_d67e68935fe05cff9801f210611c458c_add (data) {
+            geo_json_d67e68935fe05cff9801f210611c458c
+                .addData(data);
+        }
+            geo_json_d67e68935fe05cff9801f210611c458c_add({"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "features": [{"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "geometry": {"coordinates": [[[[-56.253071858376096, -34.84775896419041], [-56.25268062157265, -34.8477872584088], [-56.25244480479493, -34.84778580921146], [-56.25208941029196, -34.847282231301975], [-56.25170313069845, -34.84744869175797], [-56.252039813788834, -34.847962388212196], [-56.252088348569266, -34.84808547678978], [-56.25198285122136, -34.848084828002634], [-56.2515900376521, -34.84828706164526], [-56.25179278952057, -34.84851342428831], [-56.2526470102096, -34.84875914025854], [-56.25326828132076, -34.84868621245403], [-56.253071858376096, -34.84775896419041]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-03-20", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MIERCOLES Y SABADOS", "FRECUENCIA.RECICLABLE": "LUNES", "RECICLABLE": "CONTENEDOR", "TURNO": "MATUTINO", "cont.ret": "2.0", "id": null, "id_0": "20", "municipio": "A", "nombre": "COOPERATIVA PLAN JUNTOS", "poblacion": null, "viviendas": "152.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_d67e68935fe05cff9801f210611c458c.addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+        
+    
+            map_b78eb35a131a90237c02a86d3e5aaad6.fitBounds(
+                [[-34.84875914025854, -56.25326828132076], [-34.847282231301975, -56.2515900376521]],
+                {}
+            );
+        
+    
+            var poly_line_d9bd62ede852be0288f599bb35ab7ac1 = L.polyline(
+                [[-34.84832, -56.251656]],
+                {"bubblingMouseEvents": true, "color": "#0046E3", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#0046E3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+        
+    
+            var circle_marker_215bae767a261ef39c2103d4199b3090 = L.circleMarker(
+                [-34.84832, -56.251656],
+                {"bubblingMouseEvents": true, "color": "#0046E3", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0046E3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 3, "stroke": true, "weight": 3}
+            ).addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+        
+    
+        var popup_59aba30eb9d993ff7292e203063dd212 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2e2fd0e3c5a4a9b63728585324b02e75 = $(`<div id="html_2e2fd0e3c5a4a9b63728585324b02e75" style="width: 100.0%; height: 100.0%;">Hora: 20-04-2026 08:17:31<br>Vel: 9 km/h</div>`)[0];
+                popup_59aba30eb9d993ff7292e203063dd212.setContent(html_2e2fd0e3c5a4a9b63728585324b02e75);
+            
+        
+
+        circle_marker_215bae767a261ef39c2103d4199b3090.bindPopup(popup_59aba30eb9d993ff7292e203063dd212)
+        ;
+
+        
+    
+    
+            var layer_control_91c3b0ea35784d869ea3055655ed8d23_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_a3a1b5d4865b0a5e233fb1853c89c4aa,
+                },
+                overlays :  {
+                    "Zona Filtrada" : geo_json_d67e68935fe05cff9801f210611c458c,
+                },
+            };
+            let layer_control_91c3b0ea35784d869ea3055655ed8d23 = L.control.layers(
+                layer_control_91c3b0ea35784d869ea3055655ed8d23_layers.base_layers,
+                layer_control_91c3b0ea35784d869ea3055655ed8d23_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+
+        
+</script>
+</html>

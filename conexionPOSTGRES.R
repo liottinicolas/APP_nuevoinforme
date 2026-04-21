@@ -163,9 +163,9 @@ cargar_capa_local_postgres <- function(tabla, base_dir = "db/POSTGRES", formato 
 # =============================================================================
 
 # --- PASO 1: actualizar desde la base (requiere conexión) ---
-con <- conectar_postgres()
-capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
-dbDisconnect(con)
+# con <- conectar_postgres()
+# capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
+# dbDisconnect(con)
 
 # --- PASO 2: la próxima vez, cargar desde disco (sin conexión) ---
 # capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")

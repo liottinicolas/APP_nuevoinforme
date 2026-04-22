@@ -9,9 +9,20 @@ library(bs4Dash)
 
 
 
-# 1. CARGA Y PREPROCESAMIENTO DE DATOS
-board <- board_folder("data")
+# --- DETECCIÓN DE ENTORNO ---
+# Si existe la carpeta local 'data', la usamos. Si no, vamos a GitHub.
+# Reemplaza la parte del board por esto:
+if (dir.exists("data")) {
+  board <- pins::board_folder("data")
+} else {
+  board <- pins::board_github(
+    repo = "liottinicolas/APP_nuevoinforme",
+    path = "data",
+    token = Sys.getenv("GITHUB_PAT")
+  )
+}
 
+# El resto del proceso sigue igual para ambos casos
 preprocesar_datos <- function(df) {
   if (!inherits(df, "sf")) {
     df <- st_as_sf(df, wkt = "THE_GEOM", crs = 32721)
@@ -19,10 +30,9 @@ preprocesar_datos <- function(df) {
   return(st_transform(df, 4326))
 }
 
-# Cargamos los pins
 GID_activos       <- preprocesar_datos(board %>% pin_read("GID_activos"))
 GID_inactivos     <- preprocesar_datos(board %>% pin_read("GID_inactivos"))
-historico_llenado <- board %>% pin_read("historico_llenado")
+historico_llenado_web <- board %>% pin_read("historico_llenado_web")
 
 lat_mvd <- -34.8636
 lng_mvd <- -56.1679
@@ -143,7 +153,7 @@ server <- function(input, output, session) {
   datos_filtrados <- reactive({
     req(input$busqueda_gid) # Solo corre si hay algo escrito
     
-    historico_llenado %>%
+    historico_llenado_web %>%
       # Convertimos a carácter para asegurar que la comparación funcione
       filter(as.character(gid) == input$busqueda_gid) %>%
       select(

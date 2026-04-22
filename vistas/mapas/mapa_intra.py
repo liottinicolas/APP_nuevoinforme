@@ -9,6 +9,7 @@ from branca.element import Template, MacroElement
 def limpiar_para_json(gdf):
     if gdf is None or gdf.empty:
         return gdf
+    # Convertimos todas las columnas (excepto geometry) a texto para evitar errores de JSON/Timestamp
     for col in gdf.columns:
         if col != 'geometry':
             gdf[col] = gdf[col].astype(str).replace('NaT', '').replace('None', '')
@@ -21,57 +22,57 @@ def generar_mapa():
 
     mapa = folium.Map(location=[-34.85, -56.16], zoom_start=14, tiles="CartoDB positron")
     
-    resumen_datos = {
-        "zona": "No definida", 
-        "fraccion": "N/A",
-        "matricula": "N/A",
-        "hora_inicio": "N/A",
-        "hora_fin": "N/A"
-    }
+    resumen_datos = {"zona": "N/A", "fraccion": "N/A", "matricula": "N/A", "hora_inicio": "N/A", "hora_fin": "N/A"}
 
-    # --- 1. CARGAR CAPA INTRA ---
+    # --- 1. CARGAR CAPA INTRA (Sector) ---
     if ruta_intra and os.path.exists(ruta_intra):
-        gdf_intra = gpd.read_file(ruta_intra)
-        gdf_intra_4326 = gdf_intra.to_crs(epsg=4326)
-        gdf_intra_4326 = limpiar_para_json(gdf_intra_4326)
+        gdf_intra = gpd.read_file(ruta_intra).to_crs(epsg=4326)
+        # Limpiamos para evitar error de 'Timestamp' en la capa de la zona
+        gdf_intra = limpiar_para_json(gdf_intra)
+        
         folium.GeoJson(
-            gdf_intra_4326,
+            gdf_intra,
             name="Zona Filtrada",
             style_function=lambda x: {'fillColor': 'orange', 'color': 'darkorange', 'fillOpacity': 0.15}
         ).add_to(mapa)
-        if not gdf_intra_4326.empty:
-            limites = gdf_intra_4326.total_bounds
+        
+        if not gdf_intra.empty:
+            limites = gdf_intra.total_bounds
             mapa.fit_bounds([[limites[1], limites[0]], [limites[3], limites[2]]])
 
-    # --- 2. CARGAR PUNTOS ---
+    # --- 2. CARGAR PUNTOS Y TRAYECTORIA ---
     if ruta_solapados and os.path.exists(ruta_solapados):
         gdf_puntos = gpd.read_file(ruta_solapados)
-        
         if not gdf_puntos.empty:
-            if 'tiempo' in gdf_puntos.columns:
-                gdf_puntos['tiempo_dt'] = pd.to_datetime(gdf_puntos['tiempo'], errors='coerce')
-                gdf_puntos = gdf_puntos.sort_values(by='tiempo_dt')
-                resumen_datos["hora_inicio"] = gdf_puntos['tiempo_dt'].min().strftime('%H:%M:%S')
-                resumen_datos["hora_fin"] = gdf_puntos['tiempo_dt'].max().strftime('%H:%M:%S')
-
-            resumen_datos["zona"] = str(gdf_puntos['nombre'].iloc[0]) if 'nombre' in gdf_puntos.columns else "N/A"
-            resumen_datos["fraccion"] = str(gdf_puntos['FRACCION'].iloc[0]) if 'FRACCION' in gdf_puntos.columns else "N/A"
-            resumen_datos["matricula"] = str(gdf_puntos['matricula'].iloc[0]) if 'matricula' in gdf_puntos.columns else "N/A"
+            # Procesar fechas
+            gdf_puntos['tiempo_dt'] = pd.to_datetime(gdf_puntos['tiempo'], dayfirst=True, errors='coerce')
+            gdf_puntos = gdf_puntos.sort_values(by='tiempo_dt')
+            
+            resumen_datos.update({
+                "hora_inicio": gdf_puntos['tiempo_dt'].min().strftime('%H:%M:%S'),
+                "hora_fin": gdf_puntos['tiempo_dt'].max().strftime('%H:%M:%S'),
+                "zona": str(gdf_puntos['nombre'].iloc[0]) if 'nombre' in gdf_puntos.columns else "N/A",
+                "fraccion": str(gdf_puntos['FRACCION'].iloc[0]) if 'FRACCION' in gdf_puntos.columns else "N/A",
+                "matricula": str(gdf_puntos['matricula'].iloc[0]) if 'matricula' in gdf_puntos.columns else "N/A"
+            })
 
             gdf_puntos_4326 = gdf_puntos.to_crs(epsg=4326)
-            coords = [[f.geometry.y, f.geometry.x] for idx, f in gdf_puntos_4326.iterrows() if f.geometry]
             
+            # Dibujar Línea Azul (Trayectoria)
+            coords = [[f.geometry.y, f.geometry.x] for idx, f in gdf_puntos_4326.iterrows() if f.geometry]
             if coords:
-                folium.PolyLine(
-                    coords, color='#0046E3', weight=3, opacity=0.7, name="Trayectoria Real"
-                ).add_to(mapa)
+                folium.PolyLine(coords, color='#0046E3', weight=3, opacity=0.8).add_to(mapa)
 
+            # Dibujar Puntos (Verde/Naranja según velocidad)
             gdf_puntos_limpio = limpiar_para_json(gdf_puntos_4326.copy())
             for _, fila in gdf_puntos_limpio.iterrows():
                 if fila.geometry:
+                    vel = pd.to_numeric(fila.get('velocidad', 0), errors='coerce')
+                    color_p = '#FF6600' if vel <= 5 else '#33CC33'
                     folium.CircleMarker(
-                        location=[fila.geometry.y, fila.geometry.x], radius=3, color='#0046E3', fill=True,
-                        popup=f"Hora: {fila.get('tiempo', 'N/A')}<br>Vel: {fila.get('velocidad', '0')} km/h"
+                        location=[fila.geometry.y, fila.geometry.x], radius=4, color='white', weight=1,
+                        fill=True, fill_color=color_p, fill_opacity=1,
+                        popup=f"Hora: {fila['tiempo']}<br>Vel: {fila['velocidad']} km/h"
                     ).add_to(mapa)
 
     # --- 3. TARJETA INFORMATIVA ---

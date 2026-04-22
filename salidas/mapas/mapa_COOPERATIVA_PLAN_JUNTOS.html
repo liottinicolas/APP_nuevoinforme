@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_b78eb35a131a90237c02a86d3e5aaad6 {
+                #map_9a3f54104b2e3cae533a768ea459b52e {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,7 +54,7 @@
 <body>
     
     
-            <div class="folium-map" id="map_b78eb35a131a90237c02a86d3e5aaad6" ></div>
+            <div class="folium-map" id="map_9a3f54104b2e3cae533a768ea459b52e" ></div>
         
     
     <div id='info-card' style='
@@ -83,8 +83,8 @@
 <script>
     
     
-            var map_b78eb35a131a90237c02a86d3e5aaad6 = L.map(
-                "map_b78eb35a131a90237c02a86d3e5aaad6",
+            var map_9a3f54104b2e3cae533a768ea459b52e = L.map(
+                "map_9a3f54104b2e3cae533a768ea459b52e",
                 {
                     center: [-34.85, -56.16],
                     crs: L.CRS.EPSG3857,
@@ -101,7 +101,7 @@
 
         
     
-            var tile_layer_a3a1b5d4865b0a5e233fb1853c89c4aa = L.tileLayer(
+            var tile_layer_49abdf3ed908804f937316a6e0d7cc5c = L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {
   "minZoom": 0,
@@ -118,92 +118,86 @@
             );
         
     
-            tile_layer_a3a1b5d4865b0a5e233fb1853c89c4aa.addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+            tile_layer_49abdf3ed908804f937316a6e0d7cc5c.addTo(map_9a3f54104b2e3cae533a768ea459b52e);
         
     
-        function geo_json_d67e68935fe05cff9801f210611c458c_styler(feature) {
+        function geo_json_e9a9a1a98d964ed89d403164981e673c_styler(feature) {
             switch(feature.id) {
                 default:
-                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.15};
+                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
             }
         }
 
-        function geo_json_d67e68935fe05cff9801f210611c458c_onEachFeature(feature, layer) {
+        function geo_json_e9a9a1a98d964ed89d403164981e673c_onEachFeature(feature, layer) {
 
             layer.on({
             });
         };
-        var geo_json_d67e68935fe05cff9801f210611c458c = L.geoJson(null, {
-                onEachFeature: geo_json_d67e68935fe05cff9801f210611c458c_onEachFeature,
+        var geo_json_e9a9a1a98d964ed89d403164981e673c = L.geoJson(null, {
+                onEachFeature: geo_json_e9a9a1a98d964ed89d403164981e673c_onEachFeature,
             
-                style: geo_json_d67e68935fe05cff9801f210611c458c_styler,
+                style: geo_json_e9a9a1a98d964ed89d403164981e673c_styler,
             ...{
 }
         });
 
-        function geo_json_d67e68935fe05cff9801f210611c458c_add (data) {
-            geo_json_d67e68935fe05cff9801f210611c458c
+        function geo_json_e9a9a1a98d964ed89d403164981e673c_add (data) {
+            geo_json_e9a9a1a98d964ed89d403164981e673c
                 .addData(data);
         }
-            geo_json_d67e68935fe05cff9801f210611c458c_add({"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "features": [{"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "geometry": {"coordinates": [[[[-56.253071858376096, -34.84775896419041], [-56.25268062157265, -34.8477872584088], [-56.25244480479493, -34.84778580921146], [-56.25208941029196, -34.847282231301975], [-56.25170313069845, -34.84744869175797], [-56.252039813788834, -34.847962388212196], [-56.252088348569266, -34.84808547678978], [-56.25198285122136, -34.848084828002634], [-56.2515900376521, -34.84828706164526], [-56.25179278952057, -34.84851342428831], [-56.2526470102096, -34.84875914025854], [-56.25326828132076, -34.84868621245403], [-56.253071858376096, -34.84775896419041]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-03-20", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MIERCOLES Y SABADOS", "FRECUENCIA.RECICLABLE": "LUNES", "RECICLABLE": "CONTENEDOR", "TURNO": "MATUTINO", "cont.ret": "2.0", "id": null, "id_0": "20", "municipio": "A", "nombre": "COOPERATIVA PLAN JUNTOS", "poblacion": null, "viviendas": "152.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+            geo_json_e9a9a1a98d964ed89d403164981e673c_add({"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "features": [{"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "geometry": {"coordinates": [[[[-56.253071858376096, -34.84775896419041], [-56.25268062157265, -34.8477872584088], [-56.25244480479493, -34.84778580921146], [-56.25208941029196, -34.847282231301975], [-56.25170313069845, -34.84744869175797], [-56.252039813788834, -34.847962388212196], [-56.252088348569266, -34.84808547678978], [-56.25198285122136, -34.848084828002634], [-56.2515900376521, -34.84828706164526], [-56.25179278952057, -34.84851342428831], [-56.2526470102096, -34.84875914025854], [-56.25326828132076, -34.84868621245403], [-56.253071858376096, -34.84775896419041]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-03-20", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MIERCOLES Y SABADOS", "FRECUENCIA.RECICLABLE": "LUNES", "RECICLABLE": "CONTENEDOR", "TURNO": "MATUTINO", "cont.ret": "2.0", "id": null, "id_0": "20", "municipio": "A", "nombre": "COOPERATIVA PLAN JUNTOS", "poblacion": null, "viviendas": "152.0"}, "type": "Feature"}], "type": "FeatureCollection"});
 
         
     
-            geo_json_d67e68935fe05cff9801f210611c458c.addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+            geo_json_e9a9a1a98d964ed89d403164981e673c.addTo(map_9a3f54104b2e3cae533a768ea459b52e);
         
     
-            map_b78eb35a131a90237c02a86d3e5aaad6.fitBounds(
+            map_9a3f54104b2e3cae533a768ea459b52e.fitBounds(
                 [[-34.84875914025854, -56.25326828132076], [-34.847282231301975, -56.2515900376521]],
                 {}
             );
         
     
-            var poly_line_d9bd62ede852be0288f599bb35ab7ac1 = L.polyline(
-                [[-34.84832, -56.251656]],
-                {"bubblingMouseEvents": true, "color": "#0046E3", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#0046E3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
-        
-    
-            var circle_marker_215bae767a261ef39c2103d4199b3090 = L.circleMarker(
+            var circle_marker_afa79fe4aafff6020a5c1dd375f597f2 = L.circleMarker(
                 [-34.84832, -56.251656],
-                {"bubblingMouseEvents": true, "color": "#0046E3", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0046E3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 3, "stroke": true, "weight": 3}
-            ).addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#33CC33", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1}
+            ).addTo(map_9a3f54104b2e3cae533a768ea459b52e);
         
     
-        var popup_59aba30eb9d993ff7292e203063dd212 = L.popup({
+        var popup_074de63cff536e657d1a63bf554f936d = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_2e2fd0e3c5a4a9b63728585324b02e75 = $(`<div id="html_2e2fd0e3c5a4a9b63728585324b02e75" style="width: 100.0%; height: 100.0%;">Hora: 20-04-2026 08:17:31<br>Vel: 9 km/h</div>`)[0];
-                popup_59aba30eb9d993ff7292e203063dd212.setContent(html_2e2fd0e3c5a4a9b63728585324b02e75);
+                var html_1808e525bd3bfcc99d797dce4cd0c4f9 = $(`<div id="html_1808e525bd3bfcc99d797dce4cd0c4f9" style="width: 100.0%; height: 100.0%;">Hora: 20-04-2026 08:17:31<br>Vel: 9 km/h</div>`)[0];
+                popup_074de63cff536e657d1a63bf554f936d.setContent(html_1808e525bd3bfcc99d797dce4cd0c4f9);
             
         
 
-        circle_marker_215bae767a261ef39c2103d4199b3090.bindPopup(popup_59aba30eb9d993ff7292e203063dd212)
+        circle_marker_afa79fe4aafff6020a5c1dd375f597f2.bindPopup(popup_074de63cff536e657d1a63bf554f936d)
         ;
 
         
     
     
-            var layer_control_91c3b0ea35784d869ea3055655ed8d23_layers = {
+            var layer_control_e9454393e04957014483f32777bb4d46_layers = {
                 base_layers : {
-                    "cartodbpositron" : tile_layer_a3a1b5d4865b0a5e233fb1853c89c4aa,
+                    "cartodbpositron" : tile_layer_49abdf3ed908804f937316a6e0d7cc5c,
                 },
                 overlays :  {
-                    "Zona Filtrada" : geo_json_d67e68935fe05cff9801f210611c458c,
+                    "Sector de Trabajo" : geo_json_e9a9a1a98d964ed89d403164981e673c,
                 },
             };
-            let layer_control_91c3b0ea35784d869ea3055655ed8d23 = L.control.layers(
-                layer_control_91c3b0ea35784d869ea3055655ed8d23_layers.base_layers,
-                layer_control_91c3b0ea35784d869ea3055655ed8d23_layers.overlays,
+            let layer_control_e9454393e04957014483f32777bb4d46 = L.control.layers(
+                layer_control_e9454393e04957014483f32777bb4d46_layers.base_layers,
+                layer_control_e9454393e04957014483f32777bb4d46_layers.overlays,
                 {
   "position": "topright",
   "collapsed": false,
   "autoZIndex": true,
 }
-            ).addTo(map_b78eb35a131a90237c02a86d3e5aaad6);
+            ).addTo(map_9a3f54104b2e3cae533a768ea459b52e);
 
         
 </script>

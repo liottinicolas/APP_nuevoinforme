@@ -180,16 +180,21 @@ for (sector_nombre in sectores) {
   
   # --- 5. LLAMAR A PYTHON PASANDO EL NOMBRE DE SALIDA ---
   # Mapa interactivo (le pasamos 3 argumentos: capa, puntos y destino)
-  system2(python_venv, args = c("vistas/mapas/mapa_intra.py", 
+  # system2(python_venv, args = c("vistas/mapas/mapa_intra.py", 
+  #                               temp_path_intra, 
+  #                               temp_path_puntos,
+  #                               salida_html))
+  
+  system2(python_venv, args = c("vistas/mapas/mapa_intro_dibujarutas.py", 
                                 temp_path_intra, 
                                 temp_path_puntos,
                                 salida_html))
   
   # Mapa estático
-  system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py", 
-                                temp_path_intra, 
-                                temp_path_puntos,
-                                salida_png))
+  # system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py", 
+  #                               temp_path_intra, 
+  #                               temp_path_puntos,
+  #                               salida_png))
   
   message(paste("✅ Archivos generados para", sector_nombre))
 }

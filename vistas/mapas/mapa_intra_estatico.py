@@ -10,9 +10,9 @@ def generar_mapa_estatico():
     fig, ax = plt.subplots(figsize=(10, 12))
     resumen_datos = {"zona": "N/A", "fraccion": "N/A", "matricula": "N/A", "hora_inicio": "N/A", "hora_fin": "N/A", "fecha": "N/A"}
 
+    # --- 1. CARGAR PUNTOS ---
     if ruta_solapados and os.path.exists(ruta_solapados):
         gdf_puntos = gpd.read_file(ruta_solapados).to_crs(epsg=3857)
-        
         if not gdf_puntos.empty:
             gdf_puntos['t_dt'] = pd.to_datetime(gdf_puntos['tiempo'], dayfirst=True, errors='coerce')
             gdf_puntos = gdf_puntos.sort_values(by='t_dt')
@@ -26,16 +26,19 @@ def generar_mapa_estatico():
                 "matricula": str(gdf_puntos['matricula'].iloc[0]) if 'matricula' in gdf_puntos.columns else "N/A"
             })
 
+            # Dibujar Línea Azul
             ax.plot([p.x for p in gdf_puntos.geometry], [p.y for p in gdf_puntos.geometry], 
-                    color='#0046E3', lw=2.5, alpha=0.7, zorder=2)
+                    color='#0046E3', lw=2, alpha=0.7, zorder=2)
             
-            ax.scatter(gdf_puntos.geometry.x, gdf_puntos.geometry.y, 
-                       c='#0046E3', s=20, edgecolors='white', linewidth=0.5, zorder=3)
+            # Dibujar Puntos
+            ax.scatter(gdf_puntos.geometry.x, gdf_puntos.geometry.y, c='#0046E3', s=25, edgecolors='white', linewidth=0.8, zorder=3)
 
+    # --- 2. CARGAR CAPA INTRA ---
     if ruta_intra and os.path.exists(ruta_intra):
         gdf_intra = gpd.read_file(ruta_intra).to_crs(epsg=3857)
         gdf_intra.plot(ax=ax, facecolor='orange', edgecolor='darkorange', alpha=0.15, zorder=1)
         
+        # Auto-zoom
         xmin, ymin, xmax, ymax = gdf_intra.total_bounds
         ancho, alto = xmax - xmin, ymax - ymin
         ax.set_xlim(xmin - ancho * 0.45, xmax + ancho * 0.05)
@@ -44,10 +47,12 @@ def generar_mapa_estatico():
     cx.add_basemap(ax, source=cx.providers.CartoDB.Positron)
     ax.set_axis_off()
 
+    # Tarjeta de información
     info_texto = f"\n\n\n\n\n{'—'*22}\n FECHA:     {resumen_datos['fecha']}\n MATRÍCULA: {resumen_datos['matricula']}\n ZONA:      {resumen_datos['zona']}\n FRACCIÓN:  {resumen_datos['fraccion']}\n INICIO:    {resumen_datos['hora_inicio']}\n FIN:       {resumen_datos['hora_fin']}\n{'—'*22}"
     ax.text(0.02, 0.98, info_texto, transform=ax.transAxes, bbox=dict(facecolor='#0046E3', alpha=0.9, edgecolor='white', boxstyle='round,pad=0.8'),
             fontsize=11, color='white', fontweight='bold', family='monospace', va='top', ha='left', zorder=5)
 
+    # Logo IM
     try:
         url_logo = "https://montevideo.gub.uy/modules/custom/im_logo/images/logo_im.png"
         with urllib.request.urlopen(url_logo) as url:

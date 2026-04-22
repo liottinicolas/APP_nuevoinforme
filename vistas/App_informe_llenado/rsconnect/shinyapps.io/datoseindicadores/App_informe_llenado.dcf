@@ -1,0 +1,13 @@
+name: App_informe_llenado
+title: App_informe_llenado
+username: datoseindicadores
+account: datoseindicadores
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 17200563
+bundleId: 11889329
+url: https://datoseindicadores.shinyapps.io/App_informe_llenado/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: limpieza_datos.R

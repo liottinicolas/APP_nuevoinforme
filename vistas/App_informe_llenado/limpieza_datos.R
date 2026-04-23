@@ -14,10 +14,16 @@ historico_llenado_web <- readRDS(ruta_origen_llenado)
 
 # 3. Inicializar UN solo tablero local (dentro de tu repositorio Git)
 # Asumimos que la carpeta del proyecto R es el repositorio de "APP_nuevoinforme"
+# 3. Inicializar UN solo tablero local
 ruta_board <- "vistas/App_informe_llenado/data"
 
-board <- board_folder(ruta_board, versioned = FALSE)
+# 🔥 LA SOLUCIÓN: Borramos la carpeta entera si ya existe para limpiar versiones viejas
+if (dir.exists(ruta_board)) {
+  unlink(ruta_board, recursive = TRUE)
+}
 
+# Ahora creamos el tablero totalmente limpio y sin versiones
+board <- board_folder(ruta_board, versioned = FALSE)
 # 4. Actualizar los pines localmente
 board %>% pin_write(GID_activos, "GID_activos", type = "rds")
 board %>% pin_write(GID_inactivos, "GID_inactivos", type = "rds")
@@ -48,5 +54,3 @@ tryCatch({
   message("⚠️ Hubo un error al intentar sincronizar con GitHub:")
   message(e$message)
 })
-
-rsconnect::deployApp(appFiles = c("app.R", ".Renviron"))

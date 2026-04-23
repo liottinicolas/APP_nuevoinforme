@@ -7,22 +7,30 @@ library(dplyr)
 library(DT)
 library(bs4Dash)
 
+# Lo pones CON comillas
+Sys.setenv(GITHUB_PAT = "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")
 
 
-# --- DETECCIÓN DE ENTORNO ---
-# Si existe la carpeta local 'data', la usamos. Si no, vamos a GitHub.
-# Reemplaza la parte del board por esto:
-if (dir.exists("data")) {
-  board <- pins::board_folder("data")
+# --- DETECCIÓN DE ENTORNO Y CARGA DE DATOS ---
+ruta_local <- "data" 
+url_base_github <- "https://raw.githubusercontent.com/liottinicolas/APP_nuevoinforme/main/vistas/App_informe_llenado/data/"
+
+if (dir.exists(ruta_local)) {
+  board <- pins::board_folder(ruta_local)
 } else {
-  board <- pins::board_github(
-    repo = "liottinicolas/APP_nuevoinforme",
-    path = "data",
-    token = Sys.getenv("GITHUB_PAT")
-  )
+  # Recuperamos tu token de GitHub (si aplica)
+  mi_token <- Sys.getenv("GITHUB_PAT")
+  mis_headers <- if (mi_token != "") c("Authorization" = paste("token", mi_token)) else NULL
+  
+  # Usamos board_url para leer desde la nube
+  board <- pins::board_url(c(
+    "GID_activos" = paste0(url_base_github, "GID_activos/"),
+    "GID_inactivos" = paste0(url_base_github, "GID_inactivos/"),
+    "historico_llenado_web" = paste0(url_base_github, "historico_llenado_web/")
+  ), headers = mis_headers)
 }
 
-# El resto del proceso sigue igual para ambos casos
+# Preprocesamiento y lectura
 preprocesar_datos <- function(df) {
   if (!inherits(df, "sf")) {
     df <- st_as_sf(df, wkt = "THE_GEOM", crs = 32721)
@@ -30,8 +38,8 @@ preprocesar_datos <- function(df) {
   return(st_transform(df, 4326))
 }
 
-GID_activos       <- preprocesar_datos(board %>% pin_read("GID_activos"))
-GID_inactivos     <- preprocesar_datos(board %>% pin_read("GID_inactivos"))
+GID_activos           <- preprocesar_datos(board %>% pin_read("GID_activos"))
+GID_inactivos         <- preprocesar_datos(board %>% pin_read("GID_inactivos"))
 historico_llenado_web <- board %>% pin_read("historico_llenado_web")
 
 lat_mvd <- -34.8636
@@ -164,8 +172,13 @@ server <- function(input, output, session) {
   })
   
   output$tabla_historico <- renderDT({
+    
+    # Ordenamos el dataframe reactivo de más reciente a más antiguo
+    datos_ordenados <- datos_filtrados() %>%
+      arrange(desc(Fecha)) 
+    
     datatable(
-      datos_filtrados(),
+      datos_ordenados, # Pasamos el dataframe ya ordenado
       colnames = c(
         "Fecha", "Circuito", "Posicion", "Dirección", "Levante", 
         "Turno", "Hora", "ID_Viaje_GOL", "Incidencia", 

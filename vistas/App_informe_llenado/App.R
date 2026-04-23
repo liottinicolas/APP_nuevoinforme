@@ -13,21 +13,19 @@ Sys.setenv(GITHUB_PAT = "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")
 
 # --- DETECCIÓN DE ENTORNO Y CARGA DE DATOS ---
 ruta_local <- "data" 
-url_base_github <- "https://raw.githubusercontent.com/liottinicolas/APP_nuevoinforme/main/vistas/App_informe_llenado/data/"
+
+# URL base actualizada con refs/heads/main
+url_base_github <- "https://raw.githubusercontent.com/liottinicolas/APP_nuevoinforme/refs/heads/main/vistas/App_informe_llenado/data/"
 
 if (dir.exists(ruta_local)) {
   board <- pins::board_folder(ruta_local)
 } else {
-  # Recuperamos tu token de GitHub (si aplica)
-  mi_token <- Sys.getenv("GITHUB_PAT")
-  mis_headers <- if (mi_token != "") c("Authorization" = paste("token", mi_token)) else NULL
-  
-  # Usamos board_url para leer desde la nube
+  # Como limpiamos las fechas en el Paso 1, ahora sí buscará directamente en estas carpetas
   board <- pins::board_url(c(
     "GID_activos" = paste0(url_base_github, "GID_activos/"),
     "GID_inactivos" = paste0(url_base_github, "GID_inactivos/"),
     "historico_llenado_web" = paste0(url_base_github, "historico_llenado_web/")
-  ), headers = mis_headers)
+  ))
 }
 
 # Preprocesamiento y lectura

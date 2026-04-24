@@ -6,6 +6,7 @@ library(pins)
 library(dplyr)
 library(DT)
 library(bs4Dash)
+library(jsonlite)
 
 # --- DETECCIÓN DE ENTORNO Y CARGA DE DATOS ---
 # En local: lee desde la carpeta "data/" (generada por limpieza_datos.R)
@@ -76,7 +77,25 @@ ui <- dashboardPage(
                 box(
                   title = "Controles", width = 3, status = "primary",
                   radioButtons("seleccion_estado", "Ver en el mapa:",
-                               choices = list("GIDs Activos" = "act", "GIDs Inactivos" = "inact"))
+                               choices = list("GIDs Activos" = "act", "GIDs Inactivos" = "inact")),
+                  hr(),
+                  tags$label("Buscar por GID:"),
+                  tags$div(
+                    style = "display: flex; gap: 6px;",
+                    textInput("busqueda_gid_mapa", label = NULL, placeholder = "Ej: 12345"),
+                    actionButton("btn_buscar_gid", label = NULL, icon = icon("search"),
+                                 class = "btn-primary", style = "margin-top: 0px;")
+                  ),
+                  tags$small(class = "text-muted", "Busca en activos e inactivos"),
+                  hr(),
+                  tags$label("Buscar calle / dirección:"),
+                  tags$div(
+                    style = "display: flex; gap: 6px;",
+                    textInput("busqueda_calle", label = NULL, placeholder = "Ej: Av. 18 de Julio"),
+                    actionButton("btn_buscar_calle", label = NULL, icon = icon("map-marker-alt"),
+                                 class = "btn-info", style = "margin-top: 0px;")
+                  ),
+                  tags$small(class = "text-muted", "Busca en OpenStreetMap (Montevideo)")
                 ),
                 # Una tarjeta para el mapa
                 box(
@@ -160,11 +179,6 @@ server <- function(input, output, session) {
         popup = ~paste0("<b>ID:</b> ", GID, "<br><b>Fecha Hasta:</b> ", FECHA_HASTA),
         label = ~as.character(GID)
       ) %>%
-      addSearchOSM(options = searchOptions(collapsed = TRUE)) %>% 
-      addSearchFeatures(
-        targetGroups = c("activos", "inactivos"),
-        options = searchFeaturesOptions(propertyName = "label", zoom = 16, openPopup = TRUE)
-      ) %>%
       hideGroup("inactivos")
   })
   
@@ -177,6 +191,78 @@ server <- function(input, output, session) {
     }
   }, ignoreInit = TRUE)
   
+  # --- Búsqueda de GID en el mapa ---
+  observeEvent(input$btn_buscar_gid, {
+    req(input$busqueda_gid_mapa)
+    gid_buscado <- trimws(input$busqueda_gid_mapa)
+    
+    # Buscar primero en activos, luego en inactivos
+    df_act  <- datos()$activos
+    df_inac <- datos()$inactivos
+    
+    encontrado <- df_act[as.character(df_act$GID) == gid_buscado, ]
+    grupo <- "activos"
+    if (nrow(encontrado) == 0) {
+      encontrado <- df_inac[as.character(df_inac$GID) == gid_buscado, ]
+      grupo <- "inactivos"
+    }
+    
+    proxy <- leafletProxy("map")
+    
+    if (nrow(encontrado) > 0) {
+      coords <- st_coordinates(encontrado[1, ])
+      proxy %>%
+        showGroup(grupo) %>%
+        setView(lng = coords[1], lat = coords[2], zoom = 17)
+    } else {
+      showNotification(
+        paste0("GID '", gid_buscado, "' no encontrado."),
+        type = "warning", duration = 4
+      )
+    }
+  })
+
+  # --- Búsqueda de calle via Nominatim ---
+  observeEvent(input$btn_buscar_calle, {
+    req(input$busqueda_calle)
+    query <- paste0(trimws(input$busqueda_calle), ", Montevideo, Uruguay")
+    
+    tryCatch({
+      url <- paste0(
+        "https://nominatim.openstreetmap.org/search?q=",
+        utils::URLencode(query, reserved = TRUE),
+        "&format=json&limit=1&addressdetails=0"
+      )
+      resp <- jsonlite::fromJSON(url)
+      
+      if (length(resp) > 0 && nrow(as.data.frame(resp)) > 0) {
+        lat <- as.numeric(resp$lat[1])
+        lon <- as.numeric(resp$lon[1])
+        leafletProxy("map") %>%
+          clearGroup("busqueda_calle") %>%
+          addCircleMarkers(
+            lng = lon, lat = lat,
+            group = "busqueda_calle",
+            radius = 14,
+            color = "#cc0000",
+            weight = 3,
+            fill = TRUE,
+            fillColor = "#ff4444",
+            fillOpacity = 0.35,
+            popup = paste0("<b>📍 Búsqueda:</b><br>", input$busqueda_calle)
+          ) %>%
+          setView(lng = lon, lat = lat, zoom = 17)
+      } else {
+        showNotification(
+          paste0("No se encontró: '", input$busqueda_calle, "'"),
+          type = "warning", duration = 4
+        )
+      }
+    }, error = function(e) {
+      showNotification("Error al conectar con el geocodificador.", type = "danger", duration = 4)
+    })
+  })
+
   # --- Lógica del Histórico ---
 
   # Filtramos el dataframe reactivamente según el texto ingresado

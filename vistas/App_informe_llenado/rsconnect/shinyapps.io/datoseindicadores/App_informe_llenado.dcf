@@ -5,6 +5,6 @@ account: datoseindicadores
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 17200563
-bundleId: 11901971
+bundleId: 11902815
 url: https://datoseindicadores.shinyapps.io/App_informe_llenado/
 version: 1

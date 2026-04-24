@@ -7,24 +7,21 @@ library(dplyr)
 library(DT)
 library(bs4Dash)
 
-# Lo pones CON comillas
-Sys.setenv(GITHUB_PAT = "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")
-
-
 # --- DETECCIÓN DE ENTORNO Y CARGA DE DATOS ---
-ruta_local <- "data" 
+# En local: lee desde la carpeta "data/" (generada por limpieza_datos.R)
+# En Shiny: lee directamente desde GitHub raw (sin necesidad de PAT si el repo es público)
 
-# URL base actualizada con refs/heads/main
-url_base_github <- "https://raw.githubusercontent.com/liottinicolas/APP_nuevoinforme/refs/heads/main/vistas/App_informe_llenado/data/"
+url_github <- "https://raw.githubusercontent.com/liottinicolas/APP_nuevoinforme/main/vistas/App_informe_llenado/data/"
 
-if (dir.exists(ruta_local)) {
-  board <- pins::board_folder(ruta_local)
+if (dir.exists("data")) {
+  # Entorno local: usar carpeta de datos local
+  board <- pins::board_folder("data", versioned = FALSE)
 } else {
-  # Como limpiamos las fechas en el Paso 1, ahora sí buscará directamente en estas carpetas
+  # Entorno Shiny: leer desde GitHub raw URLs
   board <- pins::board_url(c(
-    "GID_activos" = paste0(url_base_github, "GID_activos/"),
-    "GID_inactivos" = paste0(url_base_github, "GID_inactivos/"),
-    "historico_llenado_web" = paste0(url_base_github, "historico_llenado_web/")
+    "GID_activos"           = paste0(url_github, "GID_activos/"),
+    "GID_inactivos"         = paste0(url_github, "GID_inactivos/"),
+    "historico_llenado_web" = paste0(url_github, "historico_llenado_web/")
   ))
 }
 
@@ -40,6 +37,9 @@ GID_activos           <- preprocesar_datos(board %>% pin_read("GID_activos"))
 GID_inactivos         <- preprocesar_datos(board %>% pin_read("GID_inactivos"))
 historico_llenado_web <- board %>% pin_read("historico_llenado_web")
 
+# Fecha máxima del histórico (para mostrar en el header)
+fecha_max <- format(max(as.Date(historico_llenado_web$Fecha), na.rm = TRUE), "%d/%m/%Y")
+
 lat_mvd <- -34.8636
 lng_mvd <- -56.1679
 
@@ -48,7 +48,15 @@ ui <- dashboardPage(
   # 1. Barra Superior
   header = dashboardHeader(
     title = "Gestión de GIDs",
-    skin = "light"
+    skin = "light",
+    rightUi = tags$li(
+      class = "nav-item dropdown d-flex align-items-center px-3",
+      tags$span(
+        style = "background-color: #17a2b8; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;",
+        icon("calendar-alt"),
+        paste0(" Última actualización: ", fecha_max)
+      )
+    )
   ),
   
   # 2. Menú Lateral (Tus antiguas pestañas van aquí)

@@ -1,56 +1,61 @@
 library(pins)
-# install.packages("gert") # Instala este paquete si aún no lo tienes
-library(gert) 
+library(dplyr)
+library(gert)
 
-# 1. Definir rutas de origen de los datos
+
+# ==============================================================================
+# limpieza_datos.R
+# Correr este script LOCALMENTE (desde la raíz del proyecto APP_nuevoinforme/)
+# para actualizar los datos en GitHub. La Shiny app lee desde board_url().
+# ==============================================================================
+
+# --- 1. Rutas de origen de los datos ---
 ruta_origen_activos   <- "db/DFR/RDS/dfr_E_DF_POSICIONES_RECORRIDO.rds"
 ruta_origen_inactivos <- "db/DFR/RDS/dfr_C_DF_POSICIONES_RECORRIDO_HISTORICO.rds"
 ruta_origen_llenado   <- "db/GOL_reportes/historico_llenadoGol.rds"
 
-# 2. Cargar los datos a la memoria de R
+# --- 2. Cargar los datos ---
+message("📂 Cargando datos locales...")
 GID_activos           <- readRDS(ruta_origen_activos)
 GID_inactivos         <- readRDS(ruta_origen_inactivos)
 historico_llenado_web <- readRDS(ruta_origen_llenado)
+message("✅ Datos cargados.")
 
-# 3. Inicializar UN solo tablero local (dentro de tu repositorio Git)
-# Asumimos que la carpeta del proyecto R es el repositorio de "APP_nuevoinforme"
-# 3. Inicializar UN solo tablero local
+# --- 3. Escribir los pines localmente (SIN versiones) ---
+message("📌 Escribiendo pines locales...")
 ruta_board <- "vistas/App_informe_llenado/data"
 
-# 🔥 LA SOLUCIÓN: Borramos la carpeta entera si ya existe para limpiar versiones viejas
+# Borrar carpeta vieja para evitar versiones acumuladas
 if (dir.exists(ruta_board)) {
   unlink(ruta_board, recursive = TRUE)
 }
 
-# Ahora creamos el tablero totalmente limpio y sin versiones
-board <- board_folder(ruta_board, versioned = FALSE)
-# 4. Actualizar los pines localmente
-board %>% pin_write(GID_activos, "GID_activos", type = "rds")
-board %>% pin_write(GID_inactivos, "GID_inactivos", type = "rds")
+board <- pins::board_folder(ruta_board, versioned = FALSE)
+
+board %>% pin_write(GID_activos,           "GID_activos",           type = "rds")
+board %>% pin_write(GID_inactivos,         "GID_inactivos",         type = "rds")
 board %>% pin_write(historico_llenado_web, "historico_llenado_web", type = "rds")
 
-message("✅ Pines actualizados en local.")
+message("✅ Pines escritos en local.")
 
-# 5. Sincronizar automáticamente con GitHub usando 'gert'
+# --- 4. Subir cambios a GitHub con gert ---
+message("🚀 Subiendo cambios a GitHub...")
 tryCatch({
-  # Agregamos todos los archivos dentro de la carpeta de datos
-  # Usamos "." para asegurarnos de capturar todo lo que cambió en el directorio de trabajo
-  git_add(".") 
-  
-  # Verificamos si hay archivos en el "staged" (listos para commit)
+
+  git_add(ruta_board)
+
   cambios <- git_status() %>% filter(staged == TRUE)
-  
+
   if (nrow(cambios) > 0) {
-    # Si hay cambios, procedemos
     git_commit("Actualización automatizada de datos (pins)")
     git_push()
-    message("✅ Sincronización completa: GitHub actualizado exitosamente.")
+    message("✅ ¡GitHub actualizado! La Shiny app ya tiene los datos nuevos.")
   } else {
-    # Si no hay cambios, simplemente avisamos sin lanzar error
-    message("ℹ️ No se detectaron cambios en los datos. No fue necesario actualizar GitHub.")
+    message("ℹ️ No hubo cambios en los datos. GitHub ya estaba al día.")
   }
-  
+
 }, error = function(e) {
-  message("⚠️ Hubo un error al intentar sincronizar con GitHub:")
-  message(e$message)
+  message("⚠️ Error al sincronizar con GitHub: ", e$message)
+  message("   Los pines están actualizados localmente, pero no se subieron a GitHub.")
+  message("   Podés hacer git push manual desde la terminal.")
 })

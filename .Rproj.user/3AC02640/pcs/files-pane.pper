@@ -2,8 +2,8 @@
     "sortOrder": [
         {
             "columnIndex": 2,
-            "ascending": true
+            "ascending": false
         }
     ],
-    "path": "C:/Users/nico9/OneDrive/Trabajo IM/APP_nuevoinforme/db/POSTGRES/RDS"
+    "path": "C:/Users/nico9/OneDrive/Trabajo IM/APP_nuevoinforme/vistas/App_informe_llenado"
 }

@@ -25,7 +25,7 @@ if (dir.exists("data")) {
   ))
 }
 
-# Preprocesamiento y lectura
+# Función de preprocesamiento (se define una vez al inicio, no depende de los datos)
 preprocesar_datos <- function(df) {
   if (!inherits(df, "sf")) {
     df <- st_as_sf(df, wkt = "THE_GEOM", crs = 32721)
@@ -33,12 +33,9 @@ preprocesar_datos <- function(df) {
   return(st_transform(df, 4326))
 }
 
-GID_activos           <- preprocesar_datos(board %>% pin_read("GID_activos"))
-GID_inactivos         <- preprocesar_datos(board %>% pin_read("GID_inactivos"))
-historico_llenado_web <- board %>% pin_read("historico_llenado_web")
-
-# Fecha máxima del histórico (para mostrar en el header)
-fecha_max <- format(max(as.Date(historico_llenado_web$Fecha), na.rm = TRUE), "%d/%m/%Y")
+# Intervalo de recarga automática: cada 6 horas (en milisegundos)
+# Ajustá este valor si necesitás más o menos frecuencia
+INTERVALO_RECARGA_MS <- 6 * 60 * 60 * 1000
 
 lat_mvd <- -34.8636
 lng_mvd <- -56.1679
@@ -54,7 +51,7 @@ ui <- dashboardPage(
       tags$span(
         style = "background-color: #17a2b8; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;",
         icon("calendar-alt"),
-        paste0(" Última actualización: ", fecha_max)
+        textOutput("fecha_actualizacion", inline = TRUE)
       )
     )
   ),
@@ -126,20 +123,39 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session) {
-  
-  # --- Lógica del Mapa ---
+
+  # --- Carga de datos reactiva -------------------------------------------
+  # invalidateLater() hace que este reactive se re-ejecute automáticamente
+  # cada INTERVALO_RECARGA_MS milisegundos, descargando los pines frescos
+  # desde GitHub sin necesidad de reiniciar ni redesplegar la app.
+  datos <- reactive({
+    invalidateLater(INTERVALO_RECARGA_MS, session)
+    list(
+      activos           = preprocesar_datos(board %>% pin_read("GID_activos")),
+      inactivos         = preprocesar_datos(board %>% pin_read("GID_inactivos")),
+      historico_llenado = board %>% pin_read("historico_llenado_web")
+    )
+  })
+
+  # Fecha máxima dinámica: se actualiza cuando datos() se recarga
+  output$fecha_actualizacion <- renderText({
+    fecha <- format(max(as.Date(datos()$historico_llenado$Fecha), na.rm = TRUE), "%d/%m/%Y")
+    paste0(" Última actualización: ", fecha)
+  })
+
+  # --- Lógica del Mapa ---------------------------------------------------
   output$map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
       setView(lng = lng_mvd, lat = lat_mvd, zoom = 12) %>%
       addCircleMarkers(
-        data = GID_activos, group = "activos",
+        data = datos()$activos, group = "activos",
         radius = 5, color = "blue", stroke = FALSE, fillOpacity = 0.7,
         popup = ~paste0("<b>ID:</b> ", GID, "<br><b>Dirección:</b> ", DIRECCION),
         label = ~as.character(GID)
       ) %>%
       addCircleMarkers(
-        data = GID_inactivos, group = "inactivos",
+        data = datos()$inactivos, group = "inactivos",
         radius = 5, color = "red", stroke = FALSE, fillOpacity = 0.7,
         popup = ~paste0("<b>ID:</b> ", GID, "<br><b>Fecha Hasta:</b> ", FECHA_HASTA),
         label = ~as.character(GID)
@@ -162,17 +178,16 @@ server <- function(input, output, session) {
   }, ignoreInit = TRUE)
   
   # --- Lógica del Histórico ---
-  
+
   # Filtramos el dataframe reactivamente según el texto ingresado
   datos_filtrados <- reactive({
-    req(input$busqueda_gid) # Solo corre si hay algo escrito
-    
-    historico_llenado_web %>%
-      # Convertimos a carácter para asegurar que la comparación funcione
+    req(input$busqueda_gid)
+
+    datos()$historico_llenado %>%
       filter(as.character(gid) == input$busqueda_gid) %>%
       select(
-        Fecha, Circuito, Posicion, Direccion, Levantado, 
-        Turno_levantado, Fecha_hora_pasaje, Id_viaje_GOL, 
+        Fecha, Circuito, Posicion, Direccion, Levantado,
+        Turno_levantado, Fecha_hora_pasaje, Id_viaje_GOL,
         Incidencia, Porcentaje_llenado, Condicion, contenedor_activo
       )
   })

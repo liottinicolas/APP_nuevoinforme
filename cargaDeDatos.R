@@ -77,19 +77,82 @@ actualizar_planillas_RDS <- function(
     message("Procesando ", length(archivos_nuevos_rel), " archivos nuevos para: ", nombre_consulta)
 
     rutas_completas_nuevas <- here(archivos_nuevos_rel)
-    resultado_proceso <- NULL
 
-    # 4. Despachar al procesador específico según el módulo.
-    #    Cada función devuelve una lista con:
-    #      $datos        → data.frame con los datos nuevos listos para unir
-    #      $archivos_ok  → vector de rutas relativas que se procesaron sin error
-    if (nombre_consulta == "10393_ubicaciones") {
-      resultado_proceso <- funcion_actualizar_ubicaciones_10393(rutas_completas_nuevas, archivos_nuevos_rel)
+    # Acumuladores para el resultado combinado de todos los archivos
+    datos_acumulados  <- NULL   # data.frame con filas de todos los archivos OK
+    archivos_ok_total <- c()    # rutas relativas de los que salieron bien
+    archivos_error    <- c()    # rutas relativas de los que fallaron (para el log)
+
+    # 4. Procesar cada archivo individualmente.
+    #    Primero se valida el nombre, después el contenido con tryCatch.
+    #    Los archivos inválidos o con errores NO se registran en archivos_procesados
+    #    y se reintentarán automáticamente en la próxima ejecución.
+    for (i in seq_along(archivos_nuevos_rel)) {
+      archivo_rel <- archivos_nuevos_rel[i]
+      archivo_abs <- rutas_completas_nuevas[i]
+      nombre_archivo <- basename(archivo_rel)  # ej: "2026-04-22.csv"
+
+      # ── Validación 1: nombre con formato YYYY-MM-DD.csv ──────────────────────
+      patron_nombre <- "^\\d{4}-\\d{2}-\\d{2}\\.csv$"
+      if (!grepl(patron_nombre, nombre_archivo)) {
+        archivos_error <- c(archivos_error, archivo_rel)
+        message("⚠️ Nombre de archivo no válido: ", nombre_archivo)
+        message("   Se esperaba el formato: YYYY-MM-DD.csv (ej: 2026-04-22.csv)")
+        message("   El archivo fue ignorado.")
+        next  # saltar al siguiente archivo sin procesar este
+      }
+
+      # ── Validación 2: la fecha del nombre no puede ser posterior a hoy ────────
+      fecha_archivo <- tryCatch(
+        as.Date(sub("\\.csv$", "", nombre_archivo)),  # extrae la parte de fecha
+        error = function(e) NA
+      )
+      if (is.na(fecha_archivo) || fecha_archivo > Sys.Date()) {
+        archivos_error <- c(archivos_error, archivo_rel)
+        message("⚠️ Fecha futura o inválida en el nombre: ", nombre_archivo)
+        message("   La fecha del archivo (", format(fecha_archivo, "%d/%m/%Y"),
+                ") es posterior a hoy (", format(Sys.Date(), "%d/%m/%Y"), ").")
+        message("   El archivo fue ignorado.")
+        next
+      }
+
+      # ── Procesamiento del contenido con tryCatch ──────────────────────────────
+      tryCatch({
+
+        # Llamar al procesador del módulo con un solo archivo a la vez
+        resultado_i <- if (nombre_consulta == "10393_ubicaciones") {
+          funcion_actualizar_ubicaciones_10393(archivo_abs, archivo_rel)
+        } else if (nombre_consulta == "GOL_reportes") {
+          funcion_actualizar_llenadoGOL(archivo_abs, archivo_rel)
+        } else {
+          stop("Módulo desconocido: ", nombre_consulta)
+        }
+
+        # Acumular datos y marcar el archivo como exitoso
+        datos_acumulados  <- bind_rows(datos_acumulados, resultado_i$datos)
+        archivos_ok_total <- c(archivos_ok_total, resultado_i$archivos_ok)
+
+      }, error = function(e) {
+        # El contenido del archivo falló — registrar y seguir con el próximo
+        archivos_error <<- c(archivos_error, archivo_rel)
+        message("⚠️ Error al procesar el contenido de: ", nombre_archivo)
+        message("   Error: ", e$message)
+      })
     }
 
-    if (nombre_consulta == "GOL_reportes") {
-      resultado_proceso <- funcion_actualizar_llenadoGOL(rutas_completas_nuevas, archivos_nuevos_rel)
+
+    # Resumen post-loop
+    if (length(archivos_error) > 0) {
+      message("❌ ", length(archivos_error), " archivo(s) no pudieron procesarse y serán reintentados la próxima vez.")
     }
+
+    # Construir el resultado_proceso con la misma estructura que antes
+    resultado_proceso <- if (length(archivos_ok_total) > 0) {
+      list(datos = datos_acumulados, archivos_ok = archivos_ok_total)
+    } else {
+      NULL
+    }
+
 
     # 5. Si hubo archivos procesados exitosamente, actualizar el histórico RDS
     if (!is.null(resultado_proceso) && length(resultado_proceso$archivos_ok) > 0) {

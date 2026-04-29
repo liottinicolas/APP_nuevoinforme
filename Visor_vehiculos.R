@@ -133,7 +133,8 @@ obtener_posiciones_por_turno <- function(df_matriculas, fecha, turno) {
   return(resultado_final)
 }
 
-datos_turno <- obtener_posiciones_por_turno(df_flota, "2026-04-20", "Matutino")
+datos_turno_matutino <- obtener_posiciones_por_turno(df_flota, "2026-04-28", "Matutino")
+#datos_turno_vespertino <- obtener_posiciones_por_turno(df_flota, "2026-04-28", "Vespertino")
 
 con <- conectar_postgres()
 capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
@@ -143,7 +144,7 @@ lista_capas <- split(capa_intra, capa_intra$nombre)
 
 # 0. Cargar la capa de recorrido una sola vez (fuera del loop para ahorrar tiempo)
 #capa_recorrido_original <- st_read("vistas/mapas/SIM_reciclable.json")
-capa_recorrido_original <- datos_turno
+capa_recorrido_original <- datos_turno_vespertino
 
 # Obtener la lista de todos los sectores (nombres) que existen en la capa
 sectores <- unique(capa_intra$nombre)
@@ -190,11 +191,11 @@ for (sector_nombre in sectores) {
                                 temp_path_puntos,
                                 salida_html))
   
-  # Mapa estático
-  # system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py", 
-  #                               temp_path_intra, 
-  #                               temp_path_puntos,
-  #                               salida_png))
+# #  Mapa estático
+#   system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py",
+#                                 temp_path_intra,
+#                                 temp_path_puntos,
+#                                 salida_png))
   
   message(paste("✅ Archivos generados para", sector_nombre))
 }

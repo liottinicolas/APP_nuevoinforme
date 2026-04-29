@@ -14,16 +14,19 @@ library(jsonlite)
 
 url_github <- "https://raw.githubusercontent.com/liottinicolas/APP_nuevoinforme/main/vistas/App_informe_llenado/data/"
 
+# En la parte superior de tu código
 if (dir.exists("data")) {
-  # Entorno local: usar carpeta de datos local
   board <- pins::board_folder("data", versioned = FALSE)
 } else {
-  # Entorno Shiny: leer desde GitHub raw URLs
-  board <- pins::board_url(c(
-    "GID_activos"           = paste0(url_github, "GID_activos/"),
-    "GID_inactivos"         = paste0(url_github, "GID_inactivos/"),
-    "historico_llenado_web" = paste0(url_github, "historico_llenado_web/")
-  ))
+  # Agregamos use_cache = FALSE si la versión de pins lo permite, 
+  # o definimos el board dentro del reactive para asegurar una conexión limpia.
+  board_github <- function() {
+    pins::board_url(c(
+      "GID_activos"           = paste0(url_github, "GID_activos/"),
+      "GID_inactivos"         = paste0(url_github, "GID_inactivos/"),
+      "historico_llenado_web" = paste0(url_github, "historico_llenado_web/")
+    ))
+  }
 }
 
 # Función de preprocesamiento (se define una vez al inicio, no depende de los datos)
@@ -36,7 +39,8 @@ preprocesar_datos <- function(df) {
 
 # Intervalo de recarga automática: cada 6 horas (en milisegundos)
 # Ajustá este valor si necesitás más o menos frecuencia
-INTERVALO_RECARGA_MS <- 6 * 60 * 60 * 1000
+# 10 minutos * 60 segundos * 1000 milisegundos
+INTERVALO_RECARGA_MS <- 10 * 60 * 1000
 
 lat_mvd <- -34.8636
 lng_mvd <- -56.1679
@@ -143,16 +147,25 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
 
-  # --- Carga de datos reactiva -------------------------------------------
-  # invalidateLater() hace que este reactive se re-ejecute automáticamente
-  # cada INTERVALO_RECARGA_MS milisegundos, descargando los pines frescos
-  # desde GitHub sin necesidad de reiniciar ni redesplegar la app.
   datos <- reactive({
+    # Esto fuerza la re-ejecución cada X tiempo
     invalidateLater(INTERVALO_RECARGA_MS, session)
+    
+    # Si estamos en Shiny (GitHub), recreamos el objeto board para limpiar el estado
+    if (!dir.exists("data")) {
+      current_board <- pins::board_url(c(
+        "GID_activos"           = paste0(url_github, "GID_activos/"),
+        "GID_inactivos"         = paste0(url_github, "GID_inactivos/"),
+        "historico_llenado_web" = paste0(url_github, "historico_llenado_web/")
+      ))
+    } else {
+      current_board <- board # El board_folder local
+    }
+    
     list(
-      activos           = preprocesar_datos(board %>% pin_read("GID_activos")),
-      inactivos         = preprocesar_datos(board %>% pin_read("GID_inactivos")),
-      historico_llenado = board %>% pin_read("historico_llenado_web")
+      activos           = preprocesar_datos(pin_read(current_board, "GID_activos")),
+      inactivos         = preprocesar_datos(pin_read(current_board, "GID_inactivos")),
+      historico_llenado = pin_read(current_board, "historico_llenado_web")
     )
   })
 

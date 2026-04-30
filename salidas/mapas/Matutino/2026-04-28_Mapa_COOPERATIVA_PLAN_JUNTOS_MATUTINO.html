@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_137aea3c371e042de6db64e21f3c6398 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_137aea3c371e042de6db64e21f3c6398" ></div>
+        
+    
+    <div id='info-card' style='
+        position: fixed; bottom: 50px; left: 50px; width: 260px; height: auto; 
+        background-color: #0046E3; border: 1px solid white; z-index:9999; 
+        font-size: 13px; color: white; padding: 15px; border-radius: 12px; 
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3); font-family: sans-serif;'>
+        <div style='text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px;'>
+            MAPA DE PARADAS (<= 5 km/h)
+        </div>
+        <div style='line-height: 1.7;'>
+            <b>Matrícula:</b> <span style='font-size: 14px;'>SIM2198</span><br>
+            <b>Día:</b> 28/04/2026 <br>
+            <b>Zona:</b> COOPERATIVA PLAN JUNTOS <br>
+            <b>Fracción:</b> Mezclado <br>
+            <hr style='margin: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.3);'>
+            <b>Inicio:</b> 09:59:02 <br>
+            <b>Fin:</b> 09:59:09 <br>
+            <div style='text-align: center; margin-top: 15px;'>
+                <img src="https://montevideo.gub.uy/modules/custom/im_logo/images/logo_im.png" 
+                     style="width: 130px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script>
+    
+    
+            var map_137aea3c371e042de6db64e21f3c6398 = L.map(
+                "map_137aea3c371e042de6db64e21f3c6398",
+                {
+                    center: [-34.85, -56.16],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_a285312145c6ec8166525198aa4084fa = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_a285312145c6ec8166525198aa4084fa.addTo(map_137aea3c371e042de6db64e21f3c6398);
+        
+    
+        function geo_json_a0945d09ef3a88b37d11319c92a30111_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
+            }
+        }
+
+        function geo_json_a0945d09ef3a88b37d11319c92a30111_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_a0945d09ef3a88b37d11319c92a30111 = L.geoJson(null, {
+                onEachFeature: geo_json_a0945d09ef3a88b37d11319c92a30111_onEachFeature,
+            
+                style: geo_json_a0945d09ef3a88b37d11319c92a30111_styler,
+            ...{
+}
+        });
+
+        function geo_json_a0945d09ef3a88b37d11319c92a30111_add (data) {
+            geo_json_a0945d09ef3a88b37d11319c92a30111
+                .addData(data);
+        }
+            geo_json_a0945d09ef3a88b37d11319c92a30111_add({"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "features": [{"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "geometry": {"coordinates": [[[[-56.253071858376096, -34.84775896419041], [-56.25268062157265, -34.8477872584088], [-56.25244480479493, -34.84778580921146], [-56.25208941029196, -34.847282231301975], [-56.25170313069845, -34.84744869175797], [-56.252039813788834, -34.847962388212196], [-56.252088348569266, -34.84808547678978], [-56.25198285122136, -34.848084828002634], [-56.2515900376521, -34.84828706164526], [-56.25179278952057, -34.84851342428831], [-56.2526470102096, -34.84875914025854], [-56.25326828132076, -34.84868621245403], [-56.253071858376096, -34.84775896419041]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-03-20", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MIERCOLES Y SABADOS", "FRECUENCIA.RECICLABLE": "LUNES", "RECICLABLE": "CONTENEDOR", "TURNO": "MATUTINO", "cont.ret": "2.0", "id": null, "id_0": "20", "municipio": "A", "nombre": "COOPERATIVA PLAN JUNTOS", "poblacion": null, "viviendas": "152.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_a0945d09ef3a88b37d11319c92a30111.addTo(map_137aea3c371e042de6db64e21f3c6398);
+        
+    
+            map_137aea3c371e042de6db64e21f3c6398.fitBounds(
+                [[-34.84875914025854, -56.25326828132076], [-34.847282231301975, -56.2515900376521]],
+                {}
+            );
+        
+    
+            var layer_control_590b0f3084c5f017005a2b29ecc1e19e_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_a285312145c6ec8166525198aa4084fa,
+                },
+                overlays :  {
+                    "Sector de Trabajo" : geo_json_a0945d09ef3a88b37d11319c92a30111,
+                },
+            };
+            let layer_control_590b0f3084c5f017005a2b29ecc1e19e = L.control.layers(
+                layer_control_590b0f3084c5f017005a2b29ecc1e19e_layers.base_layers,
+                layer_control_590b0f3084c5f017005a2b29ecc1e19e_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_137aea3c371e042de6db64e21f3c6398);
+
+        
+</script>
+</html>

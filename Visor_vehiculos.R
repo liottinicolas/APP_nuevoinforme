@@ -1,91 +1,96 @@
+# =============================================================================
+# VISOR VEHÍCULOS IMM
+# Dependencias externas cargadas via source() más abajo:
+#   - df_flota, conectar_postgres(), actualizar_capa_postgres() → conexionPOSTGRES.R
+#   - python_venv → debe estar definido en el entorno antes de ejecutar este script
+# =============================================================================
+
+# --- Librerías ---------------------------------------------------------------
 library(httr2)
 library(jsonlite)
 library(purrr)
 library(dplyr)
-library(sf)
-
-
-library(httr2)
-library(dplyr)
-
-library(httr2)
-library(dplyr)
-
-library(httr2)
-library(dplyr)
-
-library(httr2)
-library(dplyr)
 library(tidyr)
-
-library(httr2)
-library(dplyr)
 library(sf)
 
-obtener_posiciones_imm <- function(matricula, 
-                                   fecha_desde, hora_desde = "09:42:50", 
-                                   fecha_hasta, hora_hasta = "09:42:50", 
-                                   grupo = "sisconve", 
+# --- Dependencias externas ---------------------------------------------------
+source("db/POSTGRES/conexionPOSTGRES.R")   # carga df_flota, conectar_postgres(), etc.
+
+
+# =============================================================================
+# FUNCIÓN 1: Obtener posiciones de UN vehículo desde la API del visor IMM
+# =============================================================================
+obtener_posiciones_imm <- function(matricula,
+                                   fecha_desde, hora_desde = "00:00:00",
+                                   fecha_hasta, hora_hasta = "23:59:59",
+                                   grupo = "sisconve",
                                    solo_paradas = FALSE) {
-  
-  # 1. Formatear fechas al estándar confirmado (YYYY-MM-DDTHH:MM:SS)
+
+  # 1. Formatear fechas al estándar de la API (YYYY-MM-DDTHH:MM:SS)
   f_desde <- paste0(as.character(as.Date(fecha_desde)), "T", hora_desde)
   f_hasta <- paste0(as.character(as.Date(fecha_hasta)), "T", hora_hasta)
-  
+
   base_url <- "https://intranet.imm.gub.uy/app/visor-vehiculos-v2/api/vehiculos/posiciones"
-  
-  # 2. Construir y ejecutar la petición
+
+  # 2. Construir la petición
   req <- request(base_url) %>%
     req_url_query(
-      matricula = toupper(matricula),
-      fechaDesde = f_desde,
-      fechaHasta = f_hasta,
-      grupo = grupo,
-      showStopsOnly = if(solo_paradas) "true" else "false"
+      matricula     = toupper(matricula),
+      fechaDesde    = f_desde,
+      fechaHasta    = f_hasta,
+      grupo         = grupo,
+      showStopsOnly = if (solo_paradas) "true" else "false"
     ) %>%
     req_headers(
-      `Accept` = "application/json, text/plain, */*",
+      `Accept`     = "application/json, text/plain, */*",
       `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     )
-  
-  resp <- req_perform(req)
-  
-  # Parsear el JSON
+
+  # 3. Ejecutar con manejo de errores HTTP
+  resp <- tryCatch(
+    req_perform(req),
+    error = function(e) {
+      message(paste("❌ Error al consultar matrícula", toupper(matricula), ":", conditionMessage(e)))
+      return(NULL)
+    }
+  )
+  if (is.null(resp)) return(NULL)
+
+  # 4. Parsear JSON
   datos_raw <- resp_body_json(resp, simplifyVector = TRUE)
-  
-  # Verificar si hay datos
+
   if (length(datos_raw) == 0) {
-    message("No se encontraron posiciones.")
+    message(paste("ℹ️  Sin posiciones para", toupper(matricula), "en el período indicado."))
     return(NULL)
   }
-  
-  # 3. Procesamiento Espacial
-  # Extraemos longitud y latitud de la estructura anidada y convertimos a SF
+
+  # 5. Procesamiento espacial: extraer lon/lat del campo anidado y convertir a sf
   df_sf <- datos_raw %>%
     mutate(
       longitud = sapply(coordenadas$coordinates, function(x) x[1]),
-      latitud = sapply(coordenadas$coordinates, function(x) x[2])
+      latitud  = sapply(coordenadas$coordinates, function(x) x[2])
     ) %>%
-    select(-coordenadas) %>% # Eliminamos la columna original anidada
+    select(-coordenadas) %>%
+    filter(!is.na(longitud) & !is.na(latitud)) %>%
     st_as_sf(coords = c("longitud", "latitud"), crs = 4326)
-  
+
   return(df_sf)
 }
 
-res <- obtener_posiciones_imm(
-  matricula   = "SIM3042",
-  fecha_desde = "2026-04-10", 
-  hora_desde  = "09:42:50",
-  fecha_hasta = "2026-04-21", 
-  hora_hasta  = "09:42:50"
-)
-
-# library(mapview)
-# mapview(res)
+# Ejemplo de uso puntual (comentar cuando no se necesite):
+# res <- obtener_posiciones_imm(
+#   matricula   = "SIM3042",
+#   fecha_desde = "2026-04-10", hora_desde = "09:42:50",
+#   fecha_hasta = "2026-04-21", hora_hasta = "09:42:50"
+# )
+# library(mapview); mapview(res)
 
 
+# =============================================================================
+# FUNCIÓN 2: Obtener posiciones de TODA LA FLOTA para un turno y fecha dados
+# =============================================================================
 obtener_posiciones_por_turno <- function(df_matriculas, fecha, turno) {
-  
+
   # 1. Definir horas según el turno
   if (turno == "Matutino") {
     hora_inicio <- "06:00:00"
@@ -96,160 +101,168 @@ obtener_posiciones_por_turno <- function(df_matriculas, fecha, turno) {
   } else {
     stop("Turno no válido. Debe ser 'Matutino' o 'Vespertino'.")
   }
-  
+
   message(paste("--- Iniciando consulta Turno", turno, "-", fecha, "---"))
-  
-  # 2. Iterar sobre las matrículas con mensajes específicos
+
+  # 2. Iterar sobre las matrículas
   lista_resultados <- df_matriculas$Matricula %>%
     map(function(m) {
       res <- obtener_posiciones_imm(
-        matricula = m, 
-        fecha_desde = fecha, 
-        hora_desde = hora_inicio,
-        fecha_hasta = fecha, 
-        hora_hasta = hora_fin
+        matricula   = m,
+        fecha_desde = fecha, hora_desde = hora_inicio,
+        fecha_hasta = fecha, hora_hasta = hora_fin
       )
-      
-      # Si el resultado es NULL o no tiene filas, avisamos qué matrícula es
+
       if (is.null(res) || nrow(res) == 0) {
-        message(paste("⚠️ Matrícula", m, ": Sin posiciones encontradas."))
+        message(paste("⚠️  Matrícula", m, ": Sin posiciones encontradas."))
         return(NULL)
       } else {
         message(paste("✅ Matrícula", m, ":", nrow(res), "posiciones obtenidas."))
         return(res)
       }
     })
-  
-  # 3. Unir los resultados exitosos
+
+  # 3. Unir resultados (descartando NULLs)
   resultado_final <- bind_rows(lista_resultados)
-  
-  # Validación final del conjunto total
-  if (is.null(resultado_final) || nrow(resultado_final) == 0) {
-    message("❌ No se encontraron datos para ninguna de las matrículas en este turno.")
+
+  if (nrow(resultado_final) == 0) {
+    message("❌ No se encontraron datos para ninguna matrícula en este turno.")
     return(NULL)
   }
-  
+
   message(paste("Total de registros recuperados:", nrow(resultado_final)))
   return(resultado_final)
 }
 
-datos_turno <- obtener_posiciones_por_turno(df_flota, "2026-04-20", "Matutino")
 
-con <- conectar_postgres()
-capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
-dbDisconnect(con)
+# =============================================================================
+# EJECUCIÓN: consulta de turnos y generación de mapas por sector
+# =============================================================================
 
-lista_capas <- split(capa_intra, capa_intra$nombre)
+fecha_proceso <- "2026-04-28"   # <-- ajustar la fecha de consulta
 
-# 0. Cargar la capa de recorrido una sola vez (fuera del loop para ahorrar tiempo)
-#capa_recorrido_original <- st_read("vistas/mapas/SIM_reciclable.json")
-capa_recorrido_original <- datos_turno
+# --- Consultar ambos turnos --------------------------------------------------
+datos_por_turno <- list(
+  Matutino   = obtener_posiciones_por_turno(df_flota, fecha_proceso, "Matutino"),
+  Vespertino = obtener_posiciones_por_turno(df_flota, fecha_proceso, "Vespertino")
+)
 
-# Obtener la lista de todos los sectores (nombres) que existen en la capa
+# --- Cargar capa territorial desde disco (sin conectar a Postgres) -----------
+capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")
+
 sectores <- unique(capa_intra$nombre)
 
-for (sector_nombre in sectores) {
-  
-  message(paste("Procesando sector:", sector_nombre))
-  
-  # --- 1. FILTRAR CAPA TERRITORIAL ---
-  capa_filtrada <- capa_intra[capa_intra$nombre == sector_nombre, ]
-  
-  # --- 2. CALCULAR INTERSECCIÓN ---
-  capa_recorrido <- st_transform(capa_recorrido_original, st_crs(capa_filtrada))
-  puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada)
-  
-  if (nrow(puntos_solapados) == 0) {
-    message(paste("Sin datos de recorrido para:", sector_nombre, "- Saltando..."))
+# --- Loop externo: por turno -------------------------------------------------
+for (turno in names(datos_por_turno)) {
+
+  capa_recorrido_original <- datos_por_turno[[turno]]
+
+  # Si no hay datos para este turno, saltamos completamente
+  if (is.null(capa_recorrido_original) || nrow(capa_recorrido_original) == 0) {
+    message(paste("⚠️  Sin datos para el turno", turno, "- Saltando turno completo."))
     next
   }
-  
-  # [Omitido por brevedad: enriquecer con df_flota igual que antes]
-  
-  # --- 3. CREAR NOMBRES DE ARCHIVOS DE SALIDA ---
-  # Limpiamos el nombre del sector para evitar problemas con espacios o tildes en archivos
-  nombre_limpio <- gsub("[^[:alnum:]]", "_", sector_nombre)
-  salida_html <- paste0("salidas/mapas/mapa_", nombre_limpio, ".html")
-  salida_png  <- paste0("salidas/mapas/estatico_", nombre_limpio, ".png")
-  
-  # --- 4. GUARDAR TEMPORALES ---
-  temp_path_intra  <- tempfile(fileext = ".geojson")
-  temp_path_puntos <- tempfile(fileext = ".geojson")
-  st_write(capa_filtrada, temp_path_intra, driver = "GeoJSON", delete_dsn = TRUE, quiet = TRUE)
-  st_write(puntos_solapados, temp_path_puntos, driver = "GeoJSON", delete_dsn = TRUE, quiet = TRUE)
-  
-  # --- 5. LLAMAR A PYTHON PASANDO EL NOMBRE DE SALIDA ---
-  # Mapa interactivo (le pasamos 3 argumentos: capa, puntos y destino)
-  # system2(python_venv, args = c("vistas/mapas/mapa_intra.py", 
-  #                               temp_path_intra, 
-  #                               temp_path_puntos,
-  #                               salida_html))
-  
-  system2(python_venv, args = c("vistas/mapas/mapa_intro_dibujarutas.py", 
-                                temp_path_intra, 
-                                temp_path_puntos,
-                                salida_html))
-  
-  # Mapa estático
-  # system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py", 
-  #                               temp_path_intra, 
-  #                               temp_path_puntos,
-  #                               salida_png))
-  
-  message(paste("✅ Archivos generados para", sector_nombre))
+
+  message(paste("\n====== Procesando turno:", turno, "| Fecha:", fecha_proceso, "======"))
+
+  # Carpeta de salida específica del turno (se crea si no existe)
+  carpeta_turno <- file.path("salidas", "mapas", turno)
+  if (!dir.exists(carpeta_turno)) dir.create(carpeta_turno, recursive = TRUE)
+
+  # --- Loop interno: por sector ----------------------------------------------
+  for (sector_nombre in sectores) {
+
+    message(paste("  Procesando sector:", sector_nombre))
+
+    # 1. Filtrar capa territorial
+    capa_filtrada <- capa_intra[capa_intra$nombre == sector_nombre, ]
+
+    # 2. Intersección: puntos del recorrido dentro del sector
+    capa_recorrido   <- st_transform(capa_recorrido_original, st_crs(capa_filtrada))
+    puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada)
+
+    if (nrow(puntos_solapados) == 0) {
+      message(paste("  Sin datos de recorrido para:", sector_nombre, "- Saltando..."))
+      next
+    }
+
+    # 3. Enriquecer con información de flota (servicio asignado)
+    matricula_ref       <- puntos_solapados$matricula[1]
+    servicio_encontrado <- df_flota %>%
+      filter(Matricula == matricula_ref) %>%
+      pull(Servicio)
+
+    if (length(servicio_encontrado) > 0) {
+      puntos_solapados <- puntos_solapados %>%
+        mutate(FRACCION = servicio_encontrado[1])
+    }
+
+    # 4. Nombre de archivo: YYYY-MM-DD_Mapa_NombreSector_TURNO.html
+    nombre_limpio <- gsub("[^[:alnum:]]", "_", sector_nombre)
+    nombre_archivo <- paste0(fecha_proceso, "_Mapa_", nombre_limpio, "_", toupper(turno), ".html")
+    salida_html    <- file.path(carpeta_turno, nombre_archivo)
+
+    # 5. Guardar capas como GeoJSON temporales para Python
+    temp_path_intra  <- tempfile(fileext = ".geojson")
+    temp_path_puntos <- tempfile(fileext = ".geojson")
+    st_write(capa_filtrada,    temp_path_intra,  driver = "GeoJSON", delete_dsn = TRUE, quiet = TRUE)
+    st_write(puntos_solapados, temp_path_puntos, driver = "GeoJSON", delete_dsn = TRUE, quiet = TRUE)
+
+    # 6. Generar mapa interactivo con Python
+    system2(python_venv, args = c("vistas/mapas/mapa_intro_dibujarutas.py",
+                                  temp_path_intra,
+                                  temp_path_puntos,
+                                  salida_html))
+
+    # Mapa estático (descomentar si se necesita):
+    # nombre_png  <- paste0(fecha_proceso, "_Estatico_", nombre_limpio, "_", toupper(turno), ".png")
+    # salida_png  <- file.path(carpeta_turno, nombre_png)
+    # system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py",
+    #                               temp_path_intra, temp_path_puntos, salida_png))
+
+    message(paste("  ✅ Generado:", nombre_archivo))
+  }
+
+  message(paste("====== Turno", turno, "finalizado. ======\n"))
 }
 
 
+# =============================================================================
+# SECCIÓN EN DESARROLLO (mantener al final hasta consolidar)
+# =============================================================================
 
-
-
-
-
-
-
-
-
-
-########### MODIFICANDO
+# Grupos disponibles en la API:
+#   sisconve - Vehículos propios de la IM
+#   waste    - Transportistas de residuos privados
+#   crane    - Grúas
+#   hired    - Vehículos de alquiler
 
 obtener_posiciones <- function(matricula, desde, hasta, grupo = "sisconve", stops_only = FALSE) {
-  
+
   base_url <- "https://intranet.imm.gub.uy/app/visor-vehiculos-v2/api/vehiculos/posiciones"
-  
+
   req <- request(base_url) %>%
     req_url_query(
-      matricula = matricula,
-      fechaDesde = desde,
-      fechaHasta = hasta,
-      grupo = grupo,
+      matricula     = matricula,
+      fechaDesde    = desde,
+      fechaHasta    = hasta,
+      grupo         = grupo,
       showStopsOnly = tolower(as.character(stops_only))
     )
-  
-  # Realizar la petición
-  resp <- req_perform(req)
-  
-  # Parsear el JSON a un Data Frame
+
+  resp  <- req_perform(req)
   datos <- resp %>% resp_body_json(simplifyVector = TRUE)
-  
+
   return(datos)
 }
 
-# Valor (clave) Descripción
- # sisconve - Vehículos propios de la IM
- # waste - Transportistas de residuos privados
- # crane - Grúas
- # hired - Vehículos de alquiler
-
 # Ejemplo de uso:
-df_posiciones <- obtener_posiciones("SIM3024", "2026-04-10T13:49:11", "2026-04-14T13:49:11")
-
-
-
+# df_posiciones <- obtener_posiciones("SIM3024", "2026-04-10T13:49:11", "2026-04-14T13:49:11")
 
 ### HAY QUE LLAMAR ANTES EN CONEXIONPOSTRES LAS MATRICULAS
 
-obtener_posiciones_por_turno <- function(df, fecha, turno) {
-  
+obtener_posiciones_por_turno_v2 <- function(df, fecha, turno) {
+
   # 1. Definir horas según el turno
   if (turno == "Matutino") {
     hora_inicio <- "06:00:00"
@@ -260,112 +273,62 @@ obtener_posiciones_por_turno <- function(df, fecha, turno) {
   } else {
     stop("Turno no válido. Debe ser 'Matutino' o 'Vespertino'.")
   }
-  
+
   desde <- paste0(fecha, "T", hora_inicio)
   hasta <- paste0(fecha, "T", hora_fin)
-  
+
   message(paste("Consultando turno", turno, "para la fecha", fecha, "..."))
-  
-  # 2. Llamada a la API
+
+  # 2. Llamada a la API (map_dfr deprecado en purrr >= 1.0; usar map + list_rbind)
   resultado <- df$Matricula %>%
-    map_dfr(~ obtener_posiciones(matricula = .x, desde = desde, hasta = hasta))
-  
-  # VALIDACIÓN: Si no hay datos, salir
+    map(\(x) obtener_posiciones(matricula = x, desde = desde, hasta = hasta)) %>%
+    list_rbind()
+
   if (nrow(resultado) == 0) {
     message("No se encontraron posiciones.")
     return(NULL)
   }
-  
-  # 3. PROCESAMIENTO ESPACIAL (Ajustado a tu imagen)
+
+  # 3. Procesamiento espacial
   resultado_sf <- resultado %>%
-    # 'unpack' expande la columna 'coordenadas'
-    unpack(coordenadas) %>% 
-    # 'hoist' extrae el primer y segundo elemento del vector c(lon, lat)
+    unpack(coordenadas) %>%
     hoist(coordinates, lon = 1, lat = 2) %>%
-    # Convertimos los valores extraídos a números
     mutate(
       lon = as.numeric(lon),
       lat = as.numeric(lat)
     ) %>%
     filter(!is.na(lon) & !is.na(lat)) %>%
-    # Convertimos a objeto espacial (sf)
     st_as_sf(coords = c("lon", "lat"), crs = 4326)
-  
+
   return(resultado_sf)
 }
 
-# Ejemplo para el turno matutino
-  df_matutino <- obtener_posiciones_por_turno(df_flota, "2026-04-15", "Matutino")
-  
-  # Ejemplo para el turno vespertino
-  df_vespertino <- obtener_posiciones_por_turno(df_flota, "2026-04-15", "Vespertino")
+# df_matutino  <- obtener_posiciones_por_turno_v2(df_flota, "2026-04-15", "Matutino")
+# df_vespertino <- obtener_posiciones_por_turno_v2(df_flota, "2026-04-15", "Vespertino")
 
-  lista_capas <- split(capa_intra, capa_intra$nombre)
-  
-  
-  
-  
-  
-
-  
-  # 0. Cargar la capa de recorrido una sola vez (fuera del loop para ahorrar tiempo)
-  capa_recorrido_original <- st_read("vistas/mapas/SIM_reciclable.json")
-  capa_recorrido_original <- df_matutino
-  
-  # Obtener la lista de todos los sectores (nombres) que existen en la capa
-  sectores <- unique(capa_intra$nombre)
-  
-  for (sector_nombre in sectores) {
-    
-    message(paste("Procesando sector:", sector_nombre))
-    
-    # --- 1. FILTRAR CAPA TERRITORIAL ---
-    capa_filtrada <- capa_intra[capa_intra$nombre == sector_nombre, ]
-    
-    # Guardar en temporal para Python
-    temp_path_intra <- tempfile(fileext = ".geojson")
-    st_write(capa_filtrada, temp_path_intra, driver = "GeoJSON", delete_dsn = TRUE)
-    
-    # --- 2. CALCULAR INTERSECCIÓN ---
-    # Aseguramos misma proyección que la capa filtrada
-    capa_recorrido <- st_transform(capa_recorrido_original, st_crs(capa_filtrada))
-    
-    # Intersección: puntos que caen dentro del sector actual
-    puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada)
-    
-    # VALIDACIÓN: Si no hay puntos, saltamos al siguiente sector para evitar errores
-    if (nrow(puntos_solapados) == 0) {
-      message(paste("Sin datos de recorrido para:", sector_nombre, "- Saltando..."))
-      next
-    }
-    
-    # --- 3. ENRIQUECER CON DF_FLOTA ---
-    matricula_ref <- puntos_solapados$matricula[1]
-    
-    servicio_encontrado <- df_flota %>% 
-      filter(Matricula == matricula_ref) %>% 
-      pull(Servicio)
-    
-    if(length(servicio_encontrado) > 0) {
-      puntos_solapados <- puntos_solapados %>% 
-        mutate(FRACCION = servicio_encontrado[1])
-    }
-    
-    # Guardar puntos en temporal para Python
-    temp_path_puntos <- tempfile(fileext = ".geojson")
-    st_write(puntos_solapados, temp_path_puntos, driver = "GeoJSON", delete_dsn = TRUE)
-    
-    # --- 4. LLAMAR A LOS SCRIPTS DE PYTHON ---
-    # Mapa interactivo
-    system2(python_venv, args = c("vistas/mapas/mapa_intra.py", 
-                                  temp_path_intra, 
-                                  temp_path_puntos))
-    
-    # Mapa estático
-    system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py", 
-                                  temp_path_intra, 
-                                  temp_path_puntos))
-    
-    # Opcional: Limpiar archivos temporales para no saturar el disco (aunque R los borra al cerrar)
-    # file.remove(temp_path_intra, temp_path_puntos)
-  }
+# Loop por sector (versión con script mapa_intra.py sin salida_html explícita)
+# capa_recorrido_original <- df_matutino
+# sectores <- unique(capa_intra$nombre)
+#
+# for (sector_nombre in sectores) {
+#   capa_filtrada    <- capa_intra[capa_intra$nombre == sector_nombre, ]
+#   temp_path_intra  <- tempfile(fileext = ".geojson")
+#   st_write(capa_filtrada, temp_path_intra, driver = "GeoJSON", delete_dsn = TRUE)
+#
+#   capa_recorrido   <- st_transform(capa_recorrido_original, st_crs(capa_filtrada))
+#   puntos_solapados <- st_intersection(capa_recorrido, capa_filtrada)
+#
+#   if (nrow(puntos_solapados) == 0) { next }
+#
+#   matricula_ref       <- puntos_solapados$matricula[1]
+#   servicio_encontrado <- df_flota %>% filter(Matricula == matricula_ref) %>% pull(Servicio)
+#   if (length(servicio_encontrado) > 0) {
+#     puntos_solapados <- puntos_solapados %>% mutate(FRACCION = servicio_encontrado[1])
+#   }
+#
+#   temp_path_puntos <- tempfile(fileext = ".geojson")
+#   st_write(puntos_solapados, temp_path_puntos, driver = "GeoJSON", delete_dsn = TRUE)
+#
+#   system2(python_venv, args = c("vistas/mapas/mapa_intra.py", temp_path_intra, temp_path_puntos))
+#   system2(python_venv, args = c("vistas/mapas/mapa_intra_estatico.py", temp_path_intra, temp_path_puntos))
+# }

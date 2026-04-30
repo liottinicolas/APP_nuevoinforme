@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_6863f8dd0aeffb1ce0fa09b7767bb7e7 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_6863f8dd0aeffb1ce0fa09b7767bb7e7" ></div>
+        
+    
+    <div id='info-card' style='
+        position: fixed; bottom: 50px; left: 50px; width: 260px; height: auto; 
+        background-color: #0046E3; border: 1px solid white; z-index:9999; 
+        font-size: 13px; color: white; padding: 15px; border-radius: 12px; 
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3); font-family: sans-serif;'>
+        <div style='text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px;'>
+            MAPA DE PARADAS (<= 5 km/h)
+        </div>
+        <div style='line-height: 1.7;'>
+            <b>Matrícula:</b> <span style='font-size: 14px;'>SIM2205</span><br>
+            <b>Día:</b> 28/04/2026 <br>
+            <b>Zona:</b> CARRASCO 2 <br>
+            <b>Fracción:</b> MEZCLADO/RECICLABLE <br>
+            <hr style='margin: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.3);'>
+            <b>Inicio:</b> 17:16:10 <br>
+            <b>Fin:</b> 17:30:28 <br>
+            <div style='text-align: center; margin-top: 15px;'>
+                <img src="https://montevideo.gub.uy/modules/custom/im_logo/images/logo_im.png" 
+                     style="width: 130px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script>
+    
+    
+            var map_6863f8dd0aeffb1ce0fa09b7767bb7e7 = L.map(
+                "map_6863f8dd0aeffb1ce0fa09b7767bb7e7",
+                {
+                    center: [-34.85, -56.16],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_0c441e0d9506b594acc338171b061b30 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_0c441e0d9506b594acc338171b061b30.addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        function geo_json_b03159323b10fc2888e758980682f00d_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
+            }
+        }
+
+        function geo_json_b03159323b10fc2888e758980682f00d_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_b03159323b10fc2888e758980682f00d = L.geoJson(null, {
+                onEachFeature: geo_json_b03159323b10fc2888e758980682f00d_onEachFeature,
+            
+                style: geo_json_b03159323b10fc2888e758980682f00d_styler,
+            ...{
+}
+        });
+
+        function geo_json_b03159323b10fc2888e758980682f00d_add (data) {
+            geo_json_b03159323b10fc2888e758980682f00d
+                .addData(data);
+        }
+            geo_json_b03159323b10fc2888e758980682f00d_add({"bbox": [-56.0631205602764, -34.886297473531656, -56.036950251837055, -34.875509405767495], "features": [{"bbox": [-56.0631205602764, -34.886297473531656, -56.036950251837055, -34.875509405767495], "geometry": {"coordinates": [[[[-56.058559031761284, -34.886297473531656], [-56.06096456131465, -34.88163394974353], [-56.06157045567386, -34.880863243427704], [-56.06299120192913, -34.880039172115175], [-56.06304683469977, -34.87992031085929], [-56.0631205602764, -34.87980158900682], [-56.062185343901724, -34.87770680239117], [-56.05217289788149, -34.8766897463659], [-56.045087650421294, -34.87603785246135], [-56.039574783603264, -34.87554709021187], [-56.03858007572964, -34.875509405767495], [-56.036950251837055, -34.878732241486475], [-56.058559031761284, -34.886297473531656]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-03-13", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MARTES Y SABADO", "FRECUENCIA.RECICLABLE": "VIERNES", "RECICLABLE": "CONTENEDOR", "TURNO": "MATUTINO", "cont.ret": "76.0", "id": "18.0", "id_0": "19", "municipio": "E", "nombre": "CARRASCO 2", "poblacion": "3530.0", "viviendas": "1276.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_b03159323b10fc2888e758980682f00d.addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+            map_6863f8dd0aeffb1ce0fa09b7767bb7e7.fitBounds(
+                [[-34.886297473531656, -56.0631205602764], [-34.875509405767495, -56.036950251837055]],
+                {}
+            );
+        
+    
+            var circle_marker_e08b2cdf2afc297169076302817c557f = L.circleMarker(
+                [-34.879295, -56.057114],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_7ce60817139e05a204dbe2ac08640589 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_976d5a772e72f7e1e0c563c8f23e143f = $(`<div id="html_976d5a772e72f7e1e0c563c8f23e143f" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:20:10<br>Vel: 2.0 km/h</div>`)[0];
+                popup_7ce60817139e05a204dbe2ac08640589.setContent(html_976d5a772e72f7e1e0c563c8f23e143f);
+            
+        
+
+        circle_marker_e08b2cdf2afc297169076302817c557f.bindPopup(popup_7ce60817139e05a204dbe2ac08640589)
+        ;
+
+        
+    
+    
+            var circle_marker_8a26b7e7e1157f7562570df2f0cf4718 = L.circleMarker(
+                [-34.877419, -56.05711],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_7eb23f1227048e5b0889f213c22cb2ef = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3048dc7835077b8748c1b8ba909b3cb6 = $(`<div id="html_3048dc7835077b8748c1b8ba909b3cb6" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:21:24<br>Vel: 4.0 km/h</div>`)[0];
+                popup_7eb23f1227048e5b0889f213c22cb2ef.setContent(html_3048dc7835077b8748c1b8ba909b3cb6);
+            
+        
+
+        circle_marker_8a26b7e7e1157f7562570df2f0cf4718.bindPopup(popup_7eb23f1227048e5b0889f213c22cb2ef)
+        ;
+
+        
+    
+    
+            var circle_marker_de7ff9f29d5a17314a9a352822bacee9 = L.circleMarker(
+                [-34.877396, -56.057129],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_a0382075f00ff490472fd7dc48f91317 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0fe29ef500e8047a2a99ab1767a88c4c = $(`<div id="html_0fe29ef500e8047a2a99ab1767a88c4c" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:21:27<br>Vel: 4.0 km/h</div>`)[0];
+                popup_a0382075f00ff490472fd7dc48f91317.setContent(html_0fe29ef500e8047a2a99ab1767a88c4c);
+            
+        
+
+        circle_marker_de7ff9f29d5a17314a9a352822bacee9.bindPopup(popup_a0382075f00ff490472fd7dc48f91317)
+        ;
+
+        
+    
+    
+            var circle_marker_8d72b44ccc4906ab40a6c9b6a8b8f3f6 = L.circleMarker(
+                [-34.877369, -56.05714],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_15aeb52404b04ee88bcfe1462b66fae2 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_734bf4bee8810e09ccf5e3ee01601c5c = $(`<div id="html_734bf4bee8810e09ccf5e3ee01601c5c" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:21:33<br>Vel: 3.0 km/h</div>`)[0];
+                popup_15aeb52404b04ee88bcfe1462b66fae2.setContent(html_734bf4bee8810e09ccf5e3ee01601c5c);
+            
+        
+
+        circle_marker_8d72b44ccc4906ab40a6c9b6a8b8f3f6.bindPopup(popup_15aeb52404b04ee88bcfe1462b66fae2)
+        ;
+
+        
+    
+    
+            var circle_marker_2c8fb960d54869e983675d856c89fa23 = L.circleMarker(
+                [-34.877407, -56.05711],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_1a8382b888308f8905a7729cf68b66f3 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5f584278fb3c3845cbcb51b8b8f1465f = $(`<div id="html_5f584278fb3c3845cbcb51b8b8f1465f" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:21:38<br>Vel: 4.0 km/h</div>`)[0];
+                popup_1a8382b888308f8905a7729cf68b66f3.setContent(html_5f584278fb3c3845cbcb51b8b8f1465f);
+            
+        
+
+        circle_marker_2c8fb960d54869e983675d856c89fa23.bindPopup(popup_1a8382b888308f8905a7729cf68b66f3)
+        ;
+
+        
+    
+    
+            var circle_marker_4506099e316b6206d22abf5ce34771bb = L.circleMarker(
+                [-34.877419, -56.057106],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_2f10de0feeb98352881202b763dd9a96 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1318067964dc0c9ce3615f2bc0921d73 = $(`<div id="html_1318067964dc0c9ce3615f2bc0921d73" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:21:39<br>Vel: 4.0 km/h</div>`)[0];
+                popup_2f10de0feeb98352881202b763dd9a96.setContent(html_1318067964dc0c9ce3615f2bc0921d73);
+            
+        
+
+        circle_marker_4506099e316b6206d22abf5ce34771bb.bindPopup(popup_2f10de0feeb98352881202b763dd9a96)
+        ;
+
+        
+    
+    
+            var circle_marker_e8219576a1ec1438bd4dbbb1e852d4ed = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_c71449062dc497b62a9a608f9b9e2472 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_028e9d41137a7f9848b2d6e53a4269ef = $(`<div id="html_028e9d41137a7f9848b2d6e53a4269ef" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:21:54<br>Vel: 0.0 km/h</div>`)[0];
+                popup_c71449062dc497b62a9a608f9b9e2472.setContent(html_028e9d41137a7f9848b2d6e53a4269ef);
+            
+        
+
+        circle_marker_e8219576a1ec1438bd4dbbb1e852d4ed.bindPopup(popup_c71449062dc497b62a9a608f9b9e2472)
+        ;
+
+        
+    
+    
+            var circle_marker_4d1d2fbf024bffbbd47be92f57aab55d = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_98a2020cc094f1c105ba52638a5973e1 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_dcc2a0960d0f64dfffe79fe98dc5cc24 = $(`<div id="html_dcc2a0960d0f64dfffe79fe98dc5cc24" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:22:10<br>Vel: 0.0 km/h</div>`)[0];
+                popup_98a2020cc094f1c105ba52638a5973e1.setContent(html_dcc2a0960d0f64dfffe79fe98dc5cc24);
+            
+        
+
+        circle_marker_4d1d2fbf024bffbbd47be92f57aab55d.bindPopup(popup_98a2020cc094f1c105ba52638a5973e1)
+        ;
+
+        
+    
+    
+            var circle_marker_ba535f67766d0c53e321af1b7901936e = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_432068182bfb6d9f1b53049b31f9d97e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_25923681de8997c345d7971deb1fd52f = $(`<div id="html_25923681de8997c345d7971deb1fd52f" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:22:25<br>Vel: 0.0 km/h</div>`)[0];
+                popup_432068182bfb6d9f1b53049b31f9d97e.setContent(html_25923681de8997c345d7971deb1fd52f);
+            
+        
+
+        circle_marker_ba535f67766d0c53e321af1b7901936e.bindPopup(popup_432068182bfb6d9f1b53049b31f9d97e)
+        ;
+
+        
+    
+    
+            var circle_marker_125d9f40a22530a67f99609160ee8bc5 = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_5a3d910e81268ad787a1bf17242aa62d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c700cb267a9ba78813264f57b3cf85cf = $(`<div id="html_c700cb267a9ba78813264f57b3cf85cf" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:22:40<br>Vel: 0.0 km/h</div>`)[0];
+                popup_5a3d910e81268ad787a1bf17242aa62d.setContent(html_c700cb267a9ba78813264f57b3cf85cf);
+            
+        
+
+        circle_marker_125d9f40a22530a67f99609160ee8bc5.bindPopup(popup_5a3d910e81268ad787a1bf17242aa62d)
+        ;
+
+        
+    
+    
+            var circle_marker_977277dc4fab138e7a7511242327981d = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_4fd9ef3de3a5294b2b247ab28f2a39bf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e17a09f872b0cbdc47800c526b6ea1e3 = $(`<div id="html_e17a09f872b0cbdc47800c526b6ea1e3" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:22:55<br>Vel: 0.0 km/h</div>`)[0];
+                popup_4fd9ef3de3a5294b2b247ab28f2a39bf.setContent(html_e17a09f872b0cbdc47800c526b6ea1e3);
+            
+        
+
+        circle_marker_977277dc4fab138e7a7511242327981d.bindPopup(popup_4fd9ef3de3a5294b2b247ab28f2a39bf)
+        ;
+
+        
+    
+    
+            var circle_marker_2dba4c17b91bc2b4fdb6d1c9793e84ac = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_511260c2ffaabbc8b198bac9454eeda2 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_46978201e4b517c63bff20212e8e07e6 = $(`<div id="html_46978201e4b517c63bff20212e8e07e6" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:23:10<br>Vel: 0.0 km/h</div>`)[0];
+                popup_511260c2ffaabbc8b198bac9454eeda2.setContent(html_46978201e4b517c63bff20212e8e07e6);
+            
+        
+
+        circle_marker_2dba4c17b91bc2b4fdb6d1c9793e84ac.bindPopup(popup_511260c2ffaabbc8b198bac9454eeda2)
+        ;
+
+        
+    
+    
+            var circle_marker_dd64821a1d8e5ec7c98ad984357e45ce = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_fa85e5a773ce01bea7c1dbb44d3f8f5f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_d2484575eae8c1d20bd22fc477d828c6 = $(`<div id="html_d2484575eae8c1d20bd22fc477d828c6" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:23:25<br>Vel: 0.0 km/h</div>`)[0];
+                popup_fa85e5a773ce01bea7c1dbb44d3f8f5f.setContent(html_d2484575eae8c1d20bd22fc477d828c6);
+            
+        
+
+        circle_marker_dd64821a1d8e5ec7c98ad984357e45ce.bindPopup(popup_fa85e5a773ce01bea7c1dbb44d3f8f5f)
+        ;
+
+        
+    
+    
+            var circle_marker_cdefc8d18f6fcc9a88856fd05966ec18 = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_480d0ddf163e3d3be67381188b5e9c4f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f5b24baffaf97eaabe37f4a2d7fd857a = $(`<div id="html_f5b24baffaf97eaabe37f4a2d7fd857a" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:23:40<br>Vel: 0.0 km/h</div>`)[0];
+                popup_480d0ddf163e3d3be67381188b5e9c4f.setContent(html_f5b24baffaf97eaabe37f4a2d7fd857a);
+            
+        
+
+        circle_marker_cdefc8d18f6fcc9a88856fd05966ec18.bindPopup(popup_480d0ddf163e3d3be67381188b5e9c4f)
+        ;
+
+        
+    
+    
+            var circle_marker_919c8d8ef81dcacf96b6cbab2970766a = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_79f46826a521077806d073daffd24c22 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2e969be851b7a215acc228388f7ab50c = $(`<div id="html_2e969be851b7a215acc228388f7ab50c" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:23:55<br>Vel: 0.0 km/h</div>`)[0];
+                popup_79f46826a521077806d073daffd24c22.setContent(html_2e969be851b7a215acc228388f7ab50c);
+            
+        
+
+        circle_marker_919c8d8ef81dcacf96b6cbab2970766a.bindPopup(popup_79f46826a521077806d073daffd24c22)
+        ;
+
+        
+    
+    
+            var circle_marker_de934dfd424d4d624ae868d7c1eca722 = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_cda215f892fde8f8a548beaa0812b75e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f48dcfe21f09c8ea6e7ab4ba5f7385e2 = $(`<div id="html_f48dcfe21f09c8ea6e7ab4ba5f7385e2" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:24:10<br>Vel: 0.0 km/h</div>`)[0];
+                popup_cda215f892fde8f8a548beaa0812b75e.setContent(html_f48dcfe21f09c8ea6e7ab4ba5f7385e2);
+            
+        
+
+        circle_marker_de934dfd424d4d624ae868d7c1eca722.bindPopup(popup_cda215f892fde8f8a548beaa0812b75e)
+        ;
+
+        
+    
+    
+            var circle_marker_0cc73491bb5a32a5703a532eec4c1edd = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_04378d75346580eb7f23e24959eac935 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_133216d701e59c66405c5d9fb2311d69 = $(`<div id="html_133216d701e59c66405c5d9fb2311d69" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:24:25<br>Vel: 0.0 km/h</div>`)[0];
+                popup_04378d75346580eb7f23e24959eac935.setContent(html_133216d701e59c66405c5d9fb2311d69);
+            
+        
+
+        circle_marker_0cc73491bb5a32a5703a532eec4c1edd.bindPopup(popup_04378d75346580eb7f23e24959eac935)
+        ;
+
+        
+    
+    
+            var circle_marker_edf94829555cde91e84ac67375ea113a = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_9ede2da46e5004ed897d4d713ecfb981 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_dc7e7b9a637cd9a0f244c9bba05def53 = $(`<div id="html_dc7e7b9a637cd9a0f244c9bba05def53" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:24:40<br>Vel: 0.0 km/h</div>`)[0];
+                popup_9ede2da46e5004ed897d4d713ecfb981.setContent(html_dc7e7b9a637cd9a0f244c9bba05def53);
+            
+        
+
+        circle_marker_edf94829555cde91e84ac67375ea113a.bindPopup(popup_9ede2da46e5004ed897d4d713ecfb981)
+        ;
+
+        
+    
+    
+            var circle_marker_0a3c0e6480f0d65f11bad4689a69345a = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_b5c9c3589f0e2c97f7f6b8f247fb764d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ad90563b63cb7a62ce951aece08619b5 = $(`<div id="html_ad90563b63cb7a62ce951aece08619b5" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:24:55<br>Vel: 0.0 km/h</div>`)[0];
+                popup_b5c9c3589f0e2c97f7f6b8f247fb764d.setContent(html_ad90563b63cb7a62ce951aece08619b5);
+            
+        
+
+        circle_marker_0a3c0e6480f0d65f11bad4689a69345a.bindPopup(popup_b5c9c3589f0e2c97f7f6b8f247fb764d)
+        ;
+
+        
+    
+    
+            var circle_marker_d81651162f0d9dd42214be5d026ca695 = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_0b25fd34619551a6139ebdf7de5d155a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2867e976b7561ee46d7a0d3af0d286ce = $(`<div id="html_2867e976b7561ee46d7a0d3af0d286ce" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:25:10<br>Vel: 0.0 km/h</div>`)[0];
+                popup_0b25fd34619551a6139ebdf7de5d155a.setContent(html_2867e976b7561ee46d7a0d3af0d286ce);
+            
+        
+
+        circle_marker_d81651162f0d9dd42214be5d026ca695.bindPopup(popup_0b25fd34619551a6139ebdf7de5d155a)
+        ;
+
+        
+    
+    
+            var circle_marker_0844ccee24689826b38b57513d8b70bd = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_2ae46214c193f791779a8db426cc1b60 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_aa1aaa059e5d2f6a3aaf43a2654db7a9 = $(`<div id="html_aa1aaa059e5d2f6a3aaf43a2654db7a9" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:25:25<br>Vel: 0.0 km/h</div>`)[0];
+                popup_2ae46214c193f791779a8db426cc1b60.setContent(html_aa1aaa059e5d2f6a3aaf43a2654db7a9);
+            
+        
+
+        circle_marker_0844ccee24689826b38b57513d8b70bd.bindPopup(popup_2ae46214c193f791779a8db426cc1b60)
+        ;
+
+        
+    
+    
+            var circle_marker_7544ccd2ba6955214f1e392438f8a4f5 = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_6e7059bcd3ce1a80051efe0ddbd908fa = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c1d766affed3a1db199b253fd72c1744 = $(`<div id="html_c1d766affed3a1db199b253fd72c1744" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:25:40<br>Vel: 0.0 km/h</div>`)[0];
+                popup_6e7059bcd3ce1a80051efe0ddbd908fa.setContent(html_c1d766affed3a1db199b253fd72c1744);
+            
+        
+
+        circle_marker_7544ccd2ba6955214f1e392438f8a4f5.bindPopup(popup_6e7059bcd3ce1a80051efe0ddbd908fa)
+        ;
+
+        
+    
+    
+            var circle_marker_f646e4ecc1256f12aa0212dd81e3ed1b = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_bfab963d05172eb5ddabd8b401ff81c8 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2054b78e8e233be1e55356ebe152775c = $(`<div id="html_2054b78e8e233be1e55356ebe152775c" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:25:55<br>Vel: 0.0 km/h</div>`)[0];
+                popup_bfab963d05172eb5ddabd8b401ff81c8.setContent(html_2054b78e8e233be1e55356ebe152775c);
+            
+        
+
+        circle_marker_f646e4ecc1256f12aa0212dd81e3ed1b.bindPopup(popup_bfab963d05172eb5ddabd8b401ff81c8)
+        ;
+
+        
+    
+    
+            var circle_marker_e0582ab08571239886b48567778c37bf = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_a75b3999e1bd35a44ea5bc759e42b535 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_625bcea3e6185911b7c7ed0db61fde0f = $(`<div id="html_625bcea3e6185911b7c7ed0db61fde0f" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:26:10<br>Vel: 0.0 km/h</div>`)[0];
+                popup_a75b3999e1bd35a44ea5bc759e42b535.setContent(html_625bcea3e6185911b7c7ed0db61fde0f);
+            
+        
+
+        circle_marker_e0582ab08571239886b48567778c37bf.bindPopup(popup_a75b3999e1bd35a44ea5bc759e42b535)
+        ;
+
+        
+    
+    
+            var circle_marker_dfad3aefd27b2a595dbb5f81faa733e1 = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_003a45c28d9a1d987d174028adc8fdd3 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ccfdb4eaef65a8ee0a3b4bf8c238521f = $(`<div id="html_ccfdb4eaef65a8ee0a3b4bf8c238521f" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:26:25<br>Vel: 0.0 km/h</div>`)[0];
+                popup_003a45c28d9a1d987d174028adc8fdd3.setContent(html_ccfdb4eaef65a8ee0a3b4bf8c238521f);
+            
+        
+
+        circle_marker_dfad3aefd27b2a595dbb5f81faa733e1.bindPopup(popup_003a45c28d9a1d987d174028adc8fdd3)
+        ;
+
+        
+    
+    
+            var circle_marker_4ae8a0cbfc194ca46b04716106aabfaa = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_781676495ca0cd8c516e7caeabb13993 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_098171082e46acd34ca59c4dda40375c = $(`<div id="html_098171082e46acd34ca59c4dda40375c" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:26:40<br>Vel: 0.0 km/h</div>`)[0];
+                popup_781676495ca0cd8c516e7caeabb13993.setContent(html_098171082e46acd34ca59c4dda40375c);
+            
+        
+
+        circle_marker_4ae8a0cbfc194ca46b04716106aabfaa.bindPopup(popup_781676495ca0cd8c516e7caeabb13993)
+        ;
+
+        
+    
+    
+            var circle_marker_f9e80dce7dab61e309e3fd9b4a448032 = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_80b85383283a742930ce9613a1e5453e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_8a579a66870a232cd71ed7025acd1c84 = $(`<div id="html_8a579a66870a232cd71ed7025acd1c84" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:26:54<br>Vel: 0.0 km/h</div>`)[0];
+                popup_80b85383283a742930ce9613a1e5453e.setContent(html_8a579a66870a232cd71ed7025acd1c84);
+            
+        
+
+        circle_marker_f9e80dce7dab61e309e3fd9b4a448032.bindPopup(popup_80b85383283a742930ce9613a1e5453e)
+        ;
+
+        
+    
+    
+            var circle_marker_fba049ad8cef7227e066459cc6f2192b = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_2377857b159836879eac0bd1d4e900a4 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_334c7da4c7a74ff1e1615e42605d78fc = $(`<div id="html_334c7da4c7a74ff1e1615e42605d78fc" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:27:09<br>Vel: 0.0 km/h</div>`)[0];
+                popup_2377857b159836879eac0bd1d4e900a4.setContent(html_334c7da4c7a74ff1e1615e42605d78fc);
+            
+        
+
+        circle_marker_fba049ad8cef7227e066459cc6f2192b.bindPopup(popup_2377857b159836879eac0bd1d4e900a4)
+        ;
+
+        
+    
+    
+            var circle_marker_e1eba8a5065ef75a52d32a66a9d332ea = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_fe31f6d0a29f7833a7b6f27f2070e2cf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5df45cd14103487a0aed2b060d107e5f = $(`<div id="html_5df45cd14103487a0aed2b060d107e5f" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:27:25<br>Vel: 0.0 km/h</div>`)[0];
+                popup_fe31f6d0a29f7833a7b6f27f2070e2cf.setContent(html_5df45cd14103487a0aed2b060d107e5f);
+            
+        
+
+        circle_marker_e1eba8a5065ef75a52d32a66a9d332ea.bindPopup(popup_fe31f6d0a29f7833a7b6f27f2070e2cf)
+        ;
+
+        
+    
+    
+            var circle_marker_2bafd7c3527bd3b4491db45e11631b9f = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_8dffb7f95abc68d7d9844bfe3ca4acef = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_d4aa7e17726f25a5b08531e823125425 = $(`<div id="html_d4aa7e17726f25a5b08531e823125425" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:27:40<br>Vel: 0.0 km/h</div>`)[0];
+                popup_8dffb7f95abc68d7d9844bfe3ca4acef.setContent(html_d4aa7e17726f25a5b08531e823125425);
+            
+        
+
+        circle_marker_2bafd7c3527bd3b4491db45e11631b9f.bindPopup(popup_8dffb7f95abc68d7d9844bfe3ca4acef)
+        ;
+
+        
+    
+    
+            var circle_marker_f4856ba55a2c974ccefb7cda0994733a = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_d4f48330718c5771c1ef6294fcb14c6f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e4a2f03b9be2bd45b018b9362f996b2c = $(`<div id="html_e4a2f03b9be2bd45b018b9362f996b2c" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:27:55<br>Vel: 0.0 km/h</div>`)[0];
+                popup_d4f48330718c5771c1ef6294fcb14c6f.setContent(html_e4a2f03b9be2bd45b018b9362f996b2c);
+            
+        
+
+        circle_marker_f4856ba55a2c974ccefb7cda0994733a.bindPopup(popup_d4f48330718c5771c1ef6294fcb14c6f)
+        ;
+
+        
+    
+    
+            var circle_marker_38988d9d2e1029b117608562237a91db = L.circleMarker(
+                [-34.877514, -56.057102],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_60aca6009b086f395ecd2f01c2291a98 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e32cd9fdb47defd8aca04c2efcd7d8fa = $(`<div id="html_e32cd9fdb47defd8aca04c2efcd7d8fa" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:28:10<br>Vel: 0.0 km/h</div>`)[0];
+                popup_60aca6009b086f395ecd2f01c2291a98.setContent(html_e32cd9fdb47defd8aca04c2efcd7d8fa);
+            
+        
+
+        circle_marker_38988d9d2e1029b117608562237a91db.bindPopup(popup_60aca6009b086f395ecd2f01c2291a98)
+        ;
+
+        
+    
+    
+            var circle_marker_bb3ebd69e9be0613f35cabb38cceff49 = L.circleMarker(
+                [-34.877502, -56.057106],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_eca5f9150b586b2118734ba3fc3596ea = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9379bcdefd435402c0a97ff95f5fd602 = $(`<div id="html_9379bcdefd435402c0a97ff95f5fd602" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:28:11<br>Vel: 5.0 km/h</div>`)[0];
+                popup_eca5f9150b586b2118734ba3fc3596ea.setContent(html_9379bcdefd435402c0a97ff95f5fd602);
+            
+        
+
+        circle_marker_bb3ebd69e9be0613f35cabb38cceff49.bindPopup(popup_eca5f9150b586b2118734ba3fc3596ea)
+        ;
+
+        
+    
+    
+            var circle_marker_357d28119f7db7cdece26318549f17d5 = L.circleMarker(
+                [-34.877705, -56.057556],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_22bd006ffe49a98fb640a68bc0631c3b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_42c83ca9c74479cb90247ca9c9ef1b69 = $(`<div id="html_42c83ca9c74479cb90247ca9c9ef1b69" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:28:55<br>Vel: 0.0 km/h</div>`)[0];
+                popup_22bd006ffe49a98fb640a68bc0631c3b.setContent(html_42c83ca9c74479cb90247ca9c9ef1b69);
+            
+        
+
+        circle_marker_357d28119f7db7cdece26318549f17d5.bindPopup(popup_22bd006ffe49a98fb640a68bc0631c3b)
+        ;
+
+        
+    
+    
+            var circle_marker_a39dba7c075393db9826b3c9822683bb = L.circleMarker(
+                [-34.877777, -56.057659],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_e2a5bea0f4fe26bd40f27bc828d674e9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5678cfd5432bae476990459b483cbafd = $(`<div id="html_5678cfd5432bae476990459b483cbafd" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:29:15<br>Vel: 3.0 km/h</div>`)[0];
+                popup_e2a5bea0f4fe26bd40f27bc828d674e9.setContent(html_5678cfd5432bae476990459b483cbafd);
+            
+        
+
+        circle_marker_a39dba7c075393db9826b3c9822683bb.bindPopup(popup_e2a5bea0f4fe26bd40f27bc828d674e9)
+        ;
+
+        
+    
+    
+            var circle_marker_e44316da78da9a8e0c2c676ef1ae7611 = L.circleMarker(
+                [-34.877777, -56.057671],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_4daf0c6a18546229f6a590d2f82418b1 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a8acb1f4a91c7654e95c0a23d30b6e5e = $(`<div id="html_a8acb1f4a91c7654e95c0a23d30b6e5e" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:29:25<br>Vel: 0.0 km/h</div>`)[0];
+                popup_4daf0c6a18546229f6a590d2f82418b1.setContent(html_a8acb1f4a91c7654e95c0a23d30b6e5e);
+            
+        
+
+        circle_marker_e44316da78da9a8e0c2c676ef1ae7611.bindPopup(popup_4daf0c6a18546229f6a590d2f82418b1)
+        ;
+
+        
+    
+    
+            var circle_marker_95d5d708c989ab46f854867533941f5f = L.circleMarker(
+                [-34.877777, -56.057671],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_73db5febff295d996ae1db4db38d6daa = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_899c002c8b368bb0a25a9cfe617697be = $(`<div id="html_899c002c8b368bb0a25a9cfe617697be" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:29:40<br>Vel: 0.0 km/h</div>`)[0];
+                popup_73db5febff295d996ae1db4db38d6daa.setContent(html_899c002c8b368bb0a25a9cfe617697be);
+            
+        
+
+        circle_marker_95d5d708c989ab46f854867533941f5f.bindPopup(popup_73db5febff295d996ae1db4db38d6daa)
+        ;
+
+        
+    
+    
+            var circle_marker_790362ca082bf280478a919b0e95a040 = L.circleMarker(
+                [-34.877777, -56.057671],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_774b9fd4849a3aead226035f71c79dbf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9530d1d43b7d67b1685a4e441290982c = $(`<div id="html_9530d1d43b7d67b1685a4e441290982c" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:29:55<br>Vel: 0.0 km/h</div>`)[0];
+                popup_774b9fd4849a3aead226035f71c79dbf.setContent(html_9530d1d43b7d67b1685a4e441290982c);
+            
+        
+
+        circle_marker_790362ca082bf280478a919b0e95a040.bindPopup(popup_774b9fd4849a3aead226035f71c79dbf)
+        ;
+
+        
+    
+    
+            var circle_marker_a486e37c242ccbbcdd8c2c0b275f27e0 = L.circleMarker(
+                [-34.877777, -56.057671],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_035322bd1bab6f0388a76ccdec198477 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_beffbe524279d75ad69b6172bb4bd8b9 = $(`<div id="html_beffbe524279d75ad69b6172bb4bd8b9" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:30:10<br>Vel: 0.0 km/h</div>`)[0];
+                popup_035322bd1bab6f0388a76ccdec198477.setContent(html_beffbe524279d75ad69b6172bb4bd8b9);
+            
+        
+
+        circle_marker_a486e37c242ccbbcdd8c2c0b275f27e0.bindPopup(popup_035322bd1bab6f0388a76ccdec198477)
+        ;
+
+        
+    
+    
+            var circle_marker_e877b9840c4cb725753e2a26d4c8188f = L.circleMarker(
+                [-34.877777, -56.057671],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+        
+    
+        var popup_ad4f935044acf35a0974bbd5f544627c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9b5d796735c706a798479e048a829b81 = $(`<div id="html_9b5d796735c706a798479e048a829b81" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 28-04-2026 17:30:25<br>Vel: 0.0 km/h</div>`)[0];
+                popup_ad4f935044acf35a0974bbd5f544627c.setContent(html_9b5d796735c706a798479e048a829b81);
+            
+        
+
+        circle_marker_e877b9840c4cb725753e2a26d4c8188f.bindPopup(popup_ad4f935044acf35a0974bbd5f544627c)
+        ;
+
+        
+    
+    
+            var layer_control_4dd3158a825793476df94992346e35e2_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_0c441e0d9506b594acc338171b061b30,
+                },
+                overlays :  {
+                    "Sector de Trabajo" : geo_json_b03159323b10fc2888e758980682f00d,
+                },
+            };
+            let layer_control_4dd3158a825793476df94992346e35e2 = L.control.layers(
+                layer_control_4dd3158a825793476df94992346e35e2_layers.base_layers,
+                layer_control_4dd3158a825793476df94992346e35e2_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_6863f8dd0aeffb1ce0fa09b7767bb7e7);
+
+        
+</script>
+</html>

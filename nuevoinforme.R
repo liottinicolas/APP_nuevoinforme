@@ -26,6 +26,8 @@ actualizar_capas_wfs(base_dir = "db/DFR")
 # Uso de referencia (carga local de capas ya descargadas):
 # lista_sf <- cargar_capas_local(base_dir = "db/DFR", formato = "RDS")
 # posiciones_dfr_viejos <- lista_sf[["dfr_C_DF_POSICIONES_RECORRIDO:HISTORICO"]]
+# posiciones_dfr_actuales <- lista_sf[["dfr_E_DF_POSICIONES:RECORRIDO"]]
+# zonas <- lista_sf[["dfr_E_DF_ZONA:RECORRIDO"]]
 
 # Datos operativos desde PostgreSQL (llenado GOL, ubicaciones, etc.)
 # source("db/POSTGRES/conexionPOSTGRES.R")
@@ -66,3 +68,4 @@ source("vistas/App_informe_llenado/limpieza_datos.R")
 
 # Solo ejecutar si hubo cambios en el código de la app (no en los datos):
 # rsconnect::deployApp("vistas/App_informe_llenado/")
+

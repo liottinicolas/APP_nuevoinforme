@@ -139,7 +139,7 @@ obtener_posiciones_por_turno <- function(df_matriculas, fecha, turno) {
 # EJECUCIÓN: consulta de turnos y generación de mapas por sector
 # =============================================================================
 
-fecha_proceso <- "2026-04-28"   # <-- ajustar la fecha de consulta
+fecha_proceso <- "2026-05-20"   # <-- ajustar la fecha de consulta
 
 # --- Consultar ambos turnos --------------------------------------------------
 datos_por_turno <- list(

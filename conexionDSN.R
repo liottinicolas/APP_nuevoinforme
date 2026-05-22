@@ -5,7 +5,8 @@ library(sf)
 library(dplyr)
 
 # Definimos el DSN (la ruta al servidor)
-dsn <- "WFS:https://montevideo.gub.uy/app/geoserver/ows?service=WFS&version=1.2.0"
+#dsn <- "WFS:https://montevideo.gub.uy/app/geoserver/ows?service=WFS&version=1.2.0"
+dsn <- "WFS:https://montevideo.gub.uy/app/geoserver/ows?service=WFS&version=1.2.0&outputFormat=application/json"
 capas_disponibles_dsn <- st_layers(dsn)
 
 # FUNCIÓN: cargar_capa_mvd
@@ -95,7 +96,7 @@ cargar_capa_mvd <- function(nombre_capa, transformar_gps = TRUE) {
 
 
 ## Cargo
-nombre_capaver <- cargar_capa_mvd("mapstore-tematicas:vyt_v_mdg_vias_sentido")
+nombre_capaver <- cargar_capa_mvd("mapstore-tematicas:ssmm_contenedores_domiciliarios")
 # Dibujo
 plot(st_geometry(nombre_capaver))
 
@@ -199,3 +200,56 @@ descargar_capa_mvd <- function(nombre_tecnico, limite = NULL) {
 # --- EJEMPLO DE USO ---
 # Una vez que viste el nombre en el View(layers), lo usas aquí:
 mi_capa <- descargar_capa_mvd("gol:intradomiciliario_circuito")
+
+
+ver <- descargar_capa_mvd("imm:V_DF_POSICIONES_MAPAWEB2_GEOM")
+
+
+library(httr2)
+library(jsonlite)
+library(sf)
+library(dplyr)
+
+¡Excelentes noticias! Ese resultado ("type", "features") significa que la API te está devolviendo un GeoJSON perfecto y estandarizado.
+
+Al ser un GeoJSON, no necesitamos extraer manualmente las coordenadas ni pelear con listas anidadas. El paquete sf está diseñado para leer esta estructura de forma nativa.
+
+Aquí tienes el código exacto y más limpio para leerlo:
+  
+  R
+library(httr2)
+library(sf)
+
+url_circuitos <- "https://intranet.imm.gub.uy/app/limpieza-gestion-operativa/api/frontend/v1/contenedores/circuitos"
+
+# 1. Hacemos la petición a la intranet
+resp <- request(url_circuitos) %>% 
+  req_perform()
+
+# 2. Extraemos el texto crudo (el string del GeoJSON)
+geojson_texto <- resp_body_string(resp)
+
+# 3. st_read entiende el texto GeoJSON automáticamente
+circuitos_sf <- st_read(geojson_texto, quiet = TRUE)
+
+# Ver los datos
+head(circuitos_sf)
+
+
+
+
+
+url_contenedores <- "https://intranet.imm.gub.uy/app/limpieza-gestion-operativa/api/frontend/v1/contenedores"
+
+# 1. Hacemos la petición a la intranet
+resp <- request(url_contenedores) %>% 
+  req_perform()
+
+# 2. Extraemos el texto crudo (el string del GeoJSON)
+geojson_texto <- resp_body_string(resp)
+
+# 3. st_read entiende el texto GeoJSON automáticamente
+contenedores_sf <- st_read(geojson_texto, quiet = TRUE)
+
+# Ver los datos
+head(contenedores_sf)

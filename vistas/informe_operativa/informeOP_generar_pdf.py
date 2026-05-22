@@ -135,9 +135,18 @@ def procesar_atrasos(df):
         "Buzonera Girada (24)","Volcado (22)"
     ]
     
-    # Atrasos mayores a 3 dias que no tengan Fecha No levante cargada
-    df_atrasos = df[(df['Acumulacion_dias_calendario'] >= 3) & (df['Fecha No Levante'].isna())].copy()
+    ################################ DESDE ACA
+    
+    # 1. Filtramos todos los mayores a 3 días
+    df_atrasos = df[df['Acumulacion_dias_calendario'] >= 3].copy()
     df_atrasos = df_atrasos[~df_atrasos['Motivo No Levante'].isin(MOTIVOS_EXCLUIR_ATRASO)].copy()
+
+    # 2. Creamos una columna nueva para identificar el estado en el reporte
+    df_atrasos['Estado_Levante'] = np.where(df_atrasos['Fecha No Levante'].isna(), 'Sin Registrar', 'Con No Levante')
+    
+    # # Atrasos mayores a 3 dias que no tengan Fecha No levante cargada
+    # df_atrasos = df[(df['Acumulacion_dias_calendario'] >= 3) & (df['Fecha No Levante'].isna())].copy()
+    # df_atrasos = df_atrasos[~df_atrasos['Motivo No Levante'].isin(MOTIVOS_EXCLUIR_ATRASO)].copy()
     
     def categorizar(dias):
         if pd.isna(dias): return "Otros"

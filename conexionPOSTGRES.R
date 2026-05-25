@@ -163,13 +163,17 @@ cargar_capa_local_postgres <- function(tabla, base_dir = "db/POSTGRES", formato 
 # =============================================================================
 
 # --- PASO 1: actualizar desde la base (requiere conexión) ---
-# con <- conectar_postgres()
-# capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
-# dbDisconnect(con)
+con <- conectar_postgres()
+capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
+PLUMA_movimientos <- actualizar_capa_postgres(con, "PLUMA_movimientos")
+papeleras <- actualizar_capa_postgres(con, "papeleras")
+dbDisconnect(con)
 
 # --- PASO 2: la próxima vez, cargar desde disco (sin conexión) ---
-# capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")
-# capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo", formato = "GPKG")
+capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")
+capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo", formato = "GPKG")
+PLUMA_movimientos <- cargar_capa_local_postgres("PLUMA_movimientos")
+papeleras <- cargar_capa_local_postgres("papeleras")
 
 # --- Verificar que cargó bien ---
 # nrow(capa_intra)
@@ -178,15 +182,132 @@ cargar_capa_local_postgres <- function(tabla, base_dir = "db/POSTGRES", formato 
 
 # =============================================================================
 
-capa_Circuitos_intradomiciliaria <- st_read(con, Id(schema = "public", table = "Circuitos_intradomiciliaria"))
-capa_circuitos_con_turnos_y_frecuencias <- st_read(con, Id(schema = "public", table = "Circuitos con turnos y frecuencias"))
-capa_v_mdg_accesos <- st_read(con, Id(schema = "public", table = "v_mdg_accesos"))
-capa_pos_ferias <- st_read(con, Id(schema = "public", table = "pos_ferias"))
-capa_imm_municipios <- st_read(con, Id(schema = "public", table = "imm_municipios"))
-capa_DEPARTAMENTO <- st_read(con, Id(schema = "public", table = "DEPARTAMENTO"))
-capa_ESPACIOS_LIBRES <- st_read(con, Id(schema = "public", table = "ESPACIOS LIBRES"))
+# PAPELERAS
 
-capa_Intradomiciliario_operativo <- st_read(con, Id(schema = "public", table = "ESPACIOS LIBRES"))
+library(leaflet)
+library(sf)
+library(dplyr)
+
+# 1. PREPARACIÓN DE DATOS (Limpieza y asegurar proyección WGS84)
+papeleras_web <- papeleras %>%
+  st_transform(4326) %>%
+  st_cast("POINT") %>%
+  mutate(municipio = as.factor(municipio)) # Convertir a factor para los colores
+
+
+# ==============================================================================
+# COSA 1: RESUMEN ESTADÍSTICO (Se mostrará en tu Consola de R)
+# ==============================================================================
+cat("\n===============================================\n")
+cat("   RESUMEN DE PAPELERAS POR MUNICIPIO\n")
+cat("===============================================\n")
+
+resumen_municipios <- papeleras_web %>%
+  st_drop_geometry() %>%       # Quitamos la geometría para que calcule rápido
+  group_by(municipio) %>%      # Agrupamos por la columna municipio
+  summarise(
+    ubicaciones_totales = n(),                              # Cuenta cuántos puntos hay
+    papeleras_fisicas = sum(cantidad, na.rm = TRUE)        # Suma la columna 'cantidad' (si tiene datos)
+  ) %>% 
+  arrange(desc(ubicaciones_totales)) # Ordena de mayor a menor
+
+# Imprime la tabla en la consola
+print(resumen_municipios)
+cat("===============================================\n\n")
+
+
+# ==============================================================================
+# COSA 2: MAPA INTERACTIVO AGRUPADO (Se mostrará en la pestaña 'Viewer')
+# ==============================================================================
+
+# Crear una paleta de colores automática basada en tus municipios
+paleta_colores <- colorFactor(palette = "Set1", domain = papeleras_web$municipio)
+
+# Inicializar el mapa base con el servicio WMS de la Intendencia de Montevideo
+mapa_completo <- leaflet() %>%
+  addWMSTiles(
+    baseUrl = "https://montevideo.gub.uy/app/geowebcache/service/wms",
+    layers = "mapstore-base:capas_base",
+    options = WMSTileOptions(format = "image/png", transparent = TRUE),
+    attribution = "Cartografía Básica - IM"
+  )
+
+# Extraer la lista de municipios únicos presentes en tus datos
+lista_municipios <- unique(papeleras_web$municipio)
+
+# Bucle (Loop) para agregar de forma automática cada municipio como una capa independiente
+for (mun in lista_municipios) {
+  # Filtramos los puntos correspondientes únicamente al municipio actual de la vuelta
+  datos_filtrados <- papeleras_web %>% filter(municipio == mun)
+  
+  mapa_completo <- mapa_completo %>%
+    addCircleMarkers(
+      data = datos_filtrados,
+      color = paleta_colores(mun),     # Color del borde del punto
+      fillColor = paleta_colores(mun), # Color del relleno
+      fillOpacity = 0.7,
+      radius = 4.5,                    # Tamaño de los puntos
+      label = ~paste("Mun:", municipio, "- Calle:", calle, "esq.", esquina),
+      group = as.character(mun)        # <--- AQUÍ creamos el grupo para el control
+    )
+}
+
+# Configurar controles de capas, agregar la leyenda y centrar la vista
+mapa_completo <- mapa_completo %>%
+  addLayersControl(
+    overlayGroups = as.character(lista_municipios),
+    options = layersControlOptions(collapsed = FALSE) # Mantiene el menú abierto para fácil selección
+  ) %>%
+  addLegend(
+    pal = paleta_colores,
+    values = papeleras_web$municipio,
+    title = "Municipios",
+    position = "bottomright"
+  ) %>%
+  setView(lng = -56.16, lat = -34.85, zoom = 11)
+
+# Mostrar el mapa final en RStudio
+mapa_completo
+
+#########################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# capa_Circuitos_intradomiciliaria <- st_read(con, Id(schema = "public", table = "Circuitos_intradomiciliaria"))
+# capa_circuitos_con_turnos_y_frecuencias <- st_read(con, Id(schema = "public", table = "Circuitos con turnos y frecuencias"))
+# capa_v_mdg_accesos <- st_read(con, Id(schema = "public", table = "v_mdg_accesos"))
+# capa_pos_ferias <- st_read(con, Id(schema = "public", table = "pos_ferias"))
+# capa_imm_municipios <- st_read(con, Id(schema = "public", table = "imm_municipios"))
+# capa_DEPARTAMENTO <- st_read(con, Id(schema = "public", table = "DEPARTAMENTO"))
+# capa_ESPACIOS_LIBRES <- st_read(con, Id(schema = "public", table = "ESPACIOS LIBRES"))
+# 
+# capa_Intradomiciliario_operativo <- st_read(con, Id(schema = "public", table = "ESPACIOS LIBRES"))
 
 
 # 
@@ -361,6 +482,7 @@ library(sf)
 
 # 1. Preparar la capa de municipios (Asegurar WGS84)
 municipios_web <- st_transform(capa_imm_municipios, 4326)
+
 
 # 2. Crear el mapa con ambas capas
 mapa_completo <- leaflet() %>%

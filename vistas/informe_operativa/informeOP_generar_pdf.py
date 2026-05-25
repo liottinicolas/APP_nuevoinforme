@@ -131,7 +131,7 @@ def load_data():
 def procesar_atrasos(df):
     MOTIVOS_EXCLUIR_ATRASO = [
         "No Está (20)","Roto (18)","Fuego (19)","Sobrepeso (11)",
-        "Fuera de Alcance (21)","Tapa Bloqueda (14)",
+        "Fuera de Alcance (21)","Tapa Bloqueda (14)","Cruzado(23)",
         "Buzonera Girada (24)","Volcado (22)"
     ]
     

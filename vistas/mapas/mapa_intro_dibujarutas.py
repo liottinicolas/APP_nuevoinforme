@@ -22,6 +22,7 @@ def generar_mapa():
     ruta_intra = sys.argv[1] if len(sys.argv) > 1 else None
     ruta_solapados = sys.argv[2] if len(sys.argv) > 2 else None
     ruta_salida_final = sys.argv[3] if len(sys.argv) > 3 else "vistas/mapas/mapa_paradas_unicamente.html"
+    ruta_segunda_capa = sys.argv[4] if len(sys.argv) > 4 else None
 
     mapa = folium.Map(location=[-34.85, -56.16], zoom_start=14, tiles="CartoDB positron")
     
@@ -52,6 +53,19 @@ def generar_mapa():
             limites = gdf_intra.total_bounds
             mapa.fit_bounds([[limites[1], limites[0]], [limites[3], limites[2]]])
 
+    # --- 2.2 SEGUNDA CAPA DE REFERENCIA (COLOR AZUL) ---
+    if ruta_segunda_capa and os.path.exists(ruta_segunda_capa):
+        gdf_referencia = gpd.read_file(ruta_segunda_capa).to_crs(epsg=4326)
+        if not gdf_referencia.empty:
+            if gdf_referencia.geometry.centroid.y.mean() < -45:
+                gdf_referencia.geometry = gdf_referencia.geometry.map(lambda geom: transform(lambda x, y: (y, x), geom))
+            
+            folium.GeoJson(
+                limpiar_para_json(gdf_referencia.copy()),
+                name="Capa de Referencia",
+                style_function=lambda x: {'fillColor': 'royalblue', 'color': 'blue', 'fillOpacity': 0.15, 'weight': 2}
+            ).add_to(mapa)
+
     # --- 3. CARGAR PUNTOS Y FILTRAR ---
     if ruta_solapados and os.path.exists(ruta_solapados):
         gdf_puntos = gpd.read_file(ruta_solapados).to_crs(epsg=4326)
@@ -77,7 +91,7 @@ def generar_mapa():
                     "matricula": str(gdf_puntos['matricula'].iloc[0]) if 'matricula' in gdf_puntos.columns else "N/A"
                 })
 
-                # --- 4. DIBUJAR SOLO PUNTOS DE PARADA ---
+                # --- DIBUJAR PUNTOS DE RECORRIDO Y PARADAS ESTILO IMM ---
                 gdf_puntos_json = limpiar_para_json(gdf_puntos.copy())
                 for _, fila in gdf_puntos_json.iterrows():
                     try:
@@ -85,17 +99,55 @@ def generar_mapa():
                     except (ValueError, TypeError):
                         vel_val = 0
 
+                    try:
+                        orient = float(fila['orientacion']) if 'orientacion' in fila.index and fila['orientacion'] else 0
+                    except (ValueError, TypeError):
+                        orient = 0
+
                     if vel_val <= 5:
-                        folium.CircleMarker(
-                            location=[fila.geometry.y, fila.geometry.x],
-                            radius=5,
-                            color='white',
-                            weight=1,
-                            fill=True,
-                            fill_color='#FF6600',
-                            fill_opacity=0.9,
-                            popup=f"<b>Parada Detectada</b><br>Hora: {fila['tiempo']}<br>Vel: {vel_val} km/h"
-                        ).add_to(mapa)
+                        # Icono de parada: Círculo naranja con "II" en blanco
+                        icon_html = """
+                        <div style="
+                            display: flex; justify-content: center; align-items: center;
+                            width: 22px; height: 22px; background-color: #FF6600;
+                            border: 2px solid white; border-radius: 50%;
+                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);
+                            box-sizing: border-box;">
+                            <div style="display: flex; gap: 2px;">
+                                <div style="width: 2px; height: 7px; background-color: white;"></div>
+                                <div style="width: 2px; height: 7px; background-color: white;"></div>
+                            </div>
+                        </div>
+                        """
+                    else:
+                        # Icono de movimiento: Círculo verde con flecha blanca orientada
+                        rot_angle = orient + 45
+                        icon_html = f"""
+                        <div style="
+                            display: flex; justify-content: center; align-items: center;
+                            width: 22px; height: 22px; background-color: #73C01E;
+                            border: 2px solid white; border-radius: 50%;
+                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);
+                            box-sizing: border-box;">
+                            <div style="
+                                width: 6px; height: 6px;
+                                border-left: 2.5px solid white;
+                                border-top: 2.5px solid white;
+                                transform: rotate({rot_angle}deg);
+                                margin-top: 1px; margin-left: 1px;">
+                            </div>
+                        </div>
+                        """
+
+                    folium.Marker(
+                        location=[fila.geometry.y, fila.geometry.x],
+                        icon=folium.DivIcon(
+                            icon_size=(22, 22),
+                            icon_anchor=(11, 11),
+                            html=icon_html
+                        ),
+                        popup=f"<b>{'Parada' if vel_val <= 5 else 'Movimiento'}</b><br>Hora: {fila['tiempo']}<br>Vel: {vel_val} km/h<br>Orientación: {orient}°"
+                    ).add_to(mapa)
 
     # --- 5. TARJETA INFORMATIVA AZUL (MODIFICADA PARA MOSTRAR EL DÍA) ---
     template = """

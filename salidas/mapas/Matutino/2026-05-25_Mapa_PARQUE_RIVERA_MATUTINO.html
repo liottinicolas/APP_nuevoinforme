@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_c51e089c865dd846b00f37f6fa308807 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_c51e089c865dd846b00f37f6fa308807" ></div>
+        
+    
+    <div id='info-card' style='
+        position: fixed; bottom: 50px; left: 50px; width: 260px; height: auto; 
+        background-color: #0046E3; border: 1px solid white; z-index:9999; 
+        font-size: 13px; color: white; padding: 15px; border-radius: 12px; 
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3); font-family: sans-serif;'>
+        <div style='text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px;'>
+            MAPA DE PARADAS (<= 5 km/h)
+        </div>
+        <div style='line-height: 1.7;'>
+            <b>Matrícula:</b> <span style='font-size: 14px;'>SIM2188</span><br>
+            <b>Día:</b> 25/05/2026 <br>
+            <b>Zona:</b> PARQUE RIVERA <br>
+            <b>Fracción:</b> Reciclable <br>
+            <hr style='margin: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.3);'>
+            <b>Inicio:</b> 08:24:42 <br>
+            <b>Fin:</b> 08:27:20 <br>
+            <div style='text-align: center; margin-top: 15px;'>
+                <img src="https://montevideo.gub.uy/modules/custom/im_logo/images/logo_im.png" 
+                     style="width: 130px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script>
+    
+    
+            var map_c51e089c865dd846b00f37f6fa308807 = L.map(
+                "map_c51e089c865dd846b00f37f6fa308807",
+                {
+                    center: [-34.85, -56.16],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_147dc0ea9910376aab041db5612a69dc = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_147dc0ea9910376aab041db5612a69dc.addTo(map_c51e089c865dd846b00f37f6fa308807);
+        
+    
+        function geo_json_ae6c0977016d2e83f89ef527ee15ecc7_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
+            }
+        }
+
+        function geo_json_ae6c0977016d2e83f89ef527ee15ecc7_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_ae6c0977016d2e83f89ef527ee15ecc7 = L.geoJson(null, {
+                onEachFeature: geo_json_ae6c0977016d2e83f89ef527ee15ecc7_onEachFeature,
+            
+                style: geo_json_ae6c0977016d2e83f89ef527ee15ecc7_styler,
+            ...{
+}
+        });
+
+        function geo_json_ae6c0977016d2e83f89ef527ee15ecc7_add (data) {
+            geo_json_ae6c0977016d2e83f89ef527ee15ecc7
+                .addData(data);
+        }
+            geo_json_ae6c0977016d2e83f89ef527ee15ecc7_add({"bbox": [-56.10549939061266, -34.884921208613015, -56.09156482743202, -34.871892060110625], "features": [{"bbox": [-56.10549939061266, -34.884921208613015, -56.09156482743202, -34.871892060110625], "geometry": {"coordinates": [[[[-56.10021601303641, -34.87464307291473], [-56.1007619643545, -34.87436114339255], [-56.10059638779931, -34.87414774826357], [-56.10282037291138, -34.87298422900719], [-56.10249883606065, -34.87253360957605], [-56.102041055248975, -34.871892060110625], [-56.098650889390235, -34.872412915782306], [-56.10021601303641, -34.87464307291473]]], [[[-56.09156482743202, -34.87495797537277], [-56.0917506471666, -34.87521079472327], [-56.09357719306781, -34.874058700053354], [-56.09357789552642, -34.873994704636274], [-56.093547375919684, -34.873743045952374], [-56.09156482743202, -34.87495797537277]]], [[[-56.09774302278354, -34.8818657211929], [-56.098827266069684, -34.8807369580478], [-56.09868976626647, -34.880542321270724], [-56.098520737225414, -34.88062397553606], [-56.098631123619214, -34.88077822094328], [-56.09854876484359, -34.88087335094564], [-56.09799095946063, -34.88010235231797], [-56.0970340331709, -34.880885990064634], [-56.09774302278354, -34.8818657211929]]], [[[-56.09699043390036, -34.87257162055908], [-56.09543113206166, -34.873242184602624], [-56.097356723622305, -34.875976589119404], [-56.09886526357468, -34.875220355331614], [-56.097632420313424, -34.87347171575712], [-56.09699043390036, -34.87257162055908]]], [[[-56.10535627201545, -34.8730592268023], [-56.10033173189079, -34.87921034762931], [-56.097654298494504, -34.88247099106961], [-56.09607195176784, -34.88485995394916], [-56.09628842976854, -34.884921208613015], [-56.09774330048117, -34.88260585334986], [-56.10549939061266, -34.87320939315501], [-56.10535627201545, -34.8730592268023]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-04-25", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "LUNES Y VIERNES", "FRECUENCIA.RECICLABLE": "SABADO", "RECICLABLE": "CONTENEDOR", "TURNO": "VESPERTINO", "cont.ret": "15.0", "id": null, "id_0": "35", "municipio": "E", "nombre": "PARQUE RIVERA", "poblacion": null, "viviendas": "340.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_ae6c0977016d2e83f89ef527ee15ecc7.addTo(map_c51e089c865dd846b00f37f6fa308807);
+        
+    
+            map_c51e089c865dd846b00f37f6fa308807.fitBounds(
+                [[-34.884921208613015, -56.10549939061266], [-34.871892060110625, -56.09156482743202]],
+                {}
+            );
+        
+    
+            var layer_control_848b8a7c7dffcb8006fd83fc57408af5_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_147dc0ea9910376aab041db5612a69dc,
+                },
+                overlays :  {
+                    "Sector de Trabajo" : geo_json_ae6c0977016d2e83f89ef527ee15ecc7,
+                },
+            };
+            let layer_control_848b8a7c7dffcb8006fd83fc57408af5 = L.control.layers(
+                layer_control_848b8a7c7dffcb8006fd83fc57408af5_layers.base_layers,
+                layer_control_848b8a7c7dffcb8006fd83fc57408af5_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_c51e089c865dd846b00f37f6fa308807);
+
+        
+</script>
+</html>

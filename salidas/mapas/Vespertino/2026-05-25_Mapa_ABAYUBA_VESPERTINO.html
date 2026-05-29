@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_2e69a4ff529e244ee38d100edf469076 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_2e69a4ff529e244ee38d100edf469076" ></div>
+        
+    
+    <div id='info-card' style='
+        position: fixed; bottom: 50px; left: 50px; width: 260px; height: auto; 
+        background-color: #0046E3; border: 1px solid white; z-index:9999; 
+        font-size: 13px; color: white; padding: 15px; border-radius: 12px; 
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3); font-family: sans-serif;'>
+        <div style='text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px;'>
+            MAPA DE PARADAS (<= 5 km/h)
+        </div>
+        <div style='line-height: 1.7;'>
+            <b>Matrícula:</b> <span style='font-size: 14px;'>SIM1858</span><br>
+            <b>Día:</b> 25/05/2026 <br>
+            <b>Zona:</b> ABAYUBA <br>
+            <b>Fracción:</b> Mezclado <br>
+            <hr style='margin: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.3);'>
+            <b>Inicio:</b> 15:31:46 <br>
+            <b>Fin:</b> 19:07:59 <br>
+            <div style='text-align: center; margin-top: 15px;'>
+                <img src="https://montevideo.gub.uy/modules/custom/im_logo/images/logo_im.png" 
+                     style="width: 130px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script>
+    
+    
+            var map_2e69a4ff529e244ee38d100edf469076 = L.map(
+                "map_2e69a4ff529e244ee38d100edf469076",
+                {
+                    center: [-34.85, -56.16],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_ff8f627da67b623c70c242c433380f61 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_ff8f627da67b623c70c242c433380f61.addTo(map_2e69a4ff529e244ee38d100edf469076);
+        
+    
+        function geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
+            }
+        }
+
+        function geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b = L.geoJson(null, {
+                onEachFeature: geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b_onEachFeature,
+            
+                style: geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b_styler,
+            ...{
+}
+        });
+
+        function geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b_add (data) {
+            geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b
+                .addData(data);
+        }
+            geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b_add({"bbox": [-56.22837164352263, -34.78532385553619, -56.217469748348044, -34.767948608039276], "features": [{"bbox": [-56.22837164352263, -34.78532385553619, -56.217469748348044, -34.767948608039276], "geometry": {"coordinates": [[[[-56.222475816415844, -34.78532385553619], [-56.224031391688435, -34.7843275986807], [-56.22453317211373, -34.78232820664051], [-56.226174992977896, -34.77632770493848], [-56.22837164352263, -34.768442984367795], [-56.22786681841838, -34.768119062310504], [-56.22545894192766, -34.769487273759886], [-56.22515916261439, -34.76894633794646], [-56.223872735153115, -34.769135787598216], [-56.22366611375805, -34.767948608039276], [-56.21980871162707, -34.768319237484405], [-56.217469748348044, -34.76929244435955], [-56.21941061765138, -34.77359915885455], [-56.218586620963315, -34.7778521892342], [-56.2213288920145, -34.78264913512853], [-56.22288055456201, -34.78206612136168], [-56.222475816415844, -34.78532385553619]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2025-12-18", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MARTES Y VIERNES", "FRECUENCIA.RECICLABLE": null, "RECICLABLE": "BOLSON", "TURNO": "VESPERTINO", "cont.ret": "40.0", "id": "247.0", "id_0": "6", "municipio": "G", "nombre": "ABAYUBA", "poblacion": "2706.0", "viviendas": "593.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b.addTo(map_2e69a4ff529e244ee38d100edf469076);
+        
+    
+            map_2e69a4ff529e244ee38d100edf469076.fitBounds(
+                [[-34.78532385553619, -56.22837164352263], [-34.767948608039276, -56.217469748348044]],
+                {}
+            );
+        
+    
+            var circle_marker_d977abad800b9b13d1c5ffd3420e5f56 = L.circleMarker(
+                [-34.776279, -56.225311],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_2e69a4ff529e244ee38d100edf469076);
+        
+    
+        var popup_edf26888a6fafb1e7727afe8d9d3b777 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_31716ef434b04b2e9e158e7a92789ee1 = $(`<div id="html_31716ef434b04b2e9e158e7a92789ee1" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 25-05-2026 15:41:56<br>Vel: 4.0 km/h</div>`)[0];
+                popup_edf26888a6fafb1e7727afe8d9d3b777.setContent(html_31716ef434b04b2e9e158e7a92789ee1);
+            
+        
+
+        circle_marker_d977abad800b9b13d1c5ffd3420e5f56.bindPopup(popup_edf26888a6fafb1e7727afe8d9d3b777)
+        ;
+
+        
+    
+    
+            var circle_marker_f9140b3a9f0921c099b8b4b3dfc13517 = L.circleMarker(
+                [-34.77631, -56.22538],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(map_2e69a4ff529e244ee38d100edf469076);
+        
+    
+        var popup_163e611417f82b96eb291bb42f8c504a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_671e338d75efb74630c4e526512d0065 = $(`<div id="html_671e338d75efb74630c4e526512d0065" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 25-05-2026 15:42:11<br>Vel: 0.0 km/h</div>`)[0];
+                popup_163e611417f82b96eb291bb42f8c504a.setContent(html_671e338d75efb74630c4e526512d0065);
+            
+        
+
+        circle_marker_f9140b3a9f0921c099b8b4b3dfc13517.bindPopup(popup_163e611417f82b96eb291bb42f8c504a)
+        ;
+
+        
+    
+    
+            var layer_control_0da62fff26307585b92459cabcc013b6_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_ff8f627da67b623c70c242c433380f61,
+                },
+                overlays :  {
+                    "Sector de Trabajo" : geo_json_00d6a80098f8ec50fec0ee2ed7cdb04b,
+                },
+            };
+            let layer_control_0da62fff26307585b92459cabcc013b6 = L.control.layers(
+                layer_control_0da62fff26307585b92459cabcc013b6_layers.base_layers,
+                layer_control_0da62fff26307585b92459cabcc013b6_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_2e69a4ff529e244ee38d100edf469076);
+
+        
+</script>
+</html>

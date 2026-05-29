@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_70ed213593bec3ca739f40916597b77d {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_70ed213593bec3ca739f40916597b77d" ></div>
+        
+    
+    <div id='info-card' style='
+        position: fixed; bottom: 50px; left: 50px; width: 260px; height: auto; 
+        background-color: #0046E3; border: 1px solid white; z-index:9999; 
+        font-size: 13px; color: white; padding: 15px; border-radius: 12px; 
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3); font-family: sans-serif;'>
+        <div style='text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px;'>
+            MAPA DE PARADAS (<= 5 km/h)
+        </div>
+        <div style='line-height: 1.7;'>
+            <b>Matrícula:</b> <span style='font-size: 14px;'>SIM2184</span><br>
+            <b>Día:</b> 25/05/2026 <br>
+            <b>Zona:</b> LOS BULEVARES <br>
+            <b>Fracción:</b> Reciclable <br>
+            <hr style='margin: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.3);'>
+            <b>Inicio:</b> 09:08:21 <br>
+            <b>Fin:</b> 09:08:36 <br>
+            <div style='text-align: center; margin-top: 15px;'>
+                <img src="https://montevideo.gub.uy/modules/custom/im_logo/images/logo_im.png" 
+                     style="width: 130px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script>
+    
+    
+            var map_70ed213593bec3ca739f40916597b77d = L.map(
+                "map_70ed213593bec3ca739f40916597b77d",
+                {
+                    center: [-34.85, -56.16],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_c42d01fd8c71b47b9d79e8537fea16d9 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_c42d01fd8c71b47b9d79e8537fea16d9.addTo(map_70ed213593bec3ca739f40916597b77d);
+        
+    
+        function geo_json_d12833e76f5cf76ee8b59433f46d9c98_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
+            }
+        }
+
+        function geo_json_d12833e76f5cf76ee8b59433f46d9c98_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_d12833e76f5cf76ee8b59433f46d9c98 = L.geoJson(null, {
+                onEachFeature: geo_json_d12833e76f5cf76ee8b59433f46d9c98_onEachFeature,
+            
+                style: geo_json_d12833e76f5cf76ee8b59433f46d9c98_styler,
+            ...{
+}
+        });
+
+        function geo_json_d12833e76f5cf76ee8b59433f46d9c98_add (data) {
+            geo_json_d12833e76f5cf76ee8b59433f46d9c98
+                .addData(data);
+        }
+            geo_json_d12833e76f5cf76ee8b59433f46d9c98_add({"bbox": [-56.287624041325145, -34.83264901993444, -56.269586952508945, -34.81059843579769], "features": [{"bbox": [-56.287624041325145, -34.83264901993444, -56.269586952508945, -34.81059843579769], "geometry": {"coordinates": [[[[-56.28550914322914, -34.81059843579769], [-56.269586952508945, -34.81822993585267], [-56.28075175070846, -34.83264901993444], [-56.284209114477754, -34.83098046633156], [-56.2816651495947, -34.8278391234962], [-56.285410884762165, -34.825963221918755], [-56.28074610084529, -34.819891174303386], [-56.28400675580386, -34.81789605794924], [-56.28304146094385, -34.81615201293637], [-56.287624041325145, -34.81375783912457], [-56.28550914322914, -34.81059843579769]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2025-04-30", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MARTES Y VIERNES", "FRECUENCIA.RECICLABLE": null, "RECICLABLE": "BOLSON", "TURNO": "VESPERTINO", "cont.ret": "35.0", "id": "252.0", "id_0": "7", "municipio": "A", "nombre": "LOS BULEVARES", "poblacion": "2709.0", "viviendas": "834.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_d12833e76f5cf76ee8b59433f46d9c98.addTo(map_70ed213593bec3ca739f40916597b77d);
+        
+    
+            map_70ed213593bec3ca739f40916597b77d.fitBounds(
+                [[-34.83264901993444, -56.287624041325145], [-34.81059843579769, -56.269586952508945]],
+                {}
+            );
+        
+    
+            var marker_a374b0ad51bea77d38685e985bc13039 = L.marker(
+                [-34.831055, -56.283516],
+                {
+}
+            ).addTo(map_70ed213593bec3ca739f40916597b77d);
+        
+    
+            var div_icon_7476b8081586220d251c856549c8595d = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(165.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_dc74d1c4b4ed0434fda010f3e11040fa = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_451f79a17dd7ce715303f440e58a8b29 = $(`<div id="html_451f79a17dd7ce715303f440e58a8b29" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 09:08:21<br>Vel: 59.0 km/h<br>Orientación: 120.0°</div>`)[0];
+                popup_dc74d1c4b4ed0434fda010f3e11040fa.setContent(html_451f79a17dd7ce715303f440e58a8b29);
+            
+        
+
+        marker_a374b0ad51bea77d38685e985bc13039.bindPopup(popup_dc74d1c4b4ed0434fda010f3e11040fa)
+        ;
+
+        
+    
+    
+                marker_a374b0ad51bea77d38685e985bc13039.setIcon(div_icon_7476b8081586220d251c856549c8595d);
+            
+    
+            var marker_88126dfecc0ddfe6ae5fa7e10ffaa0e6 = L.marker(
+                [-34.832207, -56.281155],
+                {
+}
+            ).addTo(map_70ed213593bec3ca739f40916597b77d);
+        
+    
+            var div_icon_902ed908471b0ac7bcf6e111958c1baa = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(166.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_b413f327250179ff59398578b8ea16ab = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_050f04198b2b200511aaffb4094cd4df = $(`<div id="html_050f04198b2b200511aaffb4094cd4df" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 09:08:36<br>Vel: 60.0 km/h<br>Orientación: 121.0°</div>`)[0];
+                popup_b413f327250179ff59398578b8ea16ab.setContent(html_050f04198b2b200511aaffb4094cd4df);
+            
+        
+
+        marker_88126dfecc0ddfe6ae5fa7e10ffaa0e6.bindPopup(popup_b413f327250179ff59398578b8ea16ab)
+        ;
+
+        
+    
+    
+                marker_88126dfecc0ddfe6ae5fa7e10ffaa0e6.setIcon(div_icon_902ed908471b0ac7bcf6e111958c1baa);
+            
+    
+            var layer_control_5a531badb77eda65f117fdcc11e46231_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_c42d01fd8c71b47b9d79e8537fea16d9,
+                },
+                overlays :  {
+                    "Sector de Trabajo" : geo_json_d12833e76f5cf76ee8b59433f46d9c98,
+                },
+            };
+            let layer_control_5a531badb77eda65f117fdcc11e46231 = L.control.layers(
+                layer_control_5a531badb77eda65f117fdcc11e46231_layers.base_layers,
+                layer_control_5a531badb77eda65f117fdcc11e46231_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_70ed213593bec3ca739f40916597b77d);
+
+        
+</script>
+</html>

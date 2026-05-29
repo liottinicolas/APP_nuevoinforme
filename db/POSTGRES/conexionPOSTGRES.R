@@ -166,11 +166,16 @@ cargar_capa_local_postgres <- function(tabla, base_dir = "db/POSTGRES", formato 
 # # --- PASO 1: actualizar desde la base (requiere conexión) ---
 # con <- conectar_postgres()
 # capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
+# circuitos_intra <- actualizar_capa_postgres(con, "Circuitos_intradomiciliaria")
+# Hogares_sustentables <- actualizar_capa_postgres(con, "Hogares_sustentables")
+
+
 # dbDisconnect(con)
 # 
 # # --- PASO 2: la próxima vez, cargar desde disco (sin conexión) ---
 # # capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")
 # # capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo", formato = "GPKG")
+Hogares_sustentables <- cargar_capa_local_postgres("Hogares_sustentables")
 # 
 # # --- Verificar que cargó bien ---
 # # nrow(capa_intra)
@@ -237,23 +242,23 @@ cargar_capa_local_postgres <- function(tabla, base_dir = "db/POSTGRES", formato 
 # Crear el data frame con la información de la flota
 df_flota <- data.frame(
   Matricula = c(
-    1858, 2196, 2198, 2199, 2202, 2203, 2640, 2980, 3156, 3157, 3159, 3160, 3161, 3162, # Canton 2
-    1862, 3008, 1891, 1900, 3014, 2619, 3114, 3116, 3117, 3119,                         # Sin Base
-    2184, 2185, 2188, 2200, 2201, 2204, 2205, 2463, 3115, 3128, 3129, 3155              # Haiti
+    1858, 2196, 2198, 2199, 2979, 2202, 2203, 2370, 2640, 2980, 3156, 3157, 3159, 3160, 3161, 3162, # Canton 2
+    1862, 2190, 3008, 1891, 1900, 2733, 3014, 2619, 3114, 3116, 3117, 3119,                         # Sin Base
+    2184, 2185, 2188, 2200, 2201, 2204, 2205, 2463, 3115, 3127, 3128, 3129, 3155              # Haiti
   ),
   Marca = c(
-    rep("Freighliner", 8), rep("Scania 280", 6), # Canton 2
-    rep("Freighliner", 6), rep("Scania 280", 4), # Sin Base
-    rep("Freighliner", 8), rep("Scania 280", 4)  # Haiti
+    rep("Freighliner", 10), rep("Scania 280", 6), # Canton 2
+    rep("Freighliner", 8), rep("Scania 280", 4), # Sin Base
+    rep("Freighliner", 8), rep("Scania 280", 5)  # Haiti
   ),
   Base = c(
-    rep("Canton 2", 14),
-    rep("", 10),
-    rep("Haiti", 12)
+    rep("Canton 2", 16),
+    rep("", 12),
+    rep("Haiti", 13)
   ),
   Servicio = c(
-    rep("Mezclado", 24),
-    rep("Reciclable", 12)
+    rep("Mezclado", 26),
+    rep("Reciclable", 15)
   ),
   stringsAsFactors = FALSE
 )

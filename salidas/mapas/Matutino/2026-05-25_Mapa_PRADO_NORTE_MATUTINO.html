@@ -1,0 +1,3052 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_7327b563134d79695b66250faf52078b {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_7327b563134d79695b66250faf52078b" ></div>
+        
+    
+    <div id='info-card' style='
+        position: fixed; bottom: 50px; left: 50px; width: 260px; height: auto; 
+        background-color: #0046E3; border: 1px solid white; z-index:9999; 
+        font-size: 13px; color: white; padding: 15px; border-radius: 12px; 
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3); font-family: sans-serif;'>
+        <div style='text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px;'>
+            MAPA DE PARADAS (<= 5 km/h)
+        </div>
+        <div style='line-height: 1.7;'>
+            <b>Matrícula:</b> <span style='font-size: 14px;'>SIM1858</span><br>
+            <b>Día:</b> 25/05/2026 <br>
+            <b>Zona:</b> PRADO NORTE <br>
+            <b>Fracción:</b> Mezclado <br>
+            <hr style='margin: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.3);'>
+            <b>Inicio:</b> 06:27:31 <br>
+            <b>Fin:</b> 12:27:16 <br>
+            <div style='text-align: center; margin-top: 15px;'>
+                <img src="https://montevideo.gub.uy/modules/custom/im_logo/images/logo_im.png" 
+                     style="width: 130px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script>
+    
+    
+            var map_7327b563134d79695b66250faf52078b = L.map(
+                "map_7327b563134d79695b66250faf52078b",
+                {
+                    center: [-34.85, -56.16],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_654a51925c2c8f433bb352038459c772 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_654a51925c2c8f433bb352038459c772.addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+        function geo_json_07a3481e413f4ceec9e1930396d8a01f_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
+            }
+        }
+
+        function geo_json_07a3481e413f4ceec9e1930396d8a01f_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_07a3481e413f4ceec9e1930396d8a01f = L.geoJson(null, {
+                onEachFeature: geo_json_07a3481e413f4ceec9e1930396d8a01f_onEachFeature,
+            
+                style: geo_json_07a3481e413f4ceec9e1930396d8a01f_styler,
+            ...{
+}
+        });
+
+        function geo_json_07a3481e413f4ceec9e1930396d8a01f_add (data) {
+            geo_json_07a3481e413f4ceec9e1930396d8a01f
+                .addData(data);
+        }
+            geo_json_07a3481e413f4ceec9e1930396d8a01f_add({"bbox": [-56.208872275753826, -34.85621318215003, -56.199845578329644, -34.850055852582884], "features": [{"bbox": [-56.208872275753826, -34.85621318215003, -56.199845578329644, -34.850055852582884], "geometry": {"coordinates": [[[[-56.208872275753826, -34.85323462283743], [-56.20706231794469, -34.85182096813809], [-56.20145182429873, -34.850055852582884], [-56.200422980214874, -34.85122013025654], [-56.199845578329644, -34.851604801818056], [-56.20374181535888, -34.85621318215003], [-56.208872275753826, -34.85323462283743]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2025-12-30", "FRACCION": "MEZCLADO", "FRECUENCIA": "MARTES Y JUEVES", "FRECUENCIA.RECICLABLE": null, "RECICLABLE": "EN MUNICIPIO", "TURNO": "VESPERTINO", "cont.ret": "20.0", "id": null, "id_0": "5", "municipio": "G", "nombre": "PRADO NORTE", "poblacion": "1492.0", "viviendas": "633.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_07a3481e413f4ceec9e1930396d8a01f.addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            map_7327b563134d79695b66250faf52078b.fitBounds(
+                [[-34.85621318215003, -56.208872275753826], [-34.850055852582884, -56.199845578329644]],
+                {}
+            );
+        
+    
+            var marker_3a43a8f9db010fc0a362e4ff62730114 = L.marker(
+                [-34.853096, -56.208679],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_2c4d230e0835bbf541e650804568c37b = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_34c86ef2a72917fa3c2bec4014518cbe = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3c4ba681770d0c185dbd8981081bb59c = $(`<div id="html_3c4ba681770d0c185dbd8981081bb59c" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 06:27:31<br>Vel: 0.0 km/h<br>Orientación: 122.0°</div>`)[0];
+                popup_34c86ef2a72917fa3c2bec4014518cbe.setContent(html_3c4ba681770d0c185dbd8981081bb59c);
+            
+        
+
+        marker_3a43a8f9db010fc0a362e4ff62730114.bindPopup(popup_34c86ef2a72917fa3c2bec4014518cbe)
+        ;
+
+        
+    
+    
+                marker_3a43a8f9db010fc0a362e4ff62730114.setIcon(div_icon_2c4d230e0835bbf541e650804568c37b);
+            
+    
+            var marker_cbeab9628efc5ba7436c5a38a91b0cbb = L.marker(
+                [-34.853142, -56.208511],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_82c8fce0626b2e2643945ac7f2a59980 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(125.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_d0c0b11ce1218b4ba4232840a7adcabf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e00c0b0162b6a58c1e1fa4665fe31e15 = $(`<div id="html_e00c0b0162b6a58c1e1fa4665fe31e15" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:27:40<br>Vel: 13.0 km/h<br>Orientación: 80.0°</div>`)[0];
+                popup_d0c0b11ce1218b4ba4232840a7adcabf.setContent(html_e00c0b0162b6a58c1e1fa4665fe31e15);
+            
+        
+
+        marker_cbeab9628efc5ba7436c5a38a91b0cbb.bindPopup(popup_d0c0b11ce1218b4ba4232840a7adcabf)
+        ;
+
+        
+    
+    
+                marker_cbeab9628efc5ba7436c5a38a91b0cbb.setIcon(div_icon_82c8fce0626b2e2643945ac7f2a59980);
+            
+    
+            var marker_e61f8a03721aecb836dd488ed5fadf8c = L.marker(
+                [-34.853127, -56.208447],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_7d1e304a7b2ad2448ed3aa475a02755e = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(92.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_1a50dac627f029ce43ca06bc5c41b070 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_14509185ce5a212e019abcb5a33569a4 = $(`<div id="html_14509185ce5a212e019abcb5a33569a4" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:27:42<br>Vel: 15.0 km/h<br>Orientación: 47.0°</div>`)[0];
+                popup_1a50dac627f029ce43ca06bc5c41b070.setContent(html_14509185ce5a212e019abcb5a33569a4);
+            
+        
+
+        marker_e61f8a03721aecb836dd488ed5fadf8c.bindPopup(popup_1a50dac627f029ce43ca06bc5c41b070)
+        ;
+
+        
+    
+    
+                marker_e61f8a03721aecb836dd488ed5fadf8c.setIcon(div_icon_7d1e304a7b2ad2448ed3aa475a02755e);
+            
+    
+            var marker_bca112747a50479062867d7f1f15463e = L.marker(
+                [-34.852989, -56.208279],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_cba62ae35201317f929d6a116e441ddd = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(90.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_e4ce7a882d6fa645a3bc65fc85532108 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cf692273e83bdac8d40d49350484e656 = $(`<div id="html_cf692273e83bdac8d40d49350484e656" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:27:46<br>Vel: 23.0 km/h<br>Orientación: 45.0°</div>`)[0];
+                popup_e4ce7a882d6fa645a3bc65fc85532108.setContent(html_cf692273e83bdac8d40d49350484e656);
+            
+        
+
+        marker_bca112747a50479062867d7f1f15463e.bindPopup(popup_e4ce7a882d6fa645a3bc65fc85532108)
+        ;
+
+        
+    
+    
+                marker_bca112747a50479062867d7f1f15463e.setIcon(div_icon_cba62ae35201317f929d6a116e441ddd);
+            
+    
+            var marker_f363ec2817e10b0e370ab943c44ed950 = L.marker(
+                [-34.852207, -56.207283],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_0f83ba3d166f524ad2e94054c83b06d1 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(90.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_02c35d17bcee89da2572a1efaf0f99d7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_796584bbc71ca43cc93a255141fac16a = $(`<div id="html_796584bbc71ca43cc93a255141fac16a" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:28:01<br>Vel: 31.0 km/h<br>Orientación: 45.0°</div>`)[0];
+                popup_02c35d17bcee89da2572a1efaf0f99d7.setContent(html_796584bbc71ca43cc93a255141fac16a);
+            
+        
+
+        marker_f363ec2817e10b0e370ab943c44ed950.bindPopup(popup_02c35d17bcee89da2572a1efaf0f99d7)
+        ;
+
+        
+    
+    
+                marker_f363ec2817e10b0e370ab943c44ed950.setIcon(div_icon_0f83ba3d166f524ad2e94054c83b06d1);
+            
+    
+            var marker_88b2ce4b3d258bf81e0835c4716e4c84 = L.marker(
+                [-34.85178, -56.20636],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_e23814df7c96b62de6168940c312fd7b = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(108.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_dfe2847cab2609d4ced1717762c3187d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1d3bc30998bef0a5047a833c0926f72a = $(`<div id="html_1d3bc30998bef0a5047a833c0926f72a" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:28:16<br>Vel: 17.0 km/h<br>Orientación: 63.0°</div>`)[0];
+                popup_dfe2847cab2609d4ced1717762c3187d.setContent(html_1d3bc30998bef0a5047a833c0926f72a);
+            
+        
+
+        marker_88b2ce4b3d258bf81e0835c4716e4c84.bindPopup(popup_dfe2847cab2609d4ced1717762c3187d)
+        ;
+
+        
+    
+    
+                marker_88b2ce4b3d258bf81e0835c4716e4c84.setIcon(div_icon_e23814df7c96b62de6168940c312fd7b);
+            
+    
+            var marker_e8d63e7e961c41624c427763d84453cd = L.marker(
+                [-34.851337, -56.204971],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_dbd36d6a33e7a9c69aaa79cb40c9458e = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(114.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_c56a627ff9bb09fa53e90ccaf1736090 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0533eab2053e8ad31263b50593d94ae1 = $(`<div id="html_0533eab2053e8ad31263b50593d94ae1" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:28:31<br>Vel: 38.0 km/h<br>Orientación: 69.0°</div>`)[0];
+                popup_c56a627ff9bb09fa53e90ccaf1736090.setContent(html_0533eab2053e8ad31263b50593d94ae1);
+            
+        
+
+        marker_e8d63e7e961c41624c427763d84453cd.bindPopup(popup_c56a627ff9bb09fa53e90ccaf1736090)
+        ;
+
+        
+    
+    
+                marker_e8d63e7e961c41624c427763d84453cd.setIcon(div_icon_dbd36d6a33e7a9c69aaa79cb40c9458e);
+            
+    
+            var marker_398d1ecdfee06db0798af77695239350 = L.marker(
+                [-34.850822, -56.203403],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_08a4cd81872db7c06a60a7bd2a523996 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(114.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_19651f8336a4c1ed5d4581f30d5aa6c5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e0411d621fe3dafc74915c0ead5c2798 = $(`<div id="html_e0411d621fe3dafc74915c0ead5c2798" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:28:46<br>Vel: 37.0 km/h<br>Orientación: 69.0°</div>`)[0];
+                popup_19651f8336a4c1ed5d4581f30d5aa6c5.setContent(html_e0411d621fe3dafc74915c0ead5c2798);
+            
+        
+
+        marker_398d1ecdfee06db0798af77695239350.bindPopup(popup_19651f8336a4c1ed5d4581f30d5aa6c5)
+        ;
+
+        
+    
+    
+                marker_398d1ecdfee06db0798af77695239350.setIcon(div_icon_08a4cd81872db7c06a60a7bd2a523996);
+            
+    
+            var marker_8a0f29603c6b8dc9fd8d8b1015756767 = L.marker(
+                [-34.8503, -56.201782],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_8141633f8b18fd3f800e238488f586c2 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(115.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_025bb7781b30463bde6a46e2dec4a179 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4d683b16d10e038a995bbb0b9c49b412 = $(`<div id="html_4d683b16d10e038a995bbb0b9c49b412" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:29:01<br>Vel: 37.0 km/h<br>Orientación: 70.0°</div>`)[0];
+                popup_025bb7781b30463bde6a46e2dec4a179.setContent(html_4d683b16d10e038a995bbb0b9c49b412);
+            
+        
+
+        marker_8a0f29603c6b8dc9fd8d8b1015756767.bindPopup(popup_025bb7781b30463bde6a46e2dec4a179)
+        ;
+
+        
+    
+    
+                marker_8a0f29603c6b8dc9fd8d8b1015756767.setIcon(div_icon_8141633f8b18fd3f800e238488f586c2);
+            
+    
+            var marker_71fea0be9c333210b06cbb2643ed8e47 = L.marker(
+                [-34.853218, -56.208679],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_e87bcf7017f7bcb9d4e7bd130ab24b21 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(170.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_35f9699114aa2be60cdfe9782d400e3b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f37e01c902f8ee83e31314a62b62164e = $(`<div id="html_f37e01c902f8ee83e31314a62b62164e" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:29:03<br>Vel: 11.0 km/h<br>Orientación: 125.0°</div>`)[0];
+                popup_35f9699114aa2be60cdfe9782d400e3b.setContent(html_f37e01c902f8ee83e31314a62b62164e);
+            
+        
+
+        marker_71fea0be9c333210b06cbb2643ed8e47.bindPopup(popup_35f9699114aa2be60cdfe9782d400e3b)
+        ;
+
+        
+    
+    
+                marker_71fea0be9c333210b06cbb2643ed8e47.setIcon(div_icon_e87bcf7017f7bcb9d4e7bd130ab24b21);
+            
+    
+            var marker_32d57f27e3ff91671aa3b22cd87e3227 = L.marker(
+                [-34.853821, -56.207581],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_b51e55f83233d6ffff05644686c4df90 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(173.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_b2d4408032ceed747f4f19142bb206f7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_307e581087cb10894dfe0ca74466f0fb = $(`<div id="html_307e581087cb10894dfe0ca74466f0fb" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:29:18<br>Vel: 42.0 km/h<br>Orientación: 128.0°</div>`)[0];
+                popup_b2d4408032ceed747f4f19142bb206f7.setContent(html_307e581087cb10894dfe0ca74466f0fb);
+            
+        
+
+        marker_32d57f27e3ff91671aa3b22cd87e3227.bindPopup(popup_b2d4408032ceed747f4f19142bb206f7)
+        ;
+
+        
+    
+    
+                marker_32d57f27e3ff91671aa3b22cd87e3227.setIcon(div_icon_b51e55f83233d6ffff05644686c4df90);
+            
+    
+            var marker_9456b85fa1ac06000b2b333069b78caa = L.marker(
+                [-34.854771, -56.205803],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_2e563b65f7c1c39b152afa1e89b4b0b1 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(163.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_1b2b8afaa1860922070d4e28f4943fd7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_65d7a3267bf8cc77a7848bf05cd3190d = $(`<div id="html_65d7a3267bf8cc77a7848bf05cd3190d" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:29:33<br>Vel: 38.0 km/h<br>Orientación: 118.0°</div>`)[0];
+                popup_1b2b8afaa1860922070d4e28f4943fd7.setContent(html_65d7a3267bf8cc77a7848bf05cd3190d);
+            
+        
+
+        marker_9456b85fa1ac06000b2b333069b78caa.bindPopup(popup_1b2b8afaa1860922070d4e28f4943fd7)
+        ;
+
+        
+    
+    
+                marker_9456b85fa1ac06000b2b333069b78caa.setIcon(div_icon_2e563b65f7c1c39b152afa1e89b4b0b1);
+            
+    
+            var marker_0cf60dd35fc039743c514ab1445de66e = L.marker(
+                [-34.855217, -56.205048],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_7f88a7363e3e81f3344d84f5a266b151 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(170.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_7cc4dc2c0485dcf0df9795233f94aaa5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_671e9120305eeddcf332954d72f10204 = $(`<div id="html_671e9120305eeddcf332954d72f10204" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:29:48<br>Vel: 22.0 km/h<br>Orientación: 125.0°</div>`)[0];
+                popup_7cc4dc2c0485dcf0df9795233f94aaa5.setContent(html_671e9120305eeddcf332954d72f10204);
+            
+        
+
+        marker_0cf60dd35fc039743c514ab1445de66e.bindPopup(popup_7cc4dc2c0485dcf0df9795233f94aaa5)
+        ;
+
+        
+    
+    
+                marker_0cf60dd35fc039743c514ab1445de66e.setIcon(div_icon_7f88a7363e3e81f3344d84f5a266b151);
+            
+    
+            var marker_4117af834517831577cafad73aa1ad08 = L.marker(
+                [-34.855713, -56.204212],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_f39f4d621011cdc9fa8f4898b99cfba7 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(171.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_c27b34bb43d66abe39ba23d3194e343b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a6cfc7942aa8531d6b924cf75258add0 = $(`<div id="html_a6cfc7942aa8531d6b924cf75258add0" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 06:30:03<br>Vel: 34.0 km/h<br>Orientación: 126.0°</div>`)[0];
+                popup_c27b34bb43d66abe39ba23d3194e343b.setContent(html_a6cfc7942aa8531d6b924cf75258add0);
+            
+        
+
+        marker_4117af834517831577cafad73aa1ad08.bindPopup(popup_c27b34bb43d66abe39ba23d3194e343b)
+        ;
+
+        
+    
+    
+                marker_4117af834517831577cafad73aa1ad08.setIcon(div_icon_f39f4d621011cdc9fa8f4898b99cfba7);
+            
+    
+            var marker_5598a7a1bee913abc3f4d1d74029668d = L.marker(
+                [-34.85017, -56.201679],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_53aca83f31790626c73589402f9064c7 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_db55e0cd1d0e91c769499ba9148cf4f6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0a466fffb81cdcb90c2a513b3558fbc8 = $(`<div id="html_0a466fffb81cdcb90c2a513b3558fbc8" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 09:28:19<br>Vel: 0.0 km/h<br>Orientación: 133.0°</div>`)[0];
+                popup_db55e0cd1d0e91c769499ba9148cf4f6.setContent(html_0a466fffb81cdcb90c2a513b3558fbc8);
+            
+        
+
+        marker_5598a7a1bee913abc3f4d1d74029668d.bindPopup(popup_db55e0cd1d0e91c769499ba9148cf4f6)
+        ;
+
+        
+    
+    
+                marker_5598a7a1bee913abc3f4d1d74029668d.setIcon(div_icon_53aca83f31790626c73589402f9064c7);
+            
+    
+            var marker_e0d1935a822a189f0792883ddae809ba = L.marker(
+                [-34.850197, -56.201569],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_78cec9b60a4a6965031ac0ec0aa6d3b0 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(139.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_0a11828796931961a9336808ddf07182 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_36f51b03f48e9765ec4ba92cdd91ed29 = $(`<div id="html_36f51b03f48e9765ec4ba92cdd91ed29" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 09:28:22<br>Vel: 17.0 km/h<br>Orientación: 94.0°</div>`)[0];
+                popup_0a11828796931961a9336808ddf07182.setContent(html_36f51b03f48e9765ec4ba92cdd91ed29);
+            
+        
+
+        marker_e0d1935a822a189f0792883ddae809ba.bindPopup(popup_0a11828796931961a9336808ddf07182)
+        ;
+
+        
+    
+    
+                marker_e0d1935a822a189f0792883ddae809ba.setIcon(div_icon_78cec9b60a4a6965031ac0ec0aa6d3b0);
+            
+    
+            var marker_b6f3226b54425ac7a10d2ddb2d9a85ae = L.marker(
+                [-34.85305, -56.208508],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_dd3fe9c7089c34d0ef7a0acc5a23a508 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(120.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_0d06596187649153e275a814da306e63 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2a04c345c3d38d5874f8de63cc434b61 = $(`<div id="html_2a04c345c3d38d5874f8de63cc434b61" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:14:23<br>Vel: 14.0 km/h<br>Orientación: 75.0°</div>`)[0];
+                popup_0d06596187649153e275a814da306e63.setContent(html_2a04c345c3d38d5874f8de63cc434b61);
+            
+        
+
+        marker_b6f3226b54425ac7a10d2ddb2d9a85ae.bindPopup(popup_0d06596187649153e275a814da306e63)
+        ;
+
+        
+    
+    
+                marker_b6f3226b54425ac7a10d2ddb2d9a85ae.setIcon(div_icon_dd3fe9c7089c34d0ef7a0acc5a23a508);
+            
+    
+            var marker_4c6db53d0eb0974a11317a91d5925a18 = L.marker(
+                [-34.852974, -56.208443],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_239eff139b3840bf690eb4a8a8580ced = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(79.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_8aebb7310b89eaacbfbac6c40666a478 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c01cedb8f3875bd6b8a0489b7c9ee25e = $(`<div id="html_c01cedb8f3875bd6b8a0489b7c9ee25e" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:14:25<br>Vel: 18.0 km/h<br>Orientación: 34.0°</div>`)[0];
+                popup_8aebb7310b89eaacbfbac6c40666a478.setContent(html_c01cedb8f3875bd6b8a0489b7c9ee25e);
+            
+        
+
+        marker_4c6db53d0eb0974a11317a91d5925a18.bindPopup(popup_8aebb7310b89eaacbfbac6c40666a478)
+        ;
+
+        
+    
+    
+                marker_4c6db53d0eb0974a11317a91d5925a18.setIcon(div_icon_239eff139b3840bf690eb4a8a8580ced);
+            
+    
+            var marker_eae7cb6272e67aed4215cb0c5cba3be0 = L.marker(
+                [-34.852722, -56.208],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_1dd52d061f0591c7db2e6ea82fe50502 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(90.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_704629d151383cf32b1502af1cc4a73e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_8d97f8d10e1db045d0e766c511aec8af = $(`<div id="html_8d97f8d10e1db045d0e766c511aec8af" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:14:32<br>Vel: 32.0 km/h<br>Orientación: 45.0°</div>`)[0];
+                popup_704629d151383cf32b1502af1cc4a73e.setContent(html_8d97f8d10e1db045d0e766c511aec8af);
+            
+        
+
+        marker_eae7cb6272e67aed4215cb0c5cba3be0.bindPopup(popup_704629d151383cf32b1502af1cc4a73e)
+        ;
+
+        
+    
+    
+                marker_eae7cb6272e67aed4215cb0c5cba3be0.setIcon(div_icon_1dd52d061f0591c7db2e6ea82fe50502);
+            
+    
+            var marker_9570f89e2ce8273d88beea80428f801e = L.marker(
+                [-34.851871, -56.206783],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_3a0a5784be3ed26f4dbad56f204f3d36 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(109.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_135517c3cc13d1bfe4ea745ebdef9257 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a43fe2b568953faa12809d3b056c1b26 = $(`<div id="html_a43fe2b568953faa12809d3b056c1b26" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:14:47<br>Vel: 29.0 km/h<br>Orientación: 64.0°</div>`)[0];
+                popup_135517c3cc13d1bfe4ea745ebdef9257.setContent(html_a43fe2b568953faa12809d3b056c1b26);
+            
+        
+
+        marker_9570f89e2ce8273d88beea80428f801e.bindPopup(popup_135517c3cc13d1bfe4ea745ebdef9257)
+        ;
+
+        
+    
+    
+                marker_9570f89e2ce8273d88beea80428f801e.setIcon(div_icon_3a0a5784be3ed26f4dbad56f204f3d36);
+            
+    
+            var marker_397f9f8cc9a8000137bdc6662bb1dda1 = L.marker(
+                [-34.851803, -56.206379],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_1467d9ef89f4b6a106118b2f5ef024ce = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(113.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_91fd94b7b3c1b8245bb890e4ac13718d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0cb598d1098c3e3534683b9233e584a1 = $(`<div id="html_0cb598d1098c3e3534683b9233e584a1" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:15:02<br>Vel: 13.0 km/h<br>Orientación: 68.0°</div>`)[0];
+                popup_91fd94b7b3c1b8245bb890e4ac13718d.setContent(html_0cb598d1098c3e3534683b9233e584a1);
+            
+        
+
+        marker_397f9f8cc9a8000137bdc6662bb1dda1.bindPopup(popup_91fd94b7b3c1b8245bb890e4ac13718d)
+        ;
+
+        
+    
+    
+                marker_397f9f8cc9a8000137bdc6662bb1dda1.setIcon(div_icon_1467d9ef89f4b6a106118b2f5ef024ce);
+            
+    
+            var marker_e4e12f8e8991baa6d209979eb969681c = L.marker(
+                [-34.851372, -56.205086],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_aca470a2384df722a028b46739669ed6 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(112.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_99cb6b22b64c909ea9beb1d5385a3326 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6100a24639669e4e3ea1ef204fcb6a63 = $(`<div id="html_6100a24639669e4e3ea1ef204fcb6a63" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:15:17<br>Vel: 38.0 km/h<br>Orientación: 67.0°</div>`)[0];
+                popup_99cb6b22b64c909ea9beb1d5385a3326.setContent(html_6100a24639669e4e3ea1ef204fcb6a63);
+            
+        
+
+        marker_e4e12f8e8991baa6d209979eb969681c.bindPopup(popup_99cb6b22b64c909ea9beb1d5385a3326)
+        ;
+
+        
+    
+    
+                marker_e4e12f8e8991baa6d209979eb969681c.setIcon(div_icon_aca470a2384df722a028b46739669ed6);
+            
+    
+            var marker_9df97eb4eec2f5d19437360953a18f40 = L.marker(
+                [-34.850758, -56.203205],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_dd3867b324bfe233e0bcaf6ae200458b = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(113.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_3d9d213bd9af10d8d8e2dacdf6dfeb3c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cf0b6443e29d13ce4f880b10d1f79b27 = $(`<div id="html_cf0b6443e29d13ce4f880b10d1f79b27" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:15:32<br>Vel: 46.0 km/h<br>Orientación: 68.0°</div>`)[0];
+                popup_3d9d213bd9af10d8d8e2dacdf6dfeb3c.setContent(html_cf0b6443e29d13ce4f880b10d1f79b27);
+            
+        
+
+        marker_9df97eb4eec2f5d19437360953a18f40.bindPopup(popup_3d9d213bd9af10d8d8e2dacdf6dfeb3c)
+        ;
+
+        
+    
+    
+                marker_9df97eb4eec2f5d19437360953a18f40.setIcon(div_icon_dd3867b324bfe233e0bcaf6ae200458b);
+            
+    
+            var marker_7d48c439444b25897ce7248903ce39c1 = L.marker(
+                [-34.850231, -56.201565],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_ce56aef2d976de24b5d38eebc1818f56 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(117.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_4991c85fddea1aa94f9c3d2581c35c6b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_406596f0cf5ec6e3d5fd317ed20e759e = $(`<div id="html_406596f0cf5ec6e3d5fd317ed20e759e" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:15:47<br>Vel: 30.0 km/h<br>Orientación: 72.0°</div>`)[0];
+                popup_4991c85fddea1aa94f9c3d2581c35c6b.setContent(html_406596f0cf5ec6e3d5fd317ed20e759e);
+            
+        
+
+        marker_7d48c439444b25897ce7248903ce39c1.bindPopup(popup_4991c85fddea1aa94f9c3d2581c35c6b)
+        ;
+
+        
+    
+    
+                marker_7d48c439444b25897ce7248903ce39c1.setIcon(div_icon_ce56aef2d976de24b5d38eebc1818f56);
+            
+    
+            var marker_57a61dc49d0482e8de1fa9156c25bfbf = L.marker(
+                [-34.855423, -56.204582],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_4a078c6d935e82b1d70d8c9cacaef327 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(349.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_0afd2bb1126457ebf27949b5ca31f183 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_836c65e1bcc869d584ba10bb3ce401ee = $(`<div id="html_836c65e1bcc869d584ba10bb3ce401ee" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:57:42<br>Vel: 34.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_0afd2bb1126457ebf27949b5ca31f183.setContent(html_836c65e1bcc869d584ba10bb3ce401ee);
+            
+        
+
+        marker_57a61dc49d0482e8de1fa9156c25bfbf.bindPopup(popup_0afd2bb1126457ebf27949b5ca31f183)
+        ;
+
+        
+    
+    
+                marker_57a61dc49d0482e8de1fa9156c25bfbf.setIcon(div_icon_4a078c6d935e82b1d70d8c9cacaef327);
+            
+    
+            var marker_90918d8e7d2b211e27343e482fa717ad = L.marker(
+                [-34.85503, -56.205284],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_521e4e2d3066ee1e4e21aa2c20fa0fbf = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(347.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_d25979f7dd62cb754edabb9f8c2ccd1e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6ffb51ddbad292803b688e17bb4b61ec = $(`<div id="html_6ffb51ddbad292803b688e17bb4b61ec" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:57:57<br>Vel: 13.0 km/h<br>Orientación: 302.0°</div>`)[0];
+                popup_d25979f7dd62cb754edabb9f8c2ccd1e.setContent(html_6ffb51ddbad292803b688e17bb4b61ec);
+            
+        
+
+        marker_90918d8e7d2b211e27343e482fa717ad.bindPopup(popup_d25979f7dd62cb754edabb9f8c2ccd1e)
+        ;
+
+        
+    
+    
+                marker_90918d8e7d2b211e27343e482fa717ad.setIcon(div_icon_521e4e2d3066ee1e4e21aa2c20fa0fbf);
+            
+    
+            var marker_a63004633afb9fa5a3b044bd9b9fbd93 = L.marker(
+                [-34.854607, -56.205971],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_3dd7a6a38bc388734b834e503147aa1c = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(355.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_98e79b78b756aa07360b8a341bf4568b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_061bdee677799ae6eb1ee37f596371ed = $(`<div id="html_061bdee677799ae6eb1ee37f596371ed" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:58:12<br>Vel: 19.0 km/h<br>Orientación: 310.0°</div>`)[0];
+                popup_98e79b78b756aa07360b8a341bf4568b.setContent(html_061bdee677799ae6eb1ee37f596371ed);
+            
+        
+
+        marker_a63004633afb9fa5a3b044bd9b9fbd93.bindPopup(popup_98e79b78b756aa07360b8a341bf4568b)
+        ;
+
+        
+    
+    
+                marker_a63004633afb9fa5a3b044bd9b9fbd93.setIcon(div_icon_3dd7a6a38bc388734b834e503147aa1c);
+            
+    
+            var marker_241cebe47ffd776b16c7df9e5c03f16f = L.marker(
+                [-34.854115, -56.206867],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_4c798b9fc8243b46e28793d483359d39 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(351.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_0478b24327952de1faaaad60cee4c8fd = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5cf5104a24c92d1672e524de3d97376b = $(`<div id="html_5cf5104a24c92d1672e524de3d97376b" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:58:27<br>Vel: 21.0 km/h<br>Orientación: 306.0°</div>`)[0];
+                popup_0478b24327952de1faaaad60cee4c8fd.setContent(html_5cf5104a24c92d1672e524de3d97376b);
+            
+        
+
+        marker_241cebe47ffd776b16c7df9e5c03f16f.bindPopup(popup_0478b24327952de1faaaad60cee4c8fd)
+        ;
+
+        
+    
+    
+                marker_241cebe47ffd776b16c7df9e5c03f16f.setIcon(div_icon_4c798b9fc8243b46e28793d483359d39);
+            
+    
+            var marker_e971d8359677b517295998413902c549 = L.marker(
+                [-34.853699, -56.207588],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_844cc08bcc83d909bcf57cc537c9057e = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(348.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_d8dbfdb8d3920ce65243b4a3d1074f91 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3e010a8882b17508689adaa1bd60b56a = $(`<div id="html_3e010a8882b17508689adaa1bd60b56a" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:58:42<br>Vel: 14.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_d8dbfdb8d3920ce65243b4a3d1074f91.setContent(html_3e010a8882b17508689adaa1bd60b56a);
+            
+        
+
+        marker_e971d8359677b517295998413902c549.bindPopup(popup_d8dbfdb8d3920ce65243b4a3d1074f91)
+        ;
+
+        
+    
+    
+                marker_e971d8359677b517295998413902c549.setIcon(div_icon_844cc08bcc83d909bcf57cc537c9057e);
+            
+    
+            var marker_b2a90741a915fdc32d7d7ddd3c1a4fe8 = L.marker(
+                [-34.85358, -56.207802],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_9790e80f3a69bc8f73d9b5de7ca0920b = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_eb6412522ecfac18b48b5b76bbb6064c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_750b344b2bb35a2caaf12b7b7d878ea8 = $(`<div id="html_750b344b2bb35a2caaf12b7b7d878ea8" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 10:58:57<br>Vel: 0.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_eb6412522ecfac18b48b5b76bbb6064c.setContent(html_750b344b2bb35a2caaf12b7b7d878ea8);
+            
+        
+
+        marker_b2a90741a915fdc32d7d7ddd3c1a4fe8.bindPopup(popup_eb6412522ecfac18b48b5b76bbb6064c)
+        ;
+
+        
+    
+    
+                marker_b2a90741a915fdc32d7d7ddd3c1a4fe8.setIcon(div_icon_9790e80f3a69bc8f73d9b5de7ca0920b);
+            
+    
+            var marker_83d59224b83a6f440fa807b546032dfa = L.marker(
+                [-34.85358, -56.207802],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_0a1c5a927667baefe3882b5bdd160511 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_3d97f40e2ef41f74e0ca4c7604975ec0 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_d3b3f9da8be0226dad5886a0d8ef4a67 = $(`<div id="html_d3b3f9da8be0226dad5886a0d8ef4a67" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 10:59:12<br>Vel: 0.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_3d97f40e2ef41f74e0ca4c7604975ec0.setContent(html_d3b3f9da8be0226dad5886a0d8ef4a67);
+            
+        
+
+        marker_83d59224b83a6f440fa807b546032dfa.bindPopup(popup_3d97f40e2ef41f74e0ca4c7604975ec0)
+        ;
+
+        
+    
+    
+                marker_83d59224b83a6f440fa807b546032dfa.setIcon(div_icon_0a1c5a927667baefe3882b5bdd160511);
+            
+    
+            var marker_3b1cf91bfd0acf06cfb0894d541d7e95 = L.marker(
+                [-34.853416, -56.208084],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_e043d887659ffacb5a39519700cb2072 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(350.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_59c2da064fdda2e624fdfb777d6df363 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_28cbd7727433a06c1436ad2ad5f03951 = $(`<div id="html_28cbd7727433a06c1436ad2ad5f03951" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:59:27<br>Vel: 19.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_59c2da064fdda2e624fdfb777d6df363.setContent(html_28cbd7727433a06c1436ad2ad5f03951);
+            
+        
+
+        marker_3b1cf91bfd0acf06cfb0894d541d7e95.bindPopup(popup_59c2da064fdda2e624fdfb777d6df363)
+        ;
+
+        
+    
+    
+                marker_3b1cf91bfd0acf06cfb0894d541d7e95.setIcon(div_icon_e043d887659ffacb5a39519700cb2072);
+            
+    
+            var marker_96753257d54c4552747513689ef8d616 = L.marker(
+                [-34.853294, -56.208279],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_91ef8e21aa26fbf4ae372825618793bc = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_1aa53e36036981d4179f913a8f7eb8bd = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_12767a6c0fe1ada3c162c0a79711c2c9 = $(`<div id="html_12767a6c0fe1ada3c162c0a79711c2c9" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 10:59:42<br>Vel: 0.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_1aa53e36036981d4179f913a8f7eb8bd.setContent(html_12767a6c0fe1ada3c162c0a79711c2c9);
+            
+        
+
+        marker_96753257d54c4552747513689ef8d616.bindPopup(popup_1aa53e36036981d4179f913a8f7eb8bd)
+        ;
+
+        
+    
+    
+                marker_96753257d54c4552747513689ef8d616.setIcon(div_icon_91ef8e21aa26fbf4ae372825618793bc);
+            
+    
+            var marker_4d28bf085c23a80dd8021aa7c516d8db = L.marker(
+                [-34.853294, -56.208279],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_e5f928f1c89c72c1784b257809ce3ccf = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_a153f44d96e729b6c5052637b36d471e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2c00eb9a2c55952dc8e4e59ac87fe1dd = $(`<div id="html_2c00eb9a2c55952dc8e4e59ac87fe1dd" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 10:59:57<br>Vel: 0.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_a153f44d96e729b6c5052637b36d471e.setContent(html_2c00eb9a2c55952dc8e4e59ac87fe1dd);
+            
+        
+
+        marker_4d28bf085c23a80dd8021aa7c516d8db.bindPopup(popup_a153f44d96e729b6c5052637b36d471e)
+        ;
+
+        
+    
+    
+                marker_4d28bf085c23a80dd8021aa7c516d8db.setIcon(div_icon_e5f928f1c89c72c1784b257809ce3ccf);
+            
+    
+            var marker_05d007fa039508696db88851f7cf6336 = L.marker(
+                [-34.853294, -56.208279],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_37af359c0dc347691544ff656c5303fb = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_51a5afe8f06d933367d9d830d59e69bf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_251df57ff674a7ea01097dbc1b4bee42 = $(`<div id="html_251df57ff674a7ea01097dbc1b4bee42" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 11:00:12<br>Vel: 0.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_51a5afe8f06d933367d9d830d59e69bf.setContent(html_251df57ff674a7ea01097dbc1b4bee42);
+            
+        
+
+        marker_05d007fa039508696db88851f7cf6336.bindPopup(popup_51a5afe8f06d933367d9d830d59e69bf)
+        ;
+
+        
+    
+    
+                marker_05d007fa039508696db88851f7cf6336.setIcon(div_icon_37af359c0dc347691544ff656c5303fb);
+            
+    
+            var marker_dda359e92812a2362d3461a1bc25bfea = L.marker(
+                [-34.853294, -56.208279],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_cc5a9df8b300ce6b1c019648be7c92d5 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_594928d55403850a14c9e14965c35f54 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_47e843c27cf04dbea3a5d97cbc1dda48 = $(`<div id="html_47e843c27cf04dbea3a5d97cbc1dda48" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 11:00:27<br>Vel: 0.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_594928d55403850a14c9e14965c35f54.setContent(html_47e843c27cf04dbea3a5d97cbc1dda48);
+            
+        
+
+        marker_dda359e92812a2362d3461a1bc25bfea.bindPopup(popup_594928d55403850a14c9e14965c35f54)
+        ;
+
+        
+    
+    
+                marker_dda359e92812a2362d3461a1bc25bfea.setIcon(div_icon_cc5a9df8b300ce6b1c019648be7c92d5);
+            
+    
+            var marker_b201da5f4f922e5e665687337d69084e = L.marker(
+                [-34.853107, -56.208607],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_e737864391ef0f5e6564bb8268f4290e = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(349.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_84db677e920086b1950ba91f157488d4 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9726225e6fde7900940acada3b8d2a92 = $(`<div id="html_9726225e6fde7900940acada3b8d2a92" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:00:42<br>Vel: 15.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_84db677e920086b1950ba91f157488d4.setContent(html_9726225e6fde7900940acada3b8d2a92);
+            
+        
+
+        marker_b201da5f4f922e5e665687337d69084e.bindPopup(popup_84db677e920086b1950ba91f157488d4)
+        ;
+
+        
+    
+    
+                marker_b201da5f4f922e5e665687337d69084e.setIcon(div_icon_e737864391ef0f5e6564bb8268f4290e);
+            
+    
+            var marker_b01ebd3b9d1c4d6e770ebab5a9dfe243 = L.marker(
+                [-34.85561, -56.204372],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_4c8ebf58d3cc8b6357bff5e4e86f3b90 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(349.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_6451ef6ced67be30273dab94e0e1c4bf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f019e5cddb442a60562e7f880cf02775 = $(`<div id="html_f019e5cddb442a60562e7f880cf02775" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:37:35<br>Vel: 43.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_6451ef6ced67be30273dab94e0e1c4bf.setContent(html_f019e5cddb442a60562e7f880cf02775);
+            
+        
+
+        marker_b01ebd3b9d1c4d6e770ebab5a9dfe243.bindPopup(popup_6451ef6ced67be30273dab94e0e1c4bf)
+        ;
+
+        
+    
+    
+                marker_b01ebd3b9d1c4d6e770ebab5a9dfe243.setIcon(div_icon_4c8ebf58d3cc8b6357bff5e4e86f3b90);
+            
+    
+            var marker_359b8d52eb9e229e132f559bd25c28fc = L.marker(
+                [-34.855034, -56.205376],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_4557f980db730d53a987b8dab19f7aa8 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(348.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_e9953a305b5eac7843ec8e80898e3d0a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_07d40bd7f3e598dbaba4569bc3a101dd = $(`<div id="html_07d40bd7f3e598dbaba4569bc3a101dd" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:37:50<br>Vel: 18.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_e9953a305b5eac7843ec8e80898e3d0a.setContent(html_07d40bd7f3e598dbaba4569bc3a101dd);
+            
+        
+
+        marker_359b8d52eb9e229e132f559bd25c28fc.bindPopup(popup_e9953a305b5eac7843ec8e80898e3d0a)
+        ;
+
+        
+    
+    
+                marker_359b8d52eb9e229e132f559bd25c28fc.setIcon(div_icon_4557f980db730d53a987b8dab19f7aa8);
+            
+    
+            var marker_7f019319103ffb37163c3c50403419d7 = L.marker(
+                [-34.854446, -56.206394],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_10d35521219caef5ba4848fa45b7c5e3 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(350.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_3d80977a4dab4173e6fad857985257ff = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_226e2f00722d6b46d64d27b27c4f473d = $(`<div id="html_226e2f00722d6b46d64d27b27c4f473d" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:38:05<br>Vel: 43.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_3d80977a4dab4173e6fad857985257ff.setContent(html_226e2f00722d6b46d64d27b27c4f473d);
+            
+        
+
+        marker_7f019319103ffb37163c3c50403419d7.bindPopup(popup_3d80977a4dab4173e6fad857985257ff)
+        ;
+
+        
+    
+    
+                marker_7f019319103ffb37163c3c50403419d7.setIcon(div_icon_10d35521219caef5ba4848fa45b7c5e3);
+            
+    
+            var marker_fe52f391fd6949fdd9cc2ececdbdf26a = L.marker(
+                [-34.853474, -56.208046],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_18b54589a846118bdeb6a03fa18f0de7 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(349.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_62c38b3b2f606b73b979946ddb493b30 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_b1451a648234bc53c6820fffa6bb141c = $(`<div id="html_b1451a648234bc53c6820fffa6bb141c" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:38:20<br>Vel: 30.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_62c38b3b2f606b73b979946ddb493b30.setContent(html_b1451a648234bc53c6820fffa6bb141c);
+            
+        
+
+        marker_fe52f391fd6949fdd9cc2ececdbdf26a.bindPopup(popup_62c38b3b2f606b73b979946ddb493b30)
+        ;
+
+        
+    
+    
+                marker_fe52f391fd6949fdd9cc2ececdbdf26a.setIcon(div_icon_18b54589a846118bdeb6a03fa18f0de7);
+            
+    
+            var marker_021e99213b3d25d335f108ac45e69198 = L.marker(
+                [-34.853363, -56.208237],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_052e53af0377ac4b1244a6b1492ccdb6 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_822a8d057c421704a8ea6109b2f161a4 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9cee0ca233b5e437a108ebd75a2c16ab = $(`<div id="html_9cee0ca233b5e437a108ebd75a2c16ab" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 11:38:35<br>Vel: 0.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_822a8d057c421704a8ea6109b2f161a4.setContent(html_9cee0ca233b5e437a108ebd75a2c16ab);
+            
+        
+
+        marker_021e99213b3d25d335f108ac45e69198.bindPopup(popup_822a8d057c421704a8ea6109b2f161a4)
+        ;
+
+        
+    
+    
+                marker_021e99213b3d25d335f108ac45e69198.setIcon(div_icon_052e53af0377ac4b1244a6b1492ccdb6);
+            
+    
+            var marker_820d2dbec97865ff628280c02e60f0b7 = L.marker(
+                [-34.853363, -56.208237],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_24bdb147c6bc4e07cbf93862011c01e6 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_0c19f995a00ab03e2483ff5574f79d5f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4982ed23965876951a7c20445a5bb6d8 = $(`<div id="html_4982ed23965876951a7c20445a5bb6d8" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 11:38:50<br>Vel: 0.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_0c19f995a00ab03e2483ff5574f79d5f.setContent(html_4982ed23965876951a7c20445a5bb6d8);
+            
+        
+
+        marker_820d2dbec97865ff628280c02e60f0b7.bindPopup(popup_0c19f995a00ab03e2483ff5574f79d5f)
+        ;
+
+        
+    
+    
+                marker_820d2dbec97865ff628280c02e60f0b7.setIcon(div_icon_24bdb147c6bc4e07cbf93862011c01e6);
+            
+    
+            var marker_4471cb1b4be2b9436a5d52f486a4a0e7 = L.marker(
+                [-34.855995, -56.203823],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_131667e0f9769f0edb64a2286b196627 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(80.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_d5ada68908b8924dd4e45c362459de37 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5ad0f5554449fa70ed1ae6a7d55efa23 = $(`<div id="html_5ad0f5554449fa70ed1ae6a7d55efa23" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:47:55<br>Vel: 7.0 km/h<br>Orientación: 35.0°</div>`)[0];
+                popup_d5ada68908b8924dd4e45c362459de37.setContent(html_5ad0f5554449fa70ed1ae6a7d55efa23);
+            
+        
+
+        marker_4471cb1b4be2b9436a5d52f486a4a0e7.bindPopup(popup_d5ada68908b8924dd4e45c362459de37)
+        ;
+
+        
+    
+    
+                marker_4471cb1b4be2b9436a5d52f486a4a0e7.setIcon(div_icon_131667e0f9769f0edb64a2286b196627);
+            
+    
+            var marker_51f178b4bc37c304d983ff9a0bb655a9 = L.marker(
+                [-34.855721, -56.203594],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_30a266f99602d8124940d3e543641670 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(86.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_5e421140b03cadeeaa167a89dea92197 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_aeaa1d5d52888d0f44390a4aefdb9577 = $(`<div id="html_aeaa1d5d52888d0f44390a4aefdb9577" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:48:10<br>Vel: 19.0 km/h<br>Orientación: 41.0°</div>`)[0];
+                popup_5e421140b03cadeeaa167a89dea92197.setContent(html_aeaa1d5d52888d0f44390a4aefdb9577);
+            
+        
+
+        marker_51f178b4bc37c304d983ff9a0bb655a9.bindPopup(popup_5e421140b03cadeeaa167a89dea92197)
+        ;
+
+        
+    
+    
+                marker_51f178b4bc37c304d983ff9a0bb655a9.setIcon(div_icon_30a266f99602d8124940d3e543641670);
+            
+    
+            var marker_3dccfaeb08f5093e6e00d37b734caf55 = L.marker(
+                [-34.854584, -56.202644],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_63d9398e69b88b571d9d0c167aac0e24 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(79.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_ab3164a6bbab860f00a4ffbadc02d5ee = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_d4097a326918f2abe4e9ffac43c9223f = $(`<div id="html_d4097a326918f2abe4e9ffac43c9223f" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:48:25<br>Vel: 42.0 km/h<br>Orientación: 34.0°</div>`)[0];
+                popup_ab3164a6bbab860f00a4ffbadc02d5ee.setContent(html_d4097a326918f2abe4e9ffac43c9223f);
+            
+        
+
+        marker_3dccfaeb08f5093e6e00d37b734caf55.bindPopup(popup_ab3164a6bbab860f00a4ffbadc02d5ee)
+        ;
+
+        
+    
+    
+                marker_3dccfaeb08f5093e6e00d37b734caf55.setIcon(div_icon_63d9398e69b88b571d9d0c167aac0e24);
+            
+    
+            var marker_2785c5d6dbb6c3db4c7dbc4cf46fa622 = L.marker(
+                [-34.854092, -56.202202],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_8f56f28f8c37afb61fe363424c557e27 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(85.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_e42653b99d2d334bf2dc6c84058f9a27 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cf780bb75540a8b7517008bbecc5832f = $(`<div id="html_cf780bb75540a8b7517008bbecc5832f" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:48:40<br>Vel: 6.0 km/h<br>Orientación: 40.0°</div>`)[0];
+                popup_e42653b99d2d334bf2dc6c84058f9a27.setContent(html_cf780bb75540a8b7517008bbecc5832f);
+            
+        
+
+        marker_2785c5d6dbb6c3db4c7dbc4cf46fa622.bindPopup(popup_e42653b99d2d334bf2dc6c84058f9a27)
+        ;
+
+        
+    
+    
+                marker_2785c5d6dbb6c3db4c7dbc4cf46fa622.setIcon(div_icon_8f56f28f8c37afb61fe363424c557e27);
+            
+    
+            var marker_090ccc79a040aca9ce38386407163d91 = L.marker(
+                [-34.853699, -56.201874],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_9853b6f47e4e6eef7fbe4e944ed76bb1 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(80.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_c5cde0107378fcc716be096abd605ecd = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_db18c0d074ccfe4b462cdfe3112c8a76 = $(`<div id="html_db18c0d074ccfe4b462cdfe3112c8a76" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:48:55<br>Vel: 18.0 km/h<br>Orientación: 35.0°</div>`)[0];
+                popup_c5cde0107378fcc716be096abd605ecd.setContent(html_db18c0d074ccfe4b462cdfe3112c8a76);
+            
+        
+
+        marker_090ccc79a040aca9ce38386407163d91.bindPopup(popup_c5cde0107378fcc716be096abd605ecd)
+        ;
+
+        
+    
+    
+                marker_090ccc79a040aca9ce38386407163d91.setIcon(div_icon_9853b6f47e4e6eef7fbe4e944ed76bb1);
+            
+    
+            var marker_365045f2ca7721818eec7977bd0aebf5 = L.marker(
+                [-34.85305, -56.201317],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_5b5e86a69c3e8c0dc7004098ed94040c = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(80.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_729611462da8f434c227192ab7716ad6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9f06370501b5109b70acb0f30e74d3d8 = $(`<div id="html_9f06370501b5109b70acb0f30e74d3d8" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:49:10<br>Vel: 22.0 km/h<br>Orientación: 35.0°</div>`)[0];
+                popup_729611462da8f434c227192ab7716ad6.setContent(html_9f06370501b5109b70acb0f30e74d3d8);
+            
+        
+
+        marker_365045f2ca7721818eec7977bd0aebf5.bindPopup(popup_729611462da8f434c227192ab7716ad6)
+        ;
+
+        
+    
+    
+                marker_365045f2ca7721818eec7977bd0aebf5.setIcon(div_icon_5b5e86a69c3e8c0dc7004098ed94040c);
+            
+    
+            var marker_374578522e270816c6da1af7c7fe2ba5 = L.marker(
+                [-34.852299, -56.200672],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_ca2965d45faa61cbd81070e5feae10ff = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(81.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_2d5ba8de3f3e7a486e8253a332638781 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c5ab534b610b65fe4097c9386c317ac9 = $(`<div id="html_c5ab534b610b65fe4097c9386c317ac9" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:49:25<br>Vel: 24.0 km/h<br>Orientación: 36.0°</div>`)[0];
+                popup_2d5ba8de3f3e7a486e8253a332638781.setContent(html_c5ab534b610b65fe4097c9386c317ac9);
+            
+        
+
+        marker_374578522e270816c6da1af7c7fe2ba5.bindPopup(popup_2d5ba8de3f3e7a486e8253a332638781)
+        ;
+
+        
+    
+    
+                marker_374578522e270816c6da1af7c7fe2ba5.setIcon(div_icon_ca2965d45faa61cbd81070e5feae10ff);
+            
+    
+            var marker_92c9a00b1af0b2ed46d88454c637fca4 = L.marker(
+                [-34.851681, -56.200188],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_01a47dd18e6d69cf0e19c6f841dbae3e = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(47.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_a04e0443f0198d1a687823a3c0873236 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_89abb9103ca372f7467e8d13bdc392d3 = $(`<div id="html_89abb9103ca372f7467e8d13bdc392d3" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:49:39<br>Vel: 15.0 km/h<br>Orientación: 2.0°</div>`)[0];
+                popup_a04e0443f0198d1a687823a3c0873236.setContent(html_89abb9103ca372f7467e8d13bdc392d3);
+            
+        
+
+        marker_92c9a00b1af0b2ed46d88454c637fca4.bindPopup(popup_a04e0443f0198d1a687823a3c0873236)
+        ;
+
+        
+    
+    
+                marker_92c9a00b1af0b2ed46d88454c637fca4.setIcon(div_icon_01a47dd18e6d69cf0e19c6f841dbae3e);
+            
+    
+            var marker_87082e08c3da4ab19f1563511792cecd = L.marker(
+                [-34.851643, -56.200199],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_7ff690b0f6d75dbda35c5c63f46d0ad3 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(399.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_c95dbc431a225d5d80680e386de4a9a8 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6849bb97121b7394a8959ae5e13e73e3 = $(`<div id="html_6849bb97121b7394a8959ae5e13e73e3" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:49:40<br>Vel: 14.0 km/h<br>Orientación: 354.0°</div>`)[0];
+                popup_c95dbc431a225d5d80680e386de4a9a8.setContent(html_6849bb97121b7394a8959ae5e13e73e3);
+            
+        
+
+        marker_87082e08c3da4ab19f1563511792cecd.bindPopup(popup_c95dbc431a225d5d80680e386de4a9a8)
+        ;
+
+        
+    
+    
+                marker_87082e08c3da4ab19f1563511792cecd.setIcon(div_icon_7ff690b0f6d75dbda35c5c63f46d0ad3);
+            
+    
+            var marker_4e0b2eb0ba7f476df1fa93cc2eb044e6 = L.marker(
+                [-34.851574, -56.20026],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_0fa4f72629471e9d29fd32899144846a = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(363.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_88df09d700126a7db48ca1d9351c0dfd = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a66099e4ef9ee8aa23843589049938fd = $(`<div id="html_a66099e4ef9ee8aa23843589049938fd" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:49:42<br>Vel: 17.0 km/h<br>Orientación: 318.0°</div>`)[0];
+                popup_88df09d700126a7db48ca1d9351c0dfd.setContent(html_a66099e4ef9ee8aa23843589049938fd);
+            
+        
+
+        marker_4e0b2eb0ba7f476df1fa93cc2eb044e6.bindPopup(popup_88df09d700126a7db48ca1d9351c0dfd)
+        ;
+
+        
+    
+    
+                marker_4e0b2eb0ba7f476df1fa93cc2eb044e6.setIcon(div_icon_0fa4f72629471e9d29fd32899144846a);
+            
+    
+            var marker_e1aec235c3a8c7ac9c52798983f4f190 = L.marker(
+                [-34.850975, -56.200848],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_c48d518971774ed42143c645d487887b = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(367.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_dd4688d849553b81683e537ec93ebaeb = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_d5a72375f5d1ac0a2b908d446075bdb6 = $(`<div id="html_d5a72375f5d1ac0a2b908d446075bdb6" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:49:55<br>Vel: 27.0 km/h<br>Orientación: 322.0°</div>`)[0];
+                popup_dd4688d849553b81683e537ec93ebaeb.setContent(html_d5a72375f5d1ac0a2b908d446075bdb6);
+            
+        
+
+        marker_e1aec235c3a8c7ac9c52798983f4f190.bindPopup(popup_dd4688d849553b81683e537ec93ebaeb)
+        ;
+
+        
+    
+    
+                marker_e1aec235c3a8c7ac9c52798983f4f190.setIcon(div_icon_c48d518971774ed42143c645d487887b);
+            
+    
+            var marker_cae233ad7c988262ec01984b6e4010e5 = L.marker(
+                [-34.850327, -56.201424],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_1b9c8d2a30f7e18b3265b67dfbe5bcbd = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(384.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_f30b5d02020ad7902f75f49d33013a52 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_69dd81d3e18674ca888d42a692414805 = $(`<div id="html_69dd81d3e18674ca888d42a692414805" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:50:10<br>Vel: 10.0 km/h<br>Orientación: 339.0°</div>`)[0];
+                popup_f30b5d02020ad7902f75f49d33013a52.setContent(html_69dd81d3e18674ca888d42a692414805);
+            
+        
+
+        marker_cae233ad7c988262ec01984b6e4010e5.bindPopup(popup_f30b5d02020ad7902f75f49d33013a52)
+        ;
+
+        
+    
+    
+                marker_cae233ad7c988262ec01984b6e4010e5.setIcon(div_icon_1b9c8d2a30f7e18b3265b67dfbe5bcbd);
+            
+    
+            var marker_7018cac683b0b10a065a593333cc0a04 = L.marker(
+                [-34.850269, -56.201416],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_6d95371a519d20ad9b623667dd96d853 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(63.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_53d35c98ef79ec268653ba124301c2ea = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ddf95463f6754718f7f4e61d6d6b2a57 = $(`<div id="html_ddf95463f6754718f7f4e61d6d6b2a57" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:50:13<br>Vel: 9.0 km/h<br>Orientación: 18.0°</div>`)[0];
+                popup_53d35c98ef79ec268653ba124301c2ea.setContent(html_ddf95463f6754718f7f4e61d6d6b2a57);
+            
+        
+
+        marker_7018cac683b0b10a065a593333cc0a04.bindPopup(popup_53d35c98ef79ec268653ba124301c2ea)
+        ;
+
+        
+    
+    
+                marker_7018cac683b0b10a065a593333cc0a04.setIcon(div_icon_6d95371a519d20ad9b623667dd96d853);
+            
+    
+            var marker_df584d2774f4f9f2153e112dbf66968d = L.marker(
+                [-34.850231, -56.201355],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_e86e9bee6fc99b3f25d5c7cb1fbd96f7 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(102.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_f1132f81fa7cd75cd9c0d97180bbd336 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_94b959cadcc1d038662a2760ed5ef181 = $(`<div id="html_94b959cadcc1d038662a2760ed5ef181" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:50:15<br>Vel: 14.0 km/h<br>Orientación: 57.0°</div>`)[0];
+                popup_f1132f81fa7cd75cd9c0d97180bbd336.setContent(html_94b959cadcc1d038662a2760ed5ef181);
+            
+        
+
+        marker_df584d2774f4f9f2153e112dbf66968d.bindPopup(popup_f1132f81fa7cd75cd9c0d97180bbd336)
+        ;
+
+        
+    
+    
+                marker_df584d2774f4f9f2153e112dbf66968d.setIcon(div_icon_e86e9bee6fc99b3f25d5c7cb1fbd96f7);
+            
+    
+            var marker_03e6e663952ecf84a25810c1c2cce4e1 = L.marker(
+                [-34.855412, -56.204655],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_fb7fb451d7fe3f6d242261496e935e50 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(347.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_9d61b2daf65f5e472f9d55a9dd2e48c9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_421091dec5c0374724f7db1f649c48e8 = $(`<div id="html_421091dec5c0374724f7db1f649c48e8" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:54:17<br>Vel: 39.0 km/h<br>Orientación: 302.0°</div>`)[0];
+                popup_9d61b2daf65f5e472f9d55a9dd2e48c9.setContent(html_421091dec5c0374724f7db1f649c48e8);
+            
+        
+
+        marker_03e6e663952ecf84a25810c1c2cce4e1.bindPopup(popup_9d61b2daf65f5e472f9d55a9dd2e48c9)
+        ;
+
+        
+    
+    
+                marker_03e6e663952ecf84a25810c1c2cce4e1.setIcon(div_icon_fb7fb451d7fe3f6d242261496e935e50);
+            
+    
+            var marker_44c4b5ef67a6d8cd3fc371e1c4a3d28c = L.marker(
+                [-34.854958, -56.205383],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_c616f8dd9baaec388aa30f35a9d3b0d8 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(351.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_6b207140d9cdec05520c7ec171074b42 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_47f1d8423952a9d200f567a4bfef4d84 = $(`<div id="html_47f1d8423952a9d200f567a4bfef4d84" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:54:32<br>Vel: 9.0 km/h<br>Orientación: 306.0°</div>`)[0];
+                popup_6b207140d9cdec05520c7ec171074b42.setContent(html_47f1d8423952a9d200f567a4bfef4d84);
+            
+        
+
+        marker_44c4b5ef67a6d8cd3fc371e1c4a3d28c.bindPopup(popup_6b207140d9cdec05520c7ec171074b42)
+        ;
+
+        
+    
+    
+                marker_44c4b5ef67a6d8cd3fc371e1c4a3d28c.setIcon(div_icon_c616f8dd9baaec388aa30f35a9d3b0d8);
+            
+    
+            var marker_4fa916056e20dc623c9c2f392faa3bc8 = L.marker(
+                [-34.854218, -56.206665],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_6f40ef5449ada9d4086583c3af5ca934 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(350.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_0587d14ddcd477f3424e5420f94d5ca6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e91028e486ab078671a3ffb93368a8a0 = $(`<div id="html_e91028e486ab078671a3ffb93368a8a0" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:54:47<br>Vel: 43.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_0587d14ddcd477f3424e5420f94d5ca6.setContent(html_e91028e486ab078671a3ffb93368a8a0);
+            
+        
+
+        marker_4fa916056e20dc623c9c2f392faa3bc8.bindPopup(popup_0587d14ddcd477f3424e5420f94d5ca6)
+        ;
+
+        
+    
+    
+                marker_4fa916056e20dc623c9c2f392faa3bc8.setIcon(div_icon_6f40ef5449ada9d4086583c3af5ca934);
+            
+    
+            var marker_e7a8982421f48866f64aae3be0eb4afd = L.marker(
+                [-34.853348, -56.208088],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_1ebd1c916ecf46edfadc7a372ab65536 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(349.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_9c628b972e70dcb403fc5e4cc4650388 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_525a5d405bd4e1f79538994559e02bc1 = $(`<div id="html_525a5d405bd4e1f79538994559e02bc1" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:55:02<br>Vel: 27.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_9c628b972e70dcb403fc5e4cc4650388.setContent(html_525a5d405bd4e1f79538994559e02bc1);
+            
+        
+
+        marker_e7a8982421f48866f64aae3be0eb4afd.bindPopup(popup_9c628b972e70dcb403fc5e4cc4650388)
+        ;
+
+        
+    
+    
+                marker_e7a8982421f48866f64aae3be0eb4afd.setIcon(div_icon_1ebd1c916ecf46edfadc7a372ab65536);
+            
+    
+            var marker_b563aa3938d56fecc2c8106a60e4a146 = L.marker(
+                [-34.85321, -56.208282],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_839fbfe6736b11694a576e19c3194fa9 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_330a6c34aadcd71c8e5083ed97338e4a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_52dd0d2c1bd72d43c1ef028a5dac7b7c = $(`<div id="html_52dd0d2c1bd72d43c1ef028a5dac7b7c" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 11:55:17<br>Vel: 0.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_330a6c34aadcd71c8e5083ed97338e4a.setContent(html_52dd0d2c1bd72d43c1ef028a5dac7b7c);
+            
+        
+
+        marker_b563aa3938d56fecc2c8106a60e4a146.bindPopup(popup_330a6c34aadcd71c8e5083ed97338e4a)
+        ;
+
+        
+    
+    
+                marker_b563aa3938d56fecc2c8106a60e4a146.setIcon(div_icon_839fbfe6736b11694a576e19c3194fa9);
+            
+    
+            var marker_cc3808372eb7a69663ba857606995759 = L.marker(
+                [-34.85321, -56.208282],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_393d9ba3a749937b84d8ef95bcd63af0 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_3fd192e8cab7979d004f6656e8c2d2e7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_798d0dd718b7048bf8605762d8385f2c = $(`<div id="html_798d0dd718b7048bf8605762d8385f2c" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 11:55:32<br>Vel: 0.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_3fd192e8cab7979d004f6656e8c2d2e7.setContent(html_798d0dd718b7048bf8605762d8385f2c);
+            
+        
+
+        marker_cc3808372eb7a69663ba857606995759.bindPopup(popup_3fd192e8cab7979d004f6656e8c2d2e7)
+        ;
+
+        
+    
+    
+                marker_cc3808372eb7a69663ba857606995759.setIcon(div_icon_393d9ba3a749937b84d8ef95bcd63af0);
+            
+    
+            var marker_6a7cb5c7feef1bf53c91b689f78e340c = L.marker(
+                [-34.85321, -56.208282],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_294574b9a8a3787223317cb2258b541b = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_3b75ce5b98bed00909a4f566525bc247 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4b8086797845cde4a14b9db3ee1b2ca2 = $(`<div id="html_4b8086797845cde4a14b9db3ee1b2ca2" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 11:55:47<br>Vel: 0.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_3b75ce5b98bed00909a4f566525bc247.setContent(html_4b8086797845cde4a14b9db3ee1b2ca2);
+            
+        
+
+        marker_6a7cb5c7feef1bf53c91b689f78e340c.bindPopup(popup_3b75ce5b98bed00909a4f566525bc247)
+        ;
+
+        
+    
+    
+                marker_6a7cb5c7feef1bf53c91b689f78e340c.setIcon(div_icon_294574b9a8a3787223317cb2258b541b);
+            
+    
+            var marker_701cefb1bfadbb4fb9eb1fb6246e2b5c = L.marker(
+                [-34.850189, -56.201508],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_bac22e9dad799c845384539f03425ffd = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(301.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_44c20e99409e00c9826af074e410271b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_b5d3d680a90288438dff6f8684be3416 = $(`<div id="html_b5d3d680a90288438dff6f8684be3416" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:57:46<br>Vel: 17.0 km/h<br>Orientación: 256.0°</div>`)[0];
+                popup_44c20e99409e00c9826af074e410271b.setContent(html_b5d3d680a90288438dff6f8684be3416);
+            
+        
+
+        marker_701cefb1bfadbb4fb9eb1fb6246e2b5c.bindPopup(popup_44c20e99409e00c9826af074e410271b)
+        ;
+
+        
+    
+    
+                marker_701cefb1bfadbb4fb9eb1fb6246e2b5c.setIcon(div_icon_bac22e9dad799c845384539f03425ffd);
+            
+    
+            var marker_d85afd91bf7c5399accb3c3dbb8de1b7 = L.marker(
+                [-34.850166, -56.201656],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_8ffb5445adccd0474e33fc2a26635b45 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(346.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_62c97875afcd6c92f7ad19d3391a516c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_bef2afa163db96e3f4bd599738d05480 = $(`<div id="html_bef2afa163db96e3f4bd599738d05480" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 11:57:49<br>Vel: 18.0 km/h<br>Orientación: 301.0°</div>`)[0];
+                popup_62c97875afcd6c92f7ad19d3391a516c.setContent(html_bef2afa163db96e3f4bd599738d05480);
+            
+        
+
+        marker_d85afd91bf7c5399accb3c3dbb8de1b7.bindPopup(popup_62c97875afcd6c92f7ad19d3391a516c)
+        ;
+
+        
+    
+    
+                marker_d85afd91bf7c5399accb3c3dbb8de1b7.setIcon(div_icon_8ffb5445adccd0474e33fc2a26635b45);
+            
+    
+            var marker_3716742139bf20ad853ed0fc188b00d3 = L.marker(
+                [-34.855877, -56.203793],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_483c299cf1d93d71876803db98545d0e = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(349.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_cd021cd18313d2acf10b7aac4b4c2a29 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a0cda2ad41ea848648c3d8ff301f5c2f = $(`<div id="html_a0cda2ad41ea848648c3d8ff301f5c2f" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:16:44<br>Vel: 34.0 km/h<br>Orientación: 304.0°</div>`)[0];
+                popup_cd021cd18313d2acf10b7aac4b4c2a29.setContent(html_a0cda2ad41ea848648c3d8ff301f5c2f);
+            
+        
+
+        marker_3716742139bf20ad853ed0fc188b00d3.bindPopup(popup_cd021cd18313d2acf10b7aac4b4c2a29)
+        ;
+
+        
+    
+    
+                marker_3716742139bf20ad853ed0fc188b00d3.setIcon(div_icon_483c299cf1d93d71876803db98545d0e);
+            
+    
+            var marker_db25f4bf96c044ea27a5af43827009eb = L.marker(
+                [-34.855263, -56.204861],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_2fe8c87f2fed21004f9549363fa0261a = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(350.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_9a7a234cc085d0e0771ed87679f7ed90 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_de165b25d846b8994e43a0f82ff72211 = $(`<div id="html_de165b25d846b8994e43a0f82ff72211" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:16:59<br>Vel: 12.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_9a7a234cc085d0e0771ed87679f7ed90.setContent(html_de165b25d846b8994e43a0f82ff72211);
+            
+        
+
+        marker_db25f4bf96c044ea27a5af43827009eb.bindPopup(popup_9a7a234cc085d0e0771ed87679f7ed90)
+        ;
+
+        
+    
+    
+                marker_db25f4bf96c044ea27a5af43827009eb.setIcon(div_icon_2fe8c87f2fed21004f9549363fa0261a);
+            
+    
+            var marker_fe7b2e626143b8547941bdca437cef30 = L.marker(
+                [-34.854954, -56.205391],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_94d4a3c636c3967d209714e257c8f4b4 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(351.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_333d3d96743ca2ac339d5bd5fe7ea249 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_510f01e544519cd38ca8cfd511009f93 = $(`<div id="html_510f01e544519cd38ca8cfd511009f93" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:17:14<br>Vel: 14.0 km/h<br>Orientación: 306.0°</div>`)[0];
+                popup_333d3d96743ca2ac339d5bd5fe7ea249.setContent(html_510f01e544519cd38ca8cfd511009f93);
+            
+        
+
+        marker_fe7b2e626143b8547941bdca437cef30.bindPopup(popup_333d3d96743ca2ac339d5bd5fe7ea249)
+        ;
+
+        
+    
+    
+                marker_fe7b2e626143b8547941bdca437cef30.setIcon(div_icon_94d4a3c636c3967d209714e257c8f4b4);
+            
+    
+            var marker_b60f525ccde92fa70c755fc424d0fc20 = L.marker(
+                [-34.854427, -56.206322],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_8b3247a1f07dc1f293f105b4c7501a6f = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(348.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_e9cccd5db262d2b35a96b1e83d27ea72 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ebe5a8118552df7859c8a1d335afdc32 = $(`<div id="html_ebe5a8118552df7859c8a1d335afdc32" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:17:28<br>Vel: 30.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_e9cccd5db262d2b35a96b1e83d27ea72.setContent(html_ebe5a8118552df7859c8a1d335afdc32);
+            
+        
+
+        marker_b60f525ccde92fa70c755fc424d0fc20.bindPopup(popup_e9cccd5db262d2b35a96b1e83d27ea72)
+        ;
+
+        
+    
+    
+                marker_b60f525ccde92fa70c755fc424d0fc20.setIcon(div_icon_8b3247a1f07dc1f293f105b4c7501a6f);
+            
+    
+            var marker_ec8366b512d2b82210c00daede8f7405 = L.marker(
+                [-34.853779, -56.207413],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_24f6a0b516f7357276e13f28f56d2e75 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(353.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_a14c3c6d0f2c7930213ed6c8cbfa9a45 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_215f375c38a31bcb33a0e79a2440595f = $(`<div id="html_215f375c38a31bcb33a0e79a2440595f" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:17:43<br>Vel: 27.0 km/h<br>Orientación: 308.0°</div>`)[0];
+                popup_a14c3c6d0f2c7930213ed6c8cbfa9a45.setContent(html_215f375c38a31bcb33a0e79a2440595f);
+            
+        
+
+        marker_ec8366b512d2b82210c00daede8f7405.bindPopup(popup_a14c3c6d0f2c7930213ed6c8cbfa9a45)
+        ;
+
+        
+    
+    
+                marker_ec8366b512d2b82210c00daede8f7405.setIcon(div_icon_24f6a0b516f7357276e13f28f56d2e75);
+            
+    
+            var marker_d9c5640635ea5af01754e9e82cb59fe1 = L.marker(
+                [-34.853474, -56.207943],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_7e36d82ac17190e2ff08e4e4647e3c48 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(348.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_55f9e98eb0facdd251710514fb7f3856 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3793d27bd06bb358054c19a33c18841f = $(`<div id="html_3793d27bd06bb358054c19a33c18841f" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:17:58<br>Vel: 6.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_55f9e98eb0facdd251710514fb7f3856.setContent(html_3793d27bd06bb358054c19a33c18841f);
+            
+        
+
+        marker_d9c5640635ea5af01754e9e82cb59fe1.bindPopup(popup_55f9e98eb0facdd251710514fb7f3856)
+        ;
+
+        
+    
+    
+                marker_d9c5640635ea5af01754e9e82cb59fe1.setIcon(div_icon_7e36d82ac17190e2ff08e4e4647e3c48);
+            
+    
+            var marker_582ab9614e4043af53fe6cdf4cee9af0 = L.marker(
+                [-34.853447, -56.207993],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_57acf00ae2767330874cfbc1224f219a = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_a43f80605305fbaa8174922b412fd093 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3932cc5a22dd972a0143e88f86f5c316 = $(`<div id="html_3932cc5a22dd972a0143e88f86f5c316" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 12:18:14<br>Vel: 0.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_a43f80605305fbaa8174922b412fd093.setContent(html_3932cc5a22dd972a0143e88f86f5c316);
+            
+        
+
+        marker_582ab9614e4043af53fe6cdf4cee9af0.bindPopup(popup_a43f80605305fbaa8174922b412fd093)
+        ;
+
+        
+    
+    
+                marker_582ab9614e4043af53fe6cdf4cee9af0.setIcon(div_icon_57acf00ae2767330874cfbc1224f219a);
+            
+    
+            var marker_a7f803fd2522a0a0a98d2e349582c4ec = L.marker(
+                [-34.853447, -56.207993],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_4e63848296e45dd86dcc65ac2817348b = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_15736c58740c4532ba60234f8ba5fbad = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cb7da2421c5e8d904eae197cc1f7baf8 = $(`<div id="html_cb7da2421c5e8d904eae197cc1f7baf8" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 12:18:29<br>Vel: 0.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_15736c58740c4532ba60234f8ba5fbad.setContent(html_cb7da2421c5e8d904eae197cc1f7baf8);
+            
+        
+
+        marker_a7f803fd2522a0a0a98d2e349582c4ec.bindPopup(popup_15736c58740c4532ba60234f8ba5fbad)
+        ;
+
+        
+    
+    
+                marker_a7f803fd2522a0a0a98d2e349582c4ec.setIcon(div_icon_4e63848296e45dd86dcc65ac2817348b);
+            
+    
+            var marker_bd454d0f1b4ea6ab5cbc6610bea1cc36 = L.marker(
+                [-34.853214, -56.208424],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_d7641ca981d466f5cd7ace26eb51f53a = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(352.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_754ba70db3c87deb9034056f5d7d713a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_10383d44c38d8ff3c3c25a3bccb56f78 = $(`<div id="html_10383d44c38d8ff3c3c25a3bccb56f78" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:18:44<br>Vel: 16.0 km/h<br>Orientación: 307.0°</div>`)[0];
+                popup_754ba70db3c87deb9034056f5d7d713a.setContent(html_10383d44c38d8ff3c3c25a3bccb56f78);
+            
+        
+
+        marker_bd454d0f1b4ea6ab5cbc6610bea1cc36.bindPopup(popup_754ba70db3c87deb9034056f5d7d713a)
+        ;
+
+        
+    
+    
+                marker_bd454d0f1b4ea6ab5cbc6610bea1cc36.setIcon(div_icon_d7641ca981d466f5cd7ace26eb51f53a);
+            
+    
+            var marker_6cbaf66fe3d59640ac9d810e60adb9c7 = L.marker(
+                [-34.855545, -56.204437],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_eb3eb2d8c0a3e5886bad06e5cc39e6d9 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(350.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_a0e9b04ab7ece3a945d45d0c85e32659 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_83d1f9f75d2fc62dea2f2ea23141d9f8 = $(`<div id="html_83d1f9f75d2fc62dea2f2ea23141d9f8" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:25:45<br>Vel: 37.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_a0e9b04ab7ece3a945d45d0c85e32659.setContent(html_83d1f9f75d2fc62dea2f2ea23141d9f8);
+            
+        
+
+        marker_6cbaf66fe3d59640ac9d810e60adb9c7.bindPopup(popup_a0e9b04ab7ece3a945d45d0c85e32659)
+        ;
+
+        
+    
+    
+                marker_6cbaf66fe3d59640ac9d810e60adb9c7.setIcon(div_icon_eb3eb2d8c0a3e5886bad06e5cc39e6d9);
+            
+    
+            var marker_20e3256bfffa09948aa64f8a649df77c = L.marker(
+                [-34.855064, -56.205242],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_e8b25786c7dbfa8c54c031970acdc5a1 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(348.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_8527a2ee4b3bc0ad86168b2fd59b7d37 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_b27986843cd719e843e9d168c8553a2a = $(`<div id="html_b27986843cd719e843e9d168c8553a2a" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:26:01<br>Vel: 18.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_8527a2ee4b3bc0ad86168b2fd59b7d37.setContent(html_b27986843cd719e843e9d168c8553a2a);
+            
+        
+
+        marker_20e3256bfffa09948aa64f8a649df77c.bindPopup(popup_8527a2ee4b3bc0ad86168b2fd59b7d37)
+        ;
+
+        
+    
+    
+                marker_20e3256bfffa09948aa64f8a649df77c.setIcon(div_icon_e8b25786c7dbfa8c54c031970acdc5a1);
+            
+    
+            var marker_036a3d9bd96cfd7de5b4996e1b93ce70 = L.marker(
+                [-34.854683, -56.20591],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_2d029639e5428c008c493318f4eb14bf = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(350.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_77a786c9b50b6f2d4e5c365ac96eb48d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cadc16942ab518a4741c3c9ed1176787 = $(`<div id="html_cadc16942ab518a4741c3c9ed1176787" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:26:16<br>Vel: 31.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_77a786c9b50b6f2d4e5c365ac96eb48d.setContent(html_cadc16942ab518a4741c3c9ed1176787);
+            
+        
+
+        marker_036a3d9bd96cfd7de5b4996e1b93ce70.bindPopup(popup_77a786c9b50b6f2d4e5c365ac96eb48d)
+        ;
+
+        
+    
+    
+                marker_036a3d9bd96cfd7de5b4996e1b93ce70.setIcon(div_icon_2d029639e5428c008c493318f4eb14bf);
+            
+    
+            var marker_76910cb028bbbd3d2d98feb54455fde0 = L.marker(
+                [-34.853832, -56.20734],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_8be9c23a4c62587f3134023d3c57e5ac = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(350.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_7447a5d20d5c02ec4080889c815cbaf8 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_36836f236738a138413b2fdf98cc2180 = $(`<div id="html_36836f236738a138413b2fdf98cc2180" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:26:31<br>Vel: 40.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_7447a5d20d5c02ec4080889c815cbaf8.setContent(html_36836f236738a138413b2fdf98cc2180);
+            
+        
+
+        marker_76910cb028bbbd3d2d98feb54455fde0.bindPopup(popup_7447a5d20d5c02ec4080889c815cbaf8)
+        ;
+
+        
+    
+    
+                marker_76910cb028bbbd3d2d98feb54455fde0.setIcon(div_icon_8be9c23a4c62587f3134023d3c57e5ac);
+            
+    
+            var marker_8e3f952ad1da92acc13671e0f2857c41 = L.marker(
+                [-34.853367, -56.208141],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_529d96148b28aaaf52098610df01384a = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_3e890d16109fb2fcf3bd78246fce4052 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_419dcb036ef46ec8e1fca6e4d2acc9d8 = $(`<div id="html_419dcb036ef46ec8e1fca6e4d2acc9d8" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 12:26:46<br>Vel: 0.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_3e890d16109fb2fcf3bd78246fce4052.setContent(html_419dcb036ef46ec8e1fca6e4d2acc9d8);
+            
+        
+
+        marker_8e3f952ad1da92acc13671e0f2857c41.bindPopup(popup_3e890d16109fb2fcf3bd78246fce4052)
+        ;
+
+        
+    
+    
+                marker_8e3f952ad1da92acc13671e0f2857c41.setIcon(div_icon_529d96148b28aaaf52098610df01384a);
+            
+    
+            var marker_057fa2bc77ca6fb58c52c0e9f776a3b0 = L.marker(
+                [-34.853367, -56.208145],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_f668a49f6a37b82b0c2cd8111f47d996 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_97dd0fc4351c695704afb1ba8d345100 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a753784a3cd083c07bdc930f04e25f58 = $(`<div id="html_a753784a3cd083c07bdc930f04e25f58" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 12:27:00<br>Vel: 0.0 km/h<br>Orientación: 305.0°</div>`)[0];
+                popup_97dd0fc4351c695704afb1ba8d345100.setContent(html_a753784a3cd083c07bdc930f04e25f58);
+            
+        
+
+        marker_057fa2bc77ca6fb58c52c0e9f776a3b0.bindPopup(popup_97dd0fc4351c695704afb1ba8d345100)
+        ;
+
+        
+    
+    
+                marker_057fa2bc77ca6fb58c52c0e9f776a3b0.setIcon(div_icon_f668a49f6a37b82b0c2cd8111f47d996);
+            
+    
+            var marker_8b5b8770a42e3380ecb05aff5d718297 = L.marker(
+                [-34.853153, -56.208538],
+                {
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+        
+    
+            var div_icon_cf6b4ee5acc3973c6ea18e0d75d12a14 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(348.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_313dd550c9314661736b010e5d265900 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_76c5b59db72efaf1fe4e420803ae0e38 = $(`<div id="html_76c5b59db72efaf1fe4e420803ae0e38" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 12:27:16<br>Vel: 10.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_313dd550c9314661736b010e5d265900.setContent(html_76c5b59db72efaf1fe4e420803ae0e38);
+            
+        
+
+        marker_8b5b8770a42e3380ecb05aff5d718297.bindPopup(popup_313dd550c9314661736b010e5d265900)
+        ;
+
+        
+    
+    
+                marker_8b5b8770a42e3380ecb05aff5d718297.setIcon(div_icon_cf6b4ee5acc3973c6ea18e0d75d12a14);
+            
+    
+            var layer_control_8972bc7ed058ce47f365dd79e9d81aaf_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_654a51925c2c8f433bb352038459c772,
+                },
+                overlays :  {
+                    "Sector de Trabajo" : geo_json_07a3481e413f4ceec9e1930396d8a01f,
+                },
+            };
+            let layer_control_8972bc7ed058ce47f365dd79e9d81aaf = L.control.layers(
+                layer_control_8972bc7ed058ce47f365dd79e9d81aaf_layers.base_layers,
+                layer_control_8972bc7ed058ce47f365dd79e9d81aaf_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_7327b563134d79695b66250faf52078b);
+
+        
+</script>
+</html>

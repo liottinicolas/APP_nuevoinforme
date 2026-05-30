@@ -5,3 +5,12 @@
 .Rhistory
 .Rhistory
 .Rhistory
+# Mapas y salidas auto-generadas
+salidas/
+
+# Archivos de reportes diarios generados
+vistas/informediario/reportes/archivos/
+vistas/informe_operativa/*.pdf
+vistas/informe_operativa/*.xlsx
+vistas/informe_levantes_camiones_porturno_IM_FID/*.pdf
+vistas/informe_levantes_camiones_porturno_IM_FID/*.xlsx

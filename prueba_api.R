@@ -1711,25 +1711,25 @@ if (FALSE) {
     solo_paradas  = FALSE
   )
 
-  res_nexo <- buscar_camiones_en_sector_nexo_api(
-    nombre_sector            = "PARQUE RIVERA",
-    fecha                    = "2026-05-28",
-    buffer_nexo_metros       = 150,
-    buffer_tolerancia_metros = 70,
-    df_flota_ref             = df_flota_turnos_ej9
-  )
-
-  # Si se encontraron datos, graficar y exportar el mapa interactivo
-  if (!is.null(res_nexo)) {
-    # Mostrar mapa en consola
-    graficar_mapa_nexo_estilo_imm(res_nexo)
-
-    # Guardar mapa interactivo HTML autónomo
-    exportar_mapa_nexo_estilo_imm(
-      res_nexo    = res_nexo,
-      salida_html = "salidas/mapas/Mapa_Parque_Rivera_Vinculados.html"
-    )
-  }
+  # res_nexo <- buscar_camiones_en_sector_nexo_api(
+  #   nombre_sector            = "PARQUE RIVERA",
+  #   fecha                    = "2026-05-28",
+  #   buffer_nexo_metros       = 150,
+  #   buffer_tolerancia_metros = 70,
+  #   df_flota_ref             = df_flota_turnos_ej9
+  # )
+  # 
+  # # Si se encontraron datos, graficar y exportar el mapa interactivo
+  # if (!is.null(res_nexo)) {
+  #   # Mostrar mapa en consola
+  #   graficar_mapa_nexo_estilo_imm(res_nexo)
+  # 
+  #   # Guardar mapa interactivo HTML autónomo
+  #   exportar_mapa_nexo_estilo_imm(
+  #     res_nexo    = res_nexo,
+  #     salida_html = "salidas/mapas/Mapa_Parque_Rivera_Vinculados.html"
+  #   )
+  # }
 
   # Ejemplo 10: Buscar camiones en un sector base y en todos sus Hogares Sustentables vinculados (buffer de 150m) - SIN ICONOS (Ultrarrápido y liviano)
   # Reutilizamos las posiciones ya consultadas en el Ejemplo 9 (df_flota_turnos_ej9) para evitar llamadas adicionales a la API

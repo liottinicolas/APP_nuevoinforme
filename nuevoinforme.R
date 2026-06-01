@@ -69,3 +69,69 @@ source("vistas/App_informe_llenado/limpieza_datos.R")
 # Solo ejecutar si hubo cambios en el código de la app (no en los datos):
 # rsconnect::deployApp("vistas/App_informe_llenado/")
 
+
+
+
+
+# 
+# 
+# # 1. Vector mapeador con los nombres de los días ya normalizados (sin tildes)
+# # wday(..., week_start = 1) devuelve: 1=Lunes, 2=Martes, ..., 7=Domingo
+# dias_sin_tildes <- c("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo")
+# 
+# # 2. Aplicar filtros base, extraer orden cronológico y formatear la fecha de forma segura
+# df_base <- gol_visitayprogramado_completo %>%
+#   # Filtro: Fecha mayor o igual al domingo 24 de mayo de 2026
+#   filter(Levantado == "S", Fecha >= "2026-05-24") %>%
+#   mutate(
+#     Fecha_Objeto = as.Date(Fecha),
+#     # Obtenemos el número de día de la semana (1 a 7, empezando el Lunes)
+#     Num_Dia_Semana = wday(Fecha_Objeto, week_start = 1),
+#     # Mapeamos el número directamente al vector de texto plano seguro
+#     Dia_Texto = dias_sin_tildes[Num_Dia_Semana],
+#     # Armamos el formato final: "Miercoles 27"
+#     Fecha_Formateada = paste0(Dia_Texto, " ", format(Fecha_Objeto, "%d"))
+#   )
+# 
+# # --- 3. Generación de los 3 Dataframes Agrupados y Ordenados ---
+# 
+# # Pestaña 1: Agrupado por día con el total general de filas
+# df_total_por_dia <- df_base %>%
+#   group_by(Fecha_Objeto, Fecha = Fecha_Formateada) %>%
+#   summarise(Total_Filas = n(), .groups = 'drop') %>%
+#   arrange(Fecha_Objeto) %>%        # Orden cronológico garantizado por la fecha real
+#   select(-Fecha_Objeto)            # Limpiamos la columna auxiliar
+# 
+# # Pestaña 2: Agrupado por día, cuando Oficina es "IM"
+# df_im <- df_base %>%
+#   filter(Oficina == "IM") %>%
+#   group_by(Fecha_Objeto, Fecha = Fecha_Formateada) %>%
+#   summarise(Total_Filas = n(), .groups = 'drop') %>%
+#   arrange(Fecha_Objeto) %>%
+#   select(-Fecha_Objeto)
+# 
+# # Pestaña 3: Agrupado por día, cuando Oficina es "Fideicomiso"
+# df_fideicomiso <- df_base %>%
+#   filter(Oficina == "Fideicomiso") %>%
+#   group_by(Fecha_Objeto, Fecha = Fecha_Formateada) %>%
+#   summarise(Total_Filas = n(), .groups = 'drop') %>%
+#   arrange(Fecha_Objeto) %>%
+#   select(-Fecha_Objeto)
+# 
+# 
+# # --- 4. Exportación estructurada a Excel ---
+# 
+# lista_hojas <- list(
+#   "Resumen Total General" = df_total_por_dia,
+#   "Oficina IM" = df_im,
+#   "Oficina Fideicomiso" = df_fideicomiso
+# )
+# 
+# write.xlsx(
+#   lista_hojas, 
+#   file = "Resumen_GOL_Filtrado.xlsx", 
+#   asTable = TRUE, 
+#   tableStyle = "TableStyleMedium2"
+# )
+# 
+# cat("¡Archivo 'Resumen_GOL_Filtrado.xlsx' generado con éxito, ordenado y sin tildes!\n")

@@ -426,11 +426,22 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
     "N/A"
   }
 
-  cartel_lineas <- c(
-    paste0("DÍA: ", fecha_val),
-    paste0("TURNO: ", toupper(turno_val))
-  )
+  zona_val <- "N/A"
+  if (!is.null(sector_polygon) && nrow(sector_polygon) > 0) {
+    if ("nombre" %in% names(sector_polygon)) {
+      zona_val <- sector_polygon$nombre[1]
+    }
+  }
 
+  # Formatear fecha a DD/MM/YYYY si viene en formato YYYY-MM-DD
+  if (grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", fecha_val)) {
+    parts <- strsplit(fecha_val, "-")[[1]]
+    fecha_formateada <- paste0(parts[3], "/", parts[2], "/", parts[1])
+  } else {
+    fecha_formateada <- fecha_val
+  }
+
+  vehicles_html <- ""
   if (!is.null(puntos) && nrow(puntos) > 0) {
     puntos_copia <- puntos
     tiempo_char <- as.character(puntos_copia$tiempo)
@@ -458,7 +469,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
       )
     }
 
-    # 3. Fallback automático de R (para otros formatos / locales)
+    # 3. Fallback automático de R
     idx_na <- is.na(tiempos_convertidos) & !is.na(clean_tiempo) & clean_tiempo != ""
     if (any(idx_na)) {
       tiempos_convertidos[idx_na] <- tryCatch(
@@ -469,18 +480,29 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
 
     puntos_copia$tiempo_posix <- tiempos_convertidos
     matriculas_unicas <- sort(unique(puntos_copia$matricula))
+    vehicles_str_list <- c()
 
     for (mat in matriculas_unicas) {
       idx_mat <- puntos_copia$matricula == mat
       tiempos_mat <- puntos_copia$tiempo_posix[idx_mat]
       tiempos_mat <- tiempos_mat[!is.na(tiempos_mat)]
+      
+      # Obtener FRACCION para este vehículo
+      fraccion_val <- "N/A"
+      if ("FRACCION" %in% names(puntos_copia)) {
+        val_frac <- unique(puntos_copia$FRACCION[idx_mat])
+        val_frac <- val_frac[!is.na(val_frac) & val_frac != ""]
+        if (length(val_frac) > 0) {
+          fraccion_val <- val_frac[1]
+        }
+      }
 
       if (length(tiempos_mat) > 0) {
         tiempos_mat <- sort(tiempos_mat)
         
         # Segmentar en visitas usando un gap de 20 minutos (tz = "UTC" para coincidir exactamente con los popups del mapa)
         if (length(tiempos_mat) == 1) {
-          cartel_lineas <- c(cartel_lineas, paste0("VEHÍCULO ", mat, ": ", format(tiempos_mat[1], "%H:%M:%S", tz = "UTC")))
+          visitas_str <- format(tiempos_mat[1], "%H:%M:%S", tz = "UTC")
         } else {
           diff_mins <- as.numeric(difftime(tiempos_mat[-1], tiempos_mat[-length(tiempos_mat)], units = "mins"))
           saltos <- which(diff_mins > 20)
@@ -488,21 +510,30 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
           inicio_indices <- c(1, saltos + 1)
           fin_indices <- c(saltos, length(tiempos_mat))
           
-          visitas_str <- character(length(inicio_indices))
+          visitas_str_vector <- character(length(inicio_indices))
           for (v in seq_along(inicio_indices)) {
             t_ini <- tiempos_mat[inicio_indices[v]]
             t_fin <- tiempos_mat[fin_indices[v]]
             
             if (t_ini == t_fin) {
-              visitas_str[v] <- format(t_ini, "%H:%M:%S", tz = "UTC")
+              visitas_str_vector[v] <- format(t_ini, "%H:%M:%S", tz = "UTC")
             } else {
-              visitas_str[v] <- paste0(format(t_ini, "%H:%M:%S", tz = "UTC"), " - ", format(t_fin, "%H:%M:%S", tz = "UTC"))
+              visitas_str_vector[v] <- paste0(format(t_ini, "%H:%M:%S", tz = "UTC"), " - ", format(t_fin, "%H:%M:%S", tz = "UTC"))
             }
           }
-          
-          # Unir todas las visitas detectadas
-          cartel_lineas <- c(cartel_lineas, paste0("VEHÍCULO ", mat, ": ", paste(visitas_str, collapse = " | ")))
+          visitas_str <- paste(visitas_str_vector, collapse = " | ")
         }
+        
+        # Crear bloque del vehículo
+        vehicles_str_list <- c(
+          vehicles_str_list,
+          paste0(
+            '<div style="margin-bottom: 8px;">',
+            '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Matrícula:</span> ', mat, '<br>',
+            '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Horario:</span> ', visitas_str,
+            '</div>'
+          )
+        )
       } else {
         # Fallback de seguridad por strings si la conversión a POSIXct resulta en NA
         raw_tiempos_mat <- sort(clean_tiempo[idx_mat])
@@ -513,29 +544,81 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
           }
           inicio_raw <- extraer_hora(raw_tiempos_mat[1])
           fin_raw <- extraer_hora(raw_tiempos_mat[length(raw_tiempos_mat)])
-          cartel_lineas <- c(cartel_lineas, paste0("VEHÍCULO ", mat, ": ", inicio_raw, " - ", fin_raw))
+          
+          vehicles_str_list <- c(
+            vehicles_str_list,
+            paste0(
+              '<div style="margin-bottom: 8px;">',
+              '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Matrícula:</span> ', mat, '<br>',
+              '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Horario:</span> ', inicio_raw, ' - ', fin_raw,
+              '</div>'
+            )
+          )
         }
       }
     }
+    
+    vehicles_html <- paste(vehicles_str_list, collapse = "")
   } else {
-    cartel_lineas <- c(cartel_lineas, "SIN VEHÍCULOS DETECTADOS")
+    vehicles_html <- '<div style="text-align: center; font-style: italic; color: rgba(255,255,255,0.75);">SIN VEHÍCULOS DETECTADOS</div>'
   }
 
-  cartel_texto <- paste(cartel_lineas, collapse = "<br>")
+  logo_html <- ""
+  if (file.exists("logoazul_transparent.png") && requireNamespace("base64enc", quietly = TRUE)) {
+    tryCatch({
+      logo_base64 <- base64enc::dataURI(file = "logoazul_transparent.png", mime = "image/png")
+      logo_html <- paste0(
+        '<div style="background-color: #0050D0; padding: 12px 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2);">',
+        '<img src="', logo_base64, '" style="max-height: 35px; max-width: 140px; display: block; margin: 0 auto;">',
+        '</div>'
+      )
+    }, error = function(e) {
+      # Fallback silencioso
+    })
+  } else if (file.exists("logoazul.png") && requireNamespace("base64enc", quietly = TRUE)) {
+    tryCatch({
+      logo_base64 <- base64enc::dataURI(file = "logoazul.png", mime = "image/png")
+      logo_html <- paste0(
+        '<div style="background-color: white; padding: 10px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.1);">',
+        '<img src="', logo_base64, '" style="max-height: 35px; max-width: 140px; display: block; margin: 0 auto;">',
+        '</div>'
+      )
+    }, error = function(e) {
+      # Fallback silencioso
+    })
+  }
+
   cartel_html <- paste0(
     '<div style="',
-    "background-color: #0066CC; ",
+    "background-color: #0050D0; ",
     "color: white; ",
-    "padding: 8px 12px; ",
-    "border-radius: 4px; ",
-    "font-family: Arial, sans-serif; ",
-    "font-size: 11px; ",
-    "font-weight: bold; ",
-    "line-height: 1.4; ",
-    "box-shadow: 0px 1px 3px rgba(0,0,0,0.4);",
+    "border-radius: 8px; ",
+    "overflow: hidden; ",
+    "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; ",
+    "font-size: 12px; ",
+    "line-height: 1.5; ",
+    "box-shadow: 0px 4px 15px rgba(0,0,0,0.25); ",
+    "width: 250px; ",
     '">',
-    cartel_texto,
-    "</div>"
+    # Logo
+    logo_html,
+    # Contenido con padding
+    '<div style="padding: 14px 18px;">',
+    # Title
+    '<div style="font-size: 13px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">',
+    'MAPA DE VEHÍCULOS',
+    '</div>',
+    '<hr style="border: none; border-top: 1px solid rgba(255,255,255,0.25); margin: 4px 0 10px 0;">',
+    # Info body
+    '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Día:</span> ', fecha_formateada, '<br>',
+    '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Turno:</span> ', toupper(turno_val), '<br>',
+    '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Zona:</span> ', toupper(zona_val),
+    # Separator for Vehicles
+    '<hr style="border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 8px 0 8px 0;">',
+    # Vehicles list
+    vehicles_html,
+    '</div>',
+    '</div>'
   )
 
   mapa <- mapa %>%
@@ -673,14 +756,92 @@ exportar_mapa_hogares_sector <- function(df_sf, sector_polygon, salida_html, usa
     dir.create(dir_salida, recursive = TRUE)
   }
 
+  # Limpieza preventiva de carpetas residuales *_files en el directorio de salida
+  tryCatch({
+    carpetas_residuos <- list.dirs(dir_salida, full.names = TRUE, recursive = FALSE)
+    carpetas_residuos <- carpetas_residuos[grepl("_files$", carpetas_residuos)]
+    if (length(carpetas_residuos) > 0) {
+      unlink(carpetas_residuos, recursive = TRUE, force = TRUE)
+    }
+  }, error = function(e) {})
+
+  # Obtener el nombre del sector para el título del HTML
+  sector_nombre <- "N/A"
+  if (!is.null(sector_polygon) && nrow(sector_polygon) > 0 && "nombre" %in% names(sector_polygon)) {
+    sector_nombre <- sector_polygon$nombre[1]
+  }
+
+  # Construir título de la página
+  mapa_titulo <- paste("Mapa de Vehículos -", sector_nombre)
+  if (!is.null(fecha)) {
+    # Formatear fecha a DD/MM/YYYY si viene en formato YYYY-MM-DD
+    if (grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", fecha)) {
+      parts <- strsplit(fecha, "-")[[1]]
+      fecha_formateada <- paste0(parts[3], "/", parts[2], "/", parts[1])
+    } else {
+      fecha_formateada <- fecha
+    }
+    mapa_titulo <- paste(mapa_titulo, "-", fecha_formateada)
+  }
+  if (!is.null(turno)) {
+    mapa_titulo <- paste(mapa_titulo, "-", toupper(turno))
+  }
+
+  # Configurar pandoc desde rmarkdown si está disponible (evita fallos de compilación selfcontained)
+  if (requireNamespace("rmarkdown", quietly = TRUE)) {
+    tryCatch({
+      pandoc_info <- rmarkdown::find_pandoc()
+      if (!is.null(pandoc_info$dir)) {
+        Sys.setenv(RSTUDIO_PANDOC = pandoc_info$dir)
+        Sys.setenv(PATH = paste(pandoc_info$dir, Sys.getenv("PATH"), sep = ";"))
+      }
+    }, error = function(e) {})
+  }
+
+  # Guardar en directorio temporal y copiar al destino para evitar creación de carpetas de paquetes
+  temp_html <- tempfile(fileext = ".html")
+
   tryCatch(
     {
-      saveWidget(mapa, file = salida_html, selfcontained = TRUE)
-      return(TRUE)
+      saveWidget(mapa, file = temp_html, selfcontained = TRUE, title = mapa_titulo)
+      
+      # Eliminar carpeta de dependencias temporal si saveWidget la creó en R's temp dir
+      temp_base <- tools::file_path_sans_ext(temp_html)
+      dir_residuos_temp <- paste0(temp_base, "_files")
+      if (dir.exists(dir_residuos_temp)) {
+        unlink(dir_residuos_temp, recursive = TRUE, force = TRUE)
+      }
+
+      if (file.exists(temp_html)) {
+        file.copy(temp_html, salida_html, overwrite = TRUE)
+        file.remove(temp_html)
+        
+        # Limpieza posterior de carpetas residuales *_files en el directorio de salida por si acaso
+        tryCatch({
+          carpetas_residuos <- list.dirs(dir_salida, full.names = TRUE, recursive = FALSE)
+          carpetas_residuos <- carpetas_residuos[grepl("_files$", carpetas_residuos)]
+          if (length(carpetas_residuos) > 0) {
+            unlink(carpetas_residuos, recursive = TRUE, force = TRUE)
+          }
+        }, error = function(e) {})
+        
+        return(TRUE)
+      } else {
+        return(FALSE)
+      }
     },
     error = function(e) {
       message("❌ Error al guardar el widget HTML:")
       print(e)
+      if (file.exists(temp_html)) file.remove(temp_html)
+      # Limpieza en caso de error
+      tryCatch({
+        carpetas_residuos <- list.dirs(dir_salida, full.names = TRUE, recursive = FALSE)
+        carpetas_residuos <- carpetas_residuos[grepl("_files$", carpetas_residuos)]
+        if (length(carpetas_residuos) > 0) {
+          unlink(carpetas_residuos, recursive = TRUE, force = TRUE)
+        }
+      }, error = function(e) {})
       return(FALSE)
     }
   )
@@ -691,7 +852,7 @@ exportar_mapa_hogares_sector <- function(df_sf, sector_polygon, salida_html, usa
 # =============================================================================
 
 # --- Ajustar parámetros de ejecución ---
-fecha_proceso <- "2026-05-25" # <-- Ajustar la fecha de consulta aquí
+fecha_proceso <- "2026-05-26" # <-- Ajustar la fecha de consulta aquí
 tolerancia_metros <- 50 # <-- Buffer en metros para visualización en el mapa (captura amplia)
 umbral_validacion_metros <- 15 # <-- Buffer en metros para validar que el vehículo ingresó al sector (validación estrecha)
 min_paradas_vehiculo <- 10 # <-- Mínimo de paradas (velocidad == 0) por camión para ser registrado e incluido
@@ -749,7 +910,8 @@ for (turno in names(datos_por_turno)) {
   message(paste("======================================================="))
 
   # Carpeta de salida específica del turno (se crea si no existe)
-  carpeta_turno <- file.path("salidas", "mapas_hogares", turno)
+  nombre_carpeta_fecha <- paste0(fecha_proceso, " recoleccion Hogares sustentables")
+  carpeta_turno <- file.path("vistas", "mapas", nombre_carpeta_fecha, turno)
   if (!dir.exists(carpeta_turno)) dir.create(carpeta_turno, recursive = TRUE)
 
   # 4. Iteración sobre cada sector de Hogares Sustentables

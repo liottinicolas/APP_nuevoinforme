@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_32c3374edf61149b9692ba94bae71e33 {
+                #map_5067321a222fad0c02f7ca6071828523 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,7 +54,7 @@
 <body>
     
     
-            <div class="folium-map" id="map_32c3374edf61149b9692ba94bae71e33" ></div>
+            <div class="folium-map" id="map_5067321a222fad0c02f7ca6071828523" ></div>
         
     
     <div id='info-card' style='
@@ -84,8 +84,8 @@
 <script>
     
     
-            var map_32c3374edf61149b9692ba94bae71e33 = L.map(
-                "map_32c3374edf61149b9692ba94bae71e33",
+            var map_5067321a222fad0c02f7ca6071828523 = L.map(
+                "map_5067321a222fad0c02f7ca6071828523",
                 {
                     center: [-34.85, -56.16],
                     crs: L.CRS.EPSG3857,
@@ -102,7 +102,7 @@
 
         
     
-            var tile_layer_c27615dd5580ead52a603309dcfd5b76 = L.tileLayer(
+            var tile_layer_6917df0583b92bb154676a1e748f4ba0 = L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {
   "minZoom": 0,
@@ -119,63 +119,308 @@
             );
         
     
-            tile_layer_c27615dd5580ead52a603309dcfd5b76.addTo(map_32c3374edf61149b9692ba94bae71e33);
+            tile_layer_6917df0583b92bb154676a1e748f4ba0.addTo(map_5067321a222fad0c02f7ca6071828523);
         
     
-        function geo_json_23ea8f6b0e1b11332cefdcffcd9574e3_styler(feature) {
+        function geo_json_ae665b8ebb329668af91a3b47c28c4a2_styler(feature) {
             switch(feature.id) {
                 default:
                     return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
             }
         }
 
-        function geo_json_23ea8f6b0e1b11332cefdcffcd9574e3_onEachFeature(feature, layer) {
+        function geo_json_ae665b8ebb329668af91a3b47c28c4a2_onEachFeature(feature, layer) {
 
             layer.on({
             });
         };
-        var geo_json_23ea8f6b0e1b11332cefdcffcd9574e3 = L.geoJson(null, {
-                onEachFeature: geo_json_23ea8f6b0e1b11332cefdcffcd9574e3_onEachFeature,
+        var geo_json_ae665b8ebb329668af91a3b47c28c4a2 = L.geoJson(null, {
+                onEachFeature: geo_json_ae665b8ebb329668af91a3b47c28c4a2_onEachFeature,
             
-                style: geo_json_23ea8f6b0e1b11332cefdcffcd9574e3_styler,
+                style: geo_json_ae665b8ebb329668af91a3b47c28c4a2_styler,
             ...{
 }
         });
 
-        function geo_json_23ea8f6b0e1b11332cefdcffcd9574e3_add (data) {
-            geo_json_23ea8f6b0e1b11332cefdcffcd9574e3
+        function geo_json_ae665b8ebb329668af91a3b47c28c4a2_add (data) {
+            geo_json_ae665b8ebb329668af91a3b47c28c4a2
                 .addData(data);
         }
-            geo_json_23ea8f6b0e1b11332cefdcffcd9574e3_add({"bbox": [-56.224031391688435, -34.786789262779, -56.22250427475718, -34.7843275986807], "features": [{"bbox": [-56.224031391688435, -34.786789262779, -56.22250427475718, -34.7843275986807], "geometry": {"coordinates": [[[[-56.224031391688435, -34.7843275986807], [-56.22253536871579, -34.78528048131122], [-56.22250427475718, -34.786789262779], [-56.22391664366749, -34.786071730232266], [-56.224031391688435, -34.7843275986807]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2025-12-27", "FRACCION": "MEZCLADO", "FRECUENCIA": "MARTES Y VIERNES", "FRECUENCIA.RECICLABLE": null, "RECICLABLE": "ISLAS", "TURNO": "VESPERTINO", "cont.ret": "2.0", "id": null, "id_0": "2", "municipio": "G", "nombre": "COLON NORTE", "poblacion": "35.0", "viviendas": "21.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+            geo_json_ae665b8ebb329668af91a3b47c28c4a2_add({"bbox": [-56.224031391688435, -34.786789262779, -56.22250427475718, -34.7843275986807], "features": [{"bbox": [-56.224031391688435, -34.786789262779, -56.22250427475718, -34.7843275986807], "geometry": {"coordinates": [[[[-56.224031391688435, -34.7843275986807], [-56.22253536871579, -34.78528048131122], [-56.22250427475718, -34.786789262779], [-56.22391664366749, -34.786071730232266], [-56.224031391688435, -34.7843275986807]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2025-12-27", "FRACCION": "MEZCLADO", "FRECUENCIA": "MARTES Y VIERNES", "FRECUENCIA.RECICLABLE": null, "RECICLABLE": "ISLAS", "TURNO": "VESPERTINO", "cont.ret": "2.0", "id": null, "id_0": "2", "municipio": "G", "nombre": "COLON NORTE", "poblacion": "35.0", "viviendas": "21.0"}, "type": "Feature"}], "type": "FeatureCollection"});
 
         
     
-            geo_json_23ea8f6b0e1b11332cefdcffcd9574e3.addTo(map_32c3374edf61149b9692ba94bae71e33);
+            geo_json_ae665b8ebb329668af91a3b47c28c4a2.addTo(map_5067321a222fad0c02f7ca6071828523);
         
     
-            map_32c3374edf61149b9692ba94bae71e33.fitBounds(
+            map_5067321a222fad0c02f7ca6071828523.fitBounds(
                 [[-34.786789262779, -56.224031391688435], [-34.7843275986807, -56.22250427475718]],
                 {}
             );
         
     
-            var layer_control_9f8367aa0fe2578c51ab701b754375b8_layers = {
+            var marker_10612955307cfcdd77bfecd508be17fb = L.marker(
+                [-34.784908, -56.223839],
+                {
+}
+            ).addTo(map_5067321a222fad0c02f7ca6071828523);
+        
+    
+            var div_icon_3d31c0257cf6dc2f8ba93be5c93091b5 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(84.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_46c718ef4d556b07314794ac87780e27 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_470904cd6ef1e70736c3c3c713bcb1d6 = $(`<div id="html_470904cd6ef1e70736c3c3c713bcb1d6" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 14:44:30<br>Vel: 19.0 km/h<br>Orientación: 39.0°</div>`)[0];
+                popup_46c718ef4d556b07314794ac87780e27.setContent(html_470904cd6ef1e70736c3c3c713bcb1d6);
+            
+        
+
+        marker_10612955307cfcdd77bfecd508be17fb.bindPopup(popup_46c718ef4d556b07314794ac87780e27)
+        ;
+
+        
+    
+    
+                marker_10612955307cfcdd77bfecd508be17fb.setIcon(div_icon_3d31c0257cf6dc2f8ba93be5c93091b5);
+            
+    
+            var marker_dcb240d967a244955a471f3b0c7e48f2 = L.marker(
+                [-34.784878, -56.223797],
+                {
+}
+            ).addTo(map_5067321a222fad0c02f7ca6071828523);
+        
+    
+            var div_icon_c4f8dea9a42aa94054ed92fdfd538ee7 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(93.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_1d9eaa9f9b3b810ee4653b8ffc33c470 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_34fb93787a2d3d95d0617cb8ddc24b49 = $(`<div id="html_34fb93787a2d3d95d0617cb8ddc24b49" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 14:44:31<br>Vel: 19.0 km/h<br>Orientación: 48.0°</div>`)[0];
+                popup_1d9eaa9f9b3b810ee4653b8ffc33c470.setContent(html_34fb93787a2d3d95d0617cb8ddc24b49);
+            
+        
+
+        marker_dcb240d967a244955a471f3b0c7e48f2.bindPopup(popup_1d9eaa9f9b3b810ee4653b8ffc33c470)
+        ;
+
+        
+    
+    
+                marker_dcb240d967a244955a471f3b0c7e48f2.setIcon(div_icon_c4f8dea9a42aa94054ed92fdfd538ee7);
+            
+    
+            var marker_e134cc2a71275fc2bb7bc7907f6b2b4b = L.marker(
+                [-34.784836, -56.223621],
+                {
+}
+            ).addTo(map_5067321a222fad0c02f7ca6071828523);
+        
+    
+            var div_icon_fbb3476c6e968eec73c3e1dbf184e7ca = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(133.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_ef7fcbb5987817f5e1d323bc223b2df0 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_52d204f329ff158a86de30ca60b01aa2 = $(`<div id="html_52d204f329ff158a86de30ca60b01aa2" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 14:44:34<br>Vel: 21.0 km/h<br>Orientación: 88.0°</div>`)[0];
+                popup_ef7fcbb5987817f5e1d323bc223b2df0.setContent(html_52d204f329ff158a86de30ca60b01aa2);
+            
+        
+
+        marker_e134cc2a71275fc2bb7bc7907f6b2b4b.bindPopup(popup_ef7fcbb5987817f5e1d323bc223b2df0)
+        ;
+
+        
+    
+    
+                marker_e134cc2a71275fc2bb7bc7907f6b2b4b.setIcon(div_icon_fbb3476c6e968eec73c3e1dbf184e7ca);
+            
+    
+            var marker_d0253fd5b18d7f58c349fadab332d4d6 = L.marker(
+                [-34.784908, -56.223427],
+                {
+}
+            ).addTo(map_5067321a222fad0c02f7ca6071828523);
+        
+    
+            var div_icon_5e4b621d3dbced46a34a61cc9102a546 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(166.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_2a9f5d74083b208f02fc38f83028ce67 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_59a0816f9136a4a9d5effa688b2029e7 = $(`<div id="html_59a0816f9136a4a9d5effa688b2029e7" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 14:44:37<br>Vel: 26.0 km/h<br>Orientación: 121.0°</div>`)[0];
+                popup_2a9f5d74083b208f02fc38f83028ce67.setContent(html_59a0816f9136a4a9d5effa688b2029e7);
+            
+        
+
+        marker_d0253fd5b18d7f58c349fadab332d4d6.bindPopup(popup_2a9f5d74083b208f02fc38f83028ce67)
+        ;
+
+        
+    
+    
+                marker_d0253fd5b18d7f58c349fadab332d4d6.setIcon(div_icon_5e4b621d3dbced46a34a61cc9102a546);
+            
+    
+            var marker_6626d7d456360a109d41c13228c92ac4 = L.marker(
+                [-34.785355, -56.222572],
+                {
+}
+            ).addTo(map_5067321a222fad0c02f7ca6071828523);
+        
+    
+            var div_icon_129654191d0acc4c8c9807ea0a0b46fc = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(166.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_5617505e6ec8253a3351a66d5fd3de61 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c328d3f852b6ff36c0e8f4a7894a0118 = $(`<div id="html_c328d3f852b6ff36c0e8f4a7894a0118" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 14:44:46<br>Vel: 42.0 km/h<br>Orientación: 121.0°</div>`)[0];
+                popup_5617505e6ec8253a3351a66d5fd3de61.setContent(html_c328d3f852b6ff36c0e8f4a7894a0118);
+            
+        
+
+        marker_6626d7d456360a109d41c13228c92ac4.bindPopup(popup_5617505e6ec8253a3351a66d5fd3de61)
+        ;
+
+        
+    
+    
+                marker_6626d7d456360a109d41c13228c92ac4.setIcon(div_icon_129654191d0acc4c8c9807ea0a0b46fc);
+            
+    
+            var marker_2c538df77a884aeee7a8a155c78a0f6e = L.marker(
+                [-34.784611, -56.223915],
+                {
+}
+            ).addTo(map_5067321a222fad0c02f7ca6071828523);
+        
+    
+            var div_icon_677173a76f8e7c9fe28176d9acd3ce66 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(66.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_eb5ebb298096a8ac21d3222986c92463 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_29171817471ca826576e0565a9270ef4 = $(`<div id="html_29171817471ca826576e0565a9270ef4" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 15:31:41<br>Vel: 31.0 km/h<br>Orientación: 21.0°</div>`)[0];
+                popup_eb5ebb298096a8ac21d3222986c92463.setContent(html_29171817471ca826576e0565a9270ef4);
+            
+        
+
+        marker_2c538df77a884aeee7a8a155c78a0f6e.bindPopup(popup_eb5ebb298096a8ac21d3222986c92463)
+        ;
+
+        
+    
+    
+                marker_2c538df77a884aeee7a8a155c78a0f6e.setIcon(div_icon_677173a76f8e7c9fe28176d9acd3ce66);
+            
+    
+            var marker_2218da36ea8e082f6633b862111f9483 = L.marker(
+                [-34.784519, -56.223789],
+                {
+}
+            ).addTo(map_5067321a222fad0c02f7ca6071828523);
+        
+    
+            var div_icon_ee45d6c93fa909fb894b6520194bedf3 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(167.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_c8c7c85a9fcda8489a7983a66d1406e1 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cf2fa981c42310063a0f3ffdda2cd005 = $(`<div id="html_cf2fa981c42310063a0f3ffdda2cd005" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 18:29:06<br>Vel: 68.0 km/h<br>Orientación: 122.0°</div>`)[0];
+                popup_c8c7c85a9fcda8489a7983a66d1406e1.setContent(html_cf2fa981c42310063a0f3ffdda2cd005);
+            
+        
+
+        marker_2218da36ea8e082f6633b862111f9483.bindPopup(popup_c8c7c85a9fcda8489a7983a66d1406e1)
+        ;
+
+        
+    
+    
+                marker_2218da36ea8e082f6633b862111f9483.setIcon(div_icon_ee45d6c93fa909fb894b6520194bedf3);
+            
+    
+            var layer_control_e5866008e388e41495ba9d1710914693_layers = {
                 base_layers : {
-                    "cartodbpositron" : tile_layer_c27615dd5580ead52a603309dcfd5b76,
+                    "cartodbpositron" : tile_layer_6917df0583b92bb154676a1e748f4ba0,
                 },
                 overlays :  {
-                    "Sector de Trabajo" : geo_json_23ea8f6b0e1b11332cefdcffcd9574e3,
+                    "Sector de Trabajo" : geo_json_ae665b8ebb329668af91a3b47c28c4a2,
                 },
             };
-            let layer_control_9f8367aa0fe2578c51ab701b754375b8 = L.control.layers(
-                layer_control_9f8367aa0fe2578c51ab701b754375b8_layers.base_layers,
-                layer_control_9f8367aa0fe2578c51ab701b754375b8_layers.overlays,
+            let layer_control_e5866008e388e41495ba9d1710914693 = L.control.layers(
+                layer_control_e5866008e388e41495ba9d1710914693_layers.base_layers,
+                layer_control_e5866008e388e41495ba9d1710914693_layers.overlays,
                 {
   "position": "topright",
   "collapsed": false,
   "autoZIndex": true,
 }
-            ).addTo(map_32c3374edf61149b9692ba94bae71e33);
+            ).addTo(map_5067321a222fad0c02f7ca6071828523);
 
         
 </script>

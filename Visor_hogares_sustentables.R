@@ -3,7 +3,7 @@
 # =============================================================================
 # Este script realiza la consulta de turnos de la flota de camiones de la IMM
 # a través de la API intranet y genera mapas interactivos en R con Leaflet
-# detallando el recorrido de los vehículos dentro de cada sector de la capa 
+# detallando el recorrido de los vehículos dentro de cada sector de la capa
 # territorial "Hogares_sustentables".
 # =============================================================================
 
@@ -197,7 +197,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
   if (!is.null(sector_polygon) && nrow(sector_polygon) > 0) {
     # Transformar a WGS84 para Leaflet
     sector_wgs84 <- st_transform(sector_polygon, 4326)
-    
+
     mapa <- mapa %>%
       addPolygons(
         data = sector_wgs84,
@@ -234,9 +234,9 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
     if (usar_iconos) {
       for (i in 1:nrow(puntos_web)) {
         vel_val <- puntos_web$velocidad[i]
-        orient  <- puntos_web$orientacion[i]
-        tiempo  <- puntos_web$tiempo[i]
-        mat     <- puntos_web$matricula[i]
+        orient <- puntos_web$orientacion[i]
+        tiempo <- puntos_web$tiempo[i]
+        mat <- puntos_web$matricula[i]
         turno_c <- if ("Turno_Consulta" %in% names(puntos_web)) puntos_web$Turno_Consulta[i] else "N/A"
 
         lon <- coords[i, 1]
@@ -417,7 +417,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
   } else {
     "Ambos"
   }
-  
+
   fecha_val <- if (!is.null(fecha)) {
     fecha
   } else if (!is.null(puntos) && nrow(puntos) > 0) {
@@ -439,7 +439,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
     clean_tiempo <- gsub("\\+.*", "", clean_tiempo)
 
     tiempos_convertidos <- as.POSIXct(rep(NA, length(clean_tiempo)))
-    
+
     # 1. Formato YYYY-MM-DD HH:MM:SS
     idx_ymd <- grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}", clean_tiempo)
     if (any(idx_ymd)) {
@@ -466,7 +466,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
         error = function(e) as.POSIXct(rep(NA, sum(idx_na)))
       )
     }
-    
+
     puntos_copia$tiempo_posix <- tiempos_convertidos
     matriculas_unicas <- sort(unique(puntos_copia$matricula))
 
@@ -477,22 +477,32 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
 
       if (length(tiempos_mat) > 0) {
         tiempos_mat <- sort(tiempos_mat)
-        inicio_f <- format(tiempos_mat[1], "%H:%M:%S")
-
+        
+        # Segmentar en visitas usando un gap de 20 minutos (tz = "UTC" para coincidir exactamente con los popups del mapa)
         if (length(tiempos_mat) == 1) {
-          fin_f <- inicio_f
+          cartel_lineas <- c(cartel_lineas, paste0("VEHÍCULO ", mat, ": ", format(tiempos_mat[1], "%H:%M:%S", tz = "UTC")))
         } else {
-          diff_horas <- as.numeric(difftime(tiempos_mat[-1], tiempos_mat[-length(tiempos_mat)], units = "hours"))
-          gap_idx <- which(diff_horas > 1)
-
-          if (length(gap_idx) > 0) {
-            fin_f <- format(tiempos_mat[gap_idx[1]], "%H:%M:%S")
-          } else {
-            fin_f <- format(tiempos_mat[length(tiempos_mat)], "%H:%M:%S")
+          diff_mins <- as.numeric(difftime(tiempos_mat[-1], tiempos_mat[-length(tiempos_mat)], units = "mins"))
+          saltos <- which(diff_mins > 20)
+          
+          inicio_indices <- c(1, saltos + 1)
+          fin_indices <- c(saltos, length(tiempos_mat))
+          
+          visitas_str <- character(length(inicio_indices))
+          for (v in seq_along(inicio_indices)) {
+            t_ini <- tiempos_mat[inicio_indices[v]]
+            t_fin <- tiempos_mat[fin_indices[v]]
+            
+            if (t_ini == t_fin) {
+              visitas_str[v] <- format(t_ini, "%H:%M:%S", tz = "UTC")
+            } else {
+              visitas_str[v] <- paste0(format(t_ini, "%H:%M:%S", tz = "UTC"), " - ", format(t_fin, "%H:%M:%S", tz = "UTC"))
+            }
           }
+          
+          # Unir todas las visitas detectadas
+          cartel_lineas <- c(cartel_lineas, paste0("VEHÍCULO ", mat, ": ", paste(visitas_str, collapse = " | ")))
         }
-
-        cartel_lineas <- c(cartel_lineas, paste0("VEHÍCULO ", mat, ": ", inicio_f, " - ", fin_f))
       } else {
         # Fallback de seguridad por strings si la conversión a POSIXct resulta en NA
         raw_tiempos_mat <- sort(clean_tiempo[idx_mat])
@@ -502,7 +512,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
             if (length(h) > 0) h[1] else substr(x, 12, 19)
           }
           inicio_raw <- extraer_hora(raw_tiempos_mat[1])
-          fin_raw    <- extraer_hora(raw_tiempos_mat[length(raw_tiempos_mat)])
+          fin_raw <- extraer_hora(raw_tiempos_mat[length(raw_tiempos_mat)])
           cartel_lineas <- c(cartel_lineas, paste0("VEHÍCULO ", mat, ": ", inicio_raw, " - ", fin_raw))
         }
       }
@@ -549,10 +559,10 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
           container.style.padding = '6px 8px';
           container.style.borderRadius = '4px';
           container.style.boxShadow = '0 1px 5px rgba(0,0,0,0.4)';
-          
+
           L.DomEvent.disableClickPropagation(container);
           L.DomEvent.disableScrollPropagation(container);
-          
+
           var label = document.createElement('div');
           label.innerHTML = 'FILTRAR VEHÍCULO:';
           label.style.fontFamily = 'Arial, sans-serif';
@@ -561,7 +571,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
           label.style.color = '#333333';
           label.style.marginBottom = '4px';
           container.appendChild(label);
-          
+
           var select = document.createElement('select');
           select.style.width = '160px';
           select.style.padding = '4px';
@@ -572,12 +582,12 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
           select.style.color = '#0066CC';
           select.style.outline = 'none';
           select.style.cursor = 'pointer';
-          
+
           var optAll = document.createElement('option');
           optAll.value = 'ALL';
           optAll.innerHTML = 'MOSTRAR TODOS';
           select.appendChild(optAll);
-          
+
           var sortedMats = Array.from(matriculas).sort();
           sortedMats.forEach(function(mat) {
             var opt = document.createElement('option');
@@ -586,11 +596,11 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
             select.appendChild(opt);
           });
           container.appendChild(select);
-          
+
           var filterControl = L.control({position: 'topright'});
           filterControl.onAdd = function() { return container; };
           filterControl.addTo(map);
-          
+
           function aplicarFiltro() {
             var selected = select.value;
             map.eachLayer(function(layer) {
@@ -613,9 +623,9 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
               }
             });
           }
-          
+
           select.onchange = aplicarFiltro;
-          
+
           map.on('layeradd', function(e) {
             var layer = e.layer;
             if (layer.options && layer.options.layerId) {
@@ -681,10 +691,20 @@ exportar_mapa_hogares_sector <- function(df_sf, sector_polygon, salida_html, usa
 # =============================================================================
 
 # --- Ajustar parámetros de ejecución ---
-fecha_proceso <- "2026-05-25"   # <-- Ajustar la fecha de consulta aquí
-tolerancia_metros <- 30          # <-- Buffer en metros alrededor de las casas
-usar_iconos_proc <- FALSE         # <-- Poner en FALSE para círculos simples, TRUE para iconos personalizados IMM
+fecha_proceso <- "2026-05-25" # <-- Ajustar la fecha de consulta aquí
+tolerancia_metros <- 50 # <-- Buffer en metros para visualización en el mapa (captura amplia)
+umbral_validacion_metros <- 15 # <-- Buffer en metros para validar que el vehículo ingresó al sector (validación estrecha)
+min_paradas_vehiculo <- 10 # <-- Mínimo de paradas (velocidad == 0) por camión para ser registrado e incluido
+distancia_recorte_puntos <- 10 # <-- Distancia máxima en metros al polígono original para incluir un punto en el mapa (limpieza de perimetrales)
+distancia_erosion_metros <- 20 # <-- Distancia de erosión en metros para definir el núcleo interno (excluir calles limítrofes)
+min_cobertura_diagonal <- 0.35 # <-- Proporción mínima de extensión diagonal (35%) del núcleo que deben cubrir los puntos del camión (evita pasos por una sola calle o esquinas)
+min_ratio_area <- 0.08 # <-- Proporción mínima de área del convex hull (8%) en el núcleo (evita tránsitos lineales o colineales por una sola calle)
+min_tiempo_permanencia_minutos <- 30 # <-- Tiempo mínimo en minutos de permanencia del vehículo dentro del sector para ser incluido (excluye camiones de paso rápido)
+usar_iconos_proc <- FALSE # <-- Poner en FALSE para círculos simples, TRUE para iconos personalizados IMM
 modalidades_filtro <- c("intradomiciliario") # <-- Filtro por modalidad (ej: c("intradomiciliario") o c("intradomiciliario", "intrapredial") o NULL para todos)
+
+
+
 
 message("\n=========================================================================")
 message(paste("🚀 INICIANDO PROCESO BATCH PARA SECTORES HOGARES SUSTENTABLES"))
@@ -716,7 +736,6 @@ message(paste("ℹ️ Capa territorial cargada. Total de sectores a procesar:", 
 
 # 3. Iteración sobre turnos (Matutino y Vespertino)
 for (turno in names(datos_por_turno)) {
-
   capa_recorrido_original <- datos_por_turno[[turno]]
 
   # Si no hay datos para este turno, saltamos completamente
@@ -743,7 +762,7 @@ for (turno in names(datos_por_turno)) {
     capa_filtrada <- capa_hogares[capa_hogares$nombre == sector_nombre, ]
 
     # Intersección espacial: Proyectar temporalmente a UTM 21S (EPSG:32721) para buffer métrico
-    capa_filtrada_proj  <- st_transform(capa_filtrada, 32721)
+    capa_filtrada_proj <- st_transform(capa_filtrada, 32721)
     capa_recorrido_proj <- st_transform(capa_recorrido_original, 32721)
 
     # Aplicar el buffer al sector para tener una tolerancia
@@ -761,25 +780,282 @@ for (turno in names(datos_por_turno)) {
       next
     }
 
+    # =========================================================================
+    # FILTRO POR MÍNIMO DE PARADAS REALES POR VEHÍCULO
+    # =========================================================================
+    # Identificar qué camiones se detuvieron al menos 'min_paradas_vehiculo' veces
+    camiones_validos <- puntos_solapados_proj %>%
+      as.data.frame() %>%
+      group_by(matricula) %>%
+      summarise(paradas = sum(velocidad == 0, na.rm = TRUE), .groups = "drop") %>%
+      filter(paradas >= min_paradas_vehiculo) %>%
+      pull(matricula)
+
+    # Conservar únicamente los puntos correspondientes a esos camiones
+    puntos_solapados_proj <- puntos_solapados_proj %>%
+      filter(matricula %in% camiones_validos)
+
+    if (nrow(puntos_solapados_proj) == 0) {
+      message(paste("    ↳ ⚠️ Ningún vehículo alcanzó el mínimo de", min_paradas_vehiculo, "paradas. Saltando mapa."))
+      next
+    }
+    # =========================================================================
+
+    # =========================================================================
+    # FILTRO POR TIEMPO MÍNIMO DE PERMANENCIA (Evitar camiones de paso rápido)
+    # =========================================================================
+    # Convertimos los tiempos a POSIXct para poder calcular la duración real en minutos de forma robusta
+    tiempo_char <- as.character(puntos_solapados_proj$tiempo)
+    clean_tiempo <- gsub("T", " ", tiempo_char)
+    clean_tiempo <- gsub("Z", "", clean_tiempo)
+    clean_tiempo <- gsub("\\+.*", "", clean_tiempo)
+
+    tiempos_posix <- as.POSIXct(rep(NA, length(clean_tiempo)), tz = "UTC")
+
+    # 1. Formato YYYY-MM-DD HH:MM:SS
+    idx_ymd <- grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}", clean_tiempo)
+    if (any(idx_ymd)) {
+      tiempos_posix[idx_ymd] <- tryCatch(
+        as.POSIXct(clean_tiempo[idx_ymd], format = "%Y-%m-%d %H:%M:%S", tz = "UTC"),
+        error = function(e) as.POSIXct(rep(NA, sum(idx_ymd)), tz = "UTC")
+      )
+    }
+
+    # 2. Formato DD-MM-YYYY HH:MM:SS
+    idx_dmy <- grepl("^[0-9]{2}-[0-9]{2}-[0-9]{4}", clean_tiempo)
+    if (any(idx_dmy)) {
+      tiempos_posix[idx_dmy] <- tryCatch(
+        as.POSIXct(clean_tiempo[idx_dmy], format = "%d-%m-%Y %H:%M:%S", tz = "UTC"),
+        error = function(e) as.POSIXct(rep(NA, sum(idx_dmy)), tz = "UTC")
+      )
+    }
+
+    # 3. Fallback automático de R
+    idx_na <- is.na(tiempos_posix) & !is.na(clean_tiempo) & clean_tiempo != ""
+    if (any(idx_na)) {
+      tiempos_posix[idx_na] <- tryCatch(
+        as.POSIXct(clean_tiempo[idx_na], tz = "UTC"),
+        error = function(e) as.POSIXct(rep(NA, sum(idx_na)), tz = "UTC")
+      )
+    }
+
+    puntos_solapados_proj$tiempo_posix <- tiempos_posix
+
+    # Evaluar permanencia por camión considerando múltiples visitas independientes (excluyendo grandes saltos de tiempo)
+    calcular_max_duracion_visita <- function(tiempos, gap_max_mins = 20) {
+      if (length(tiempos) <= 1) return(0)
+      
+      tiempos_ordenados <- sort(tiempos)
+      diff_mins <- as.numeric(difftime(tiempos_ordenados[-1], tiempos_ordenados[-length(tiempos_ordenados)], units = "mins"))
+      
+      # Encontrar dónde están los saltos de tiempo mayores al gap permitido (ej. 20 min de inactividad o salida del sector)
+      saltos <- which(diff_mins > gap_max_mins)
+      
+      # Definir los límites de cada visita
+      inicio_indices <- c(1, saltos + 1)
+      fin_indices <- c(saltos, length(tiempos_ordenados))
+      
+      # Calcular la duración de cada visita individual
+      duraciones <- numeric(length(inicio_indices))
+      for (i in seq_along(inicio_indices)) {
+        t_inicio <- tiempos_ordenados[inicio_indices[i]]
+        t_fin    <- tiempos_ordenados[fin_indices[i]]
+        duraciones[i] <- as.numeric(difftime(t_fin, t_inicio, units = "mins"))
+      }
+      
+      return(max(duraciones, na.rm = TRUE))
+    }
+
+    camiones_duracion <- puntos_solapados_proj %>%
+      as.data.frame() %>%
+      filter(!is.na(tiempo_posix)) %>%
+      group_by(matricula) %>%
+      summarise(
+        duracion_max_visita = calcular_max_duracion_visita(tiempo_posix, gap_max_mins = 20),
+        .groups = "drop"
+      ) %>%
+      filter(duracion_max_visita >= min_tiempo_permanencia_minutos & !is.na(duracion_max_visita)) %>%
+      pull(matricula)
+
+    # Filtrar puntos solapados para mantener solo los camiones que cumplen el tiempo mínimo en al menos una visita continua
+    puntos_solapados_proj <- puntos_solapados_proj %>%
+      filter(matricula %in% camiones_duracion)
+
+    if (nrow(puntos_solapados_proj) == 0) {
+      message(paste("    ↳ ⚠️ Ningún vehículo permaneció más de los", min_tiempo_permanencia_minutos, "minutos mínimos. Saltando mapa."))
+      next
+    }
+    # =========================================================================
+
+    # =========================================================================
+    # FILTRO DE NÚCLEO INTERNO, COBERTURA DIAGONAL Y DISPERSIÓN 2D (Evitar tránsitos lineales/colineales de una sola calle o esquina)
+    # =========================================================================
+    # Reducimos (erosionamos) el polígono original para obtener el "núcleo interno" (core)
+    core_interno_proj <- st_buffer(capa_filtrada_proj, dist = -distancia_erosion_metros)
+
+    # Validamos que el núcleo erosionado no sea una geometría vacía (para mapas pequeños/estrechos)
+    if (nrow(core_interno_proj) > 0 && !any(st_is_empty(core_interno_proj))) {
+      # Obtener qué puntos del camión caen dentro del núcleo interno
+      puntos_en_core <- st_intersection(puntos_solapados_proj, core_interno_proj)
+
+      if (nrow(puntos_en_core) == 0) {
+        message(paste("    ↳ ⚠️ Tránsito únicamente perimetral (fuera del núcleo interno de", distancia_erosion_metros, "m). Saltando mapa."))
+        next
+      }
+
+      # Evaluar si los puntos del camión cubren una extensión razonable del núcleo o si es solo un tránsito lineal/esquina
+      bbox_core <- st_bbox(core_interno_proj)
+      ancho_core <- bbox_core[["xmax"]] - bbox_core[["xmin"]]
+      alto_core <- bbox_core[["ymax"]] - bbox_core[["ymin"]]
+      diagonal_core <- sqrt(ancho_core^2 + alto_core^2)
+
+      bbox_puntos <- st_bbox(puntos_en_core)
+      ancho_puntos <- bbox_puntos[["xmax"]] - bbox_puntos[["xmin"]]
+      alto_puntos <- bbox_puntos[["ymax"]] - bbox_puntos[["ymin"]]
+      diagonal_puntos <- sqrt(ancho_puntos^2 + alto_puntos^2)
+
+      cobertura_diagonal <- diagonal_puntos / diagonal_core
+
+      if (cobertura_diagonal < min_cobertura_diagonal) {
+        message(paste0("    ↳ ⚠️ Extensión interna insuficiente en el núcleo (", round(cobertura_diagonal * 100, 1), "% < ", round(min_cobertura_diagonal * 100, 1), "%). Tránsito lineal o de esquina. Saltando mapa."))
+        next
+      }
+
+      # 2. Cobertura de área 2D (Convex Hull) para evitar collinearidad de una única calle diagonal/lineal
+      chull_puntos <- st_convex_hull(st_union(puntos_en_core))
+      area_chull <- as.numeric(st_area(chull_puntos))
+      area_core <- as.numeric(st_area(st_union(core_interno_proj)))
+
+      ratio_area <- ifelse(area_core > 0, area_chull / area_core, 0)
+
+      if (ratio_area < min_ratio_area) {
+        message(paste0("    ↳ ⚠️ Dispersión superficial insuficiente (", round(ratio_area * 100, 1), "% de área 2D < ", round(min_ratio_area * 100, 1), "%). Tránsito lineal por una sola calle. Saltando mapa."))
+        next
+      }
+    }
+    # =========================================================================
+
+    # =========================================================================
+    # RECORTE DE PUNTOS FUERA DEL MAPA Y VALIDACIÓN DE SERVICIO REAL
+    # =========================================================================
+    # 1. Calcular la distancia de todos los puntos solapados al polígono original (sin buffer)
+    distancias_poligono <- as.numeric(st_distance(puntos_solapados_proj, st_union(capa_filtrada_proj)))
+    distancia_minima <- min(distancias_poligono, na.rm = TRUE)
+
+    # 2. RECORTE DE PUNTOS: Conservar únicamente los puntos que están a menos de 'distancia_recorte_puntos' del polígono real (ej. 10m)
+    # Esto elimina visualmente todos los puntos que están en la periferia/frontera (ej: María Ramírez en La Teja)
+    puntos_solapados_proj <- puntos_solapados_proj[distancias_poligono <= distancia_recorte_puntos, ]
+
+    if (nrow(puntos_solapados_proj) == 0) {
+      message(paste("    ↳ ⚠️ Todos los puntos del camión quedaron en la periferia fuera de los", distancia_recorte_puntos, "m del recorte. Saltando mapa."))
+      next
+    }
+
+    # 3. Separar puntos que son paradas (velocidad == 0) entre los puntos ya recortados
+    paradas_solapadas <- puntos_solapados_proj %>% filter(velocidad == 0)
+
+    servicio_valido <- FALSE
+
+    # Dado que los puntos ya fueron recortados a 'distancia_recorte_puntos', la distancia_minima será menor o igual a esta.
+    # Evaluamos si hay paradas efectivas dentro del área recortada, o si pasó a menos de 5m (para evitar simples tránsitos rápidos de esquina).
+    if (nrow(paradas_solapadas) > 0) {
+      servicio_valido <- TRUE
+    } else {
+      # Si es todo en movimiento, requerimos cercanía extrema para validar ingreso
+      nueva_dist_minima <- min(as.numeric(st_distance(puntos_solapados_proj, st_union(capa_filtrada_proj))), na.rm = TRUE)
+      if (nueva_dist_minima <= 5) {
+        servicio_valido <- TRUE
+      }
+    }
+
+    if (!servicio_valido) {
+      message("    ↳ ⚠️ Tránsito rápido perimetral detectado en la zona de recorte. Saltando mapa.")
+      next
+    }
+    # =========================================================================
+
+    # =========================================================================
+    # FILTRO FINAL POR DURACIÓN DE CADA VISITA INDIVIDUAL (LUEGO DE TODO)
+    # =========================================================================
+    # Después de aplicar erosión, recorte y validación, dividimos los puntos restantes
+    # de cada vehículo en visitas independientes (gap > 20 min). 
+    # Filtramos y eliminamos los puntos de aquellas visitas individuales que duren menos 
+    # de 'min_tiempo_permanencia_minutos' (30 minutos).
+    if (nrow(puntos_solapados_proj) > 0) {
+      puntos_filtrados_lista <- list()
+      matriculas_restantes <- unique(puntos_solapados_proj$matricula)
+      
+      for (mat in matriculas_restantes) {
+        pts_mat <- puntos_solapados_proj[puntos_solapados_proj$matricula == mat, ]
+        
+        # Eliminar posibles valores NA en tiempo y asegurar orden temporal
+        pts_mat <- pts_mat[!is.na(pts_mat$tiempo_posix), ]
+        pts_mat <- pts_mat[order(pts_mat$tiempo_posix), ]
+        
+        tiempos_mat <- pts_mat$tiempo_posix
+        
+        if (length(tiempos_mat) > 0) {
+          # Si hay solo un punto, la duración es 0, menor que 30, se descarta
+          if (length(tiempos_mat) == 1) {
+            next
+          }
+          
+          # Calcular diferencias de tiempo en minutos
+          diff_mins <- as.numeric(difftime(tiempos_mat[-1], tiempos_mat[-length(tiempos_mat)], units = "mins"))
+          saltos <- which(diff_mins > 20)
+          
+          inicio_indices <- c(1, saltos + 1)
+          fin_indices <- c(saltos, length(tiempos_mat))
+          
+          # Identificar qué índices de puntos pertenecen a visitas >= 30 minutos
+          indices_validos <- c()
+          for (v in seq_along(inicio_indices)) {
+            idx_rango <- inicio_indices[v]:fin_indices[v]
+            t_ini <- tiempos_mat[inicio_indices[v]]
+            t_fin <- tiempos_mat[fin_indices[v]]
+            duracion_visita <- as.numeric(difftime(t_fin, t_ini, units = "mins"))
+            
+            if (!is.na(duracion_visita) && duracion_visita >= min_tiempo_permanencia_minutos) {
+              indices_validos <- c(indices_validos, idx_rango)
+            }
+          }
+          
+          if (length(indices_validos) > 0) {
+            puntos_filtrados_lista[[mat]] <- pts_mat[indices_validos, ]
+          }
+        }
+      }
+      
+      if (length(puntos_filtrados_lista) > 0) {
+        puntos_solapados_proj <- do.call(rbind, puntos_filtrados_lista)
+      } else {
+        # Si ningún punto de ningún camión cumple, vaciamos el sf
+        puntos_solapados_proj <- puntos_solapados_proj[0, ]
+      }
+    }
+    
+    if (nrow(puntos_solapados_proj) == 0) {
+      message(paste("    ↳ ⚠️ Ningún intervalo de visita individual superó los", min_tiempo_permanencia_minutos, "minutos mínimos después de aplicar todos los filtros. Saltando mapa."))
+      next
+    }
+    # =========================================================================
+
     # Volver al CRS original (WGS84)
     puntos_solapados <- st_transform(puntos_solapados_proj, 4326)
     puntos_solapados <- puntos_solapados %>% mutate(Turno_Consulta = turno)
 
-    # Enriquecer con información de flota (servicio asignado / FRACCION)
-    matricula_ref <- puntos_solapados$matricula[1]
-    servicio_encontrado <- df_flota %>%
-      filter(Matricula == matricula_ref) %>%
-      pull(Servicio)
-
-    if (length(servicio_encontrado) > 0) {
-      puntos_solapados <- puntos_solapados %>%
-        mutate(FRACCION = servicio_encontrado[1])
-    }
+    # Enriquecer con información de flota (servicio asignado / FRACCION) en forma vectorizada para múltiples vehículos
+    puntos_solapados <- puntos_solapados %>%
+      left_join(
+        df_flota %>% select(Matricula, Servicio) %>% distinct(),
+        by = c("matricula" = "Matricula")
+      ) %>%
+      rename(FRACCION = Servicio)
 
     # Definir nombre de salida del archivo HTML
-    nombre_limpio  <- gsub("[^[:alnum:]]", "_", sector_nombre)
+    nombre_limpio <- gsub("[^[:alnum:]]", "_", sector_nombre)
     nombre_archivo <- paste0(fecha_proceso, "_Mapa_Hogar_", nombre_limpio, "_", toupper(turno), ".html")
-    salida_html    <- file.path(carpeta_turno, nombre_archivo)
+    salida_html <- file.path(carpeta_turno, nombre_archivo)
 
     # Exportar el mapa
     exito <- exportar_mapa_hogares_sector(

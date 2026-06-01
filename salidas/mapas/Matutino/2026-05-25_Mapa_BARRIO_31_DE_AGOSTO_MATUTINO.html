@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_3e7f429d5c0002a31970be79429f9309 {
+                #map_35ed9524d1bbba4166804d849151a049 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,7 +54,7 @@
 <body>
     
     
-            <div class="folium-map" id="map_3e7f429d5c0002a31970be79429f9309" ></div>
+            <div class="folium-map" id="map_35ed9524d1bbba4166804d849151a049" ></div>
         
     
     <div id='info-card' style='
@@ -84,8 +84,8 @@
 <script>
     
     
-            var map_3e7f429d5c0002a31970be79429f9309 = L.map(
-                "map_3e7f429d5c0002a31970be79429f9309",
+            var map_35ed9524d1bbba4166804d849151a049 = L.map(
+                "map_35ed9524d1bbba4166804d849151a049",
                 {
                     center: [-34.85, -56.16],
                     crs: L.CRS.EPSG3857,
@@ -102,7 +102,7 @@
 
         
     
-            var tile_layer_c33dfbb97f3a53247956399a05b80fb7 = L.tileLayer(
+            var tile_layer_58b8b835d0b5a5235cdd2f2edd5b1fed = L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {
   "minZoom": 0,
@@ -119,63 +119,98 @@
             );
         
     
-            tile_layer_c33dfbb97f3a53247956399a05b80fb7.addTo(map_3e7f429d5c0002a31970be79429f9309);
+            tile_layer_58b8b835d0b5a5235cdd2f2edd5b1fed.addTo(map_35ed9524d1bbba4166804d849151a049);
         
     
-        function geo_json_6eb505a1034c06823f3baa97f92fed38_styler(feature) {
+        function geo_json_238087a0ebf9f1a2e916574c4d1595a1_styler(feature) {
             switch(feature.id) {
                 default:
                     return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
             }
         }
 
-        function geo_json_6eb505a1034c06823f3baa97f92fed38_onEachFeature(feature, layer) {
+        function geo_json_238087a0ebf9f1a2e916574c4d1595a1_onEachFeature(feature, layer) {
 
             layer.on({
             });
         };
-        var geo_json_6eb505a1034c06823f3baa97f92fed38 = L.geoJson(null, {
-                onEachFeature: geo_json_6eb505a1034c06823f3baa97f92fed38_onEachFeature,
+        var geo_json_238087a0ebf9f1a2e916574c4d1595a1 = L.geoJson(null, {
+                onEachFeature: geo_json_238087a0ebf9f1a2e916574c4d1595a1_onEachFeature,
             
-                style: geo_json_6eb505a1034c06823f3baa97f92fed38_styler,
+                style: geo_json_238087a0ebf9f1a2e916574c4d1595a1_styler,
             ...{
 }
         });
 
-        function geo_json_6eb505a1034c06823f3baa97f92fed38_add (data) {
-            geo_json_6eb505a1034c06823f3baa97f92fed38
+        function geo_json_238087a0ebf9f1a2e916574c4d1595a1_add (data) {
+            geo_json_238087a0ebf9f1a2e916574c4d1595a1
                 .addData(data);
         }
-            geo_json_6eb505a1034c06823f3baa97f92fed38_add({"bbox": [-56.229487836788984, -34.8264075407389, -56.22719612528348, -34.82404668263659], "features": [{"bbox": [-56.229487836788984, -34.8264075407389, -56.22719612528348, -34.82404668263659], "geometry": {"coordinates": [[[[-56.22874664696752, -34.8264075407389], [-56.229487836788984, -34.82595200038748], [-56.22897338256012, -34.82537851932436], [-56.22933450429128, -34.82517473826749], [-56.22845076242209, -34.82404668263659], [-56.22719612528348, -34.824789270606686], [-56.22874664696752, -34.8264075407389]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-05-09", "FRACCION": "MEZCLADO", "FRECUENCIA": "MARTES Y VIERNES", "FRECUENCIA.RECICLABLE": null, "RECICLABLE": "NO", "TURNO": "MATUTINO", "cont.ret": "0.0", "id": "31.0", "id_0": "37", "municipio": "G", "nombre": "BARRIO 31 DE AGOSTO", "poblacion": null, "viviendas": "75.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+            geo_json_238087a0ebf9f1a2e916574c4d1595a1_add({"bbox": [-56.229487836788984, -34.8264075407389, -56.22719612528348, -34.82404668263659], "features": [{"bbox": [-56.229487836788984, -34.8264075407389, -56.22719612528348, -34.82404668263659], "geometry": {"coordinates": [[[[-56.22874664696752, -34.8264075407389], [-56.229487836788984, -34.82595200038748], [-56.22897338256012, -34.82537851932436], [-56.22933450429128, -34.82517473826749], [-56.22845076242209, -34.82404668263659], [-56.22719612528348, -34.824789270606686], [-56.22874664696752, -34.8264075407389]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-05-09", "FRACCION": "MEZCLADO", "FRECUENCIA": "MARTES Y VIERNES", "FRECUENCIA.RECICLABLE": null, "RECICLABLE": "NO", "TURNO": "MATUTINO", "cont.ret": "0.0", "id": "31.0", "id_0": "37", "municipio": "G", "nombre": "BARRIO 31 DE AGOSTO", "poblacion": null, "viviendas": "75.0"}, "type": "Feature"}], "type": "FeatureCollection"});
 
         
     
-            geo_json_6eb505a1034c06823f3baa97f92fed38.addTo(map_3e7f429d5c0002a31970be79429f9309);
+            geo_json_238087a0ebf9f1a2e916574c4d1595a1.addTo(map_35ed9524d1bbba4166804d849151a049);
         
     
-            map_3e7f429d5c0002a31970be79429f9309.fitBounds(
+            map_35ed9524d1bbba4166804d849151a049.fitBounds(
                 [[-34.8264075407389, -56.229487836788984], [-34.82404668263659, -56.22719612528348]],
                 {}
             );
         
     
-            var layer_control_59d61e4b31622f0943660dbacabb0054_layers = {
+            var marker_3bf2396f74d13b59ecdecbb847819998 = L.marker(
+                [-34.82637, -56.228802],
+                {
+}
+            ).addTo(map_35ed9524d1bbba4166804d849151a049);
+        
+    
+            var div_icon_4cedb0ccebb7993e6bd226a01489be8f = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #73C01E;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"\n                                width: 6px; height: 6px;\n                                border-left: 2.5px solid white;\n                                border-top: 2.5px solid white;\n                                transform: rotate(348.0deg);\n                                margin-top: 1px; margin-left: 1px;\"\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_1c9e3d945975fef350e56ac66dda41cf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_647d527325a68a2e9eb74dedba459c23 = $(`<div id="html_647d527325a68a2e9eb74dedba459c23" style="width: 100.0%; height: 100.0%;"><b>Movimiento</b><br>Hora: 25-05-2026 10:31:25<br>Vel: 6.0 km/h<br>Orientación: 303.0°</div>`)[0];
+                popup_1c9e3d945975fef350e56ac66dda41cf.setContent(html_647d527325a68a2e9eb74dedba459c23);
+            
+        
+
+        marker_3bf2396f74d13b59ecdecbb847819998.bindPopup(popup_1c9e3d945975fef350e56ac66dda41cf)
+        ;
+
+        
+    
+    
+                marker_3bf2396f74d13b59ecdecbb847819998.setIcon(div_icon_4cedb0ccebb7993e6bd226a01489be8f);
+            
+    
+            var layer_control_8ecda2b1421dc567923335970c87c313_layers = {
                 base_layers : {
-                    "cartodbpositron" : tile_layer_c33dfbb97f3a53247956399a05b80fb7,
+                    "cartodbpositron" : tile_layer_58b8b835d0b5a5235cdd2f2edd5b1fed,
                 },
                 overlays :  {
-                    "Sector de Trabajo" : geo_json_6eb505a1034c06823f3baa97f92fed38,
+                    "Sector de Trabajo" : geo_json_238087a0ebf9f1a2e916574c4d1595a1,
                 },
             };
-            let layer_control_59d61e4b31622f0943660dbacabb0054 = L.control.layers(
-                layer_control_59d61e4b31622f0943660dbacabb0054_layers.base_layers,
-                layer_control_59d61e4b31622f0943660dbacabb0054_layers.overlays,
+            let layer_control_8ecda2b1421dc567923335970c87c313 = L.control.layers(
+                layer_control_8ecda2b1421dc567923335970c87c313_layers.base_layers,
+                layer_control_8ecda2b1421dc567923335970c87c313_layers.overlays,
                 {
   "position": "topright",
   "collapsed": false,
   "autoZIndex": true,
 }
-            ).addTo(map_3e7f429d5c0002a31970be79429f9309);
+            ).addTo(map_35ed9524d1bbba4166804d849151a049);
 
         
 </script>

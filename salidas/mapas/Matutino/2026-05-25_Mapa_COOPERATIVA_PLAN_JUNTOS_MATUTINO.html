@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_8189ebf9701d82ea1d859829cbac0cbf {
+                #map_25c094c6d2d50dacc337e324309ffd3b {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,7 +54,7 @@
 <body>
     
     
-            <div class="folium-map" id="map_8189ebf9701d82ea1d859829cbac0cbf" ></div>
+            <div class="folium-map" id="map_25c094c6d2d50dacc337e324309ffd3b" ></div>
         
     
     <div id='info-card' style='
@@ -84,8 +84,8 @@
 <script>
     
     
-            var map_8189ebf9701d82ea1d859829cbac0cbf = L.map(
-                "map_8189ebf9701d82ea1d859829cbac0cbf",
+            var map_25c094c6d2d50dacc337e324309ffd3b = L.map(
+                "map_25c094c6d2d50dacc337e324309ffd3b",
                 {
                     center: [-34.85, -56.16],
                     crs: L.CRS.EPSG3857,
@@ -102,7 +102,7 @@
 
         
     
-            var tile_layer_42b6f23f96ede2f01ded401281e3144d = L.tileLayer(
+            var tile_layer_c8a45a75aac10da88198b19d605a8010 = L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {
   "minZoom": 0,
@@ -119,86 +119,98 @@
             );
         
     
-            tile_layer_42b6f23f96ede2f01ded401281e3144d.addTo(map_8189ebf9701d82ea1d859829cbac0cbf);
+            tile_layer_c8a45a75aac10da88198b19d605a8010.addTo(map_25c094c6d2d50dacc337e324309ffd3b);
         
     
-        function geo_json_2851759be216108cd38ea3eb5dae2c93_styler(feature) {
+        function geo_json_f9f3296324c78f6173ab53bed23ffdf7_styler(feature) {
             switch(feature.id) {
                 default:
                     return {"color": "darkorange", "fillColor": "orange", "fillOpacity": 0.1};
             }
         }
 
-        function geo_json_2851759be216108cd38ea3eb5dae2c93_onEachFeature(feature, layer) {
+        function geo_json_f9f3296324c78f6173ab53bed23ffdf7_onEachFeature(feature, layer) {
 
             layer.on({
             });
         };
-        var geo_json_2851759be216108cd38ea3eb5dae2c93 = L.geoJson(null, {
-                onEachFeature: geo_json_2851759be216108cd38ea3eb5dae2c93_onEachFeature,
+        var geo_json_f9f3296324c78f6173ab53bed23ffdf7 = L.geoJson(null, {
+                onEachFeature: geo_json_f9f3296324c78f6173ab53bed23ffdf7_onEachFeature,
             
-                style: geo_json_2851759be216108cd38ea3eb5dae2c93_styler,
+                style: geo_json_f9f3296324c78f6173ab53bed23ffdf7_styler,
             ...{
 }
         });
 
-        function geo_json_2851759be216108cd38ea3eb5dae2c93_add (data) {
-            geo_json_2851759be216108cd38ea3eb5dae2c93
+        function geo_json_f9f3296324c78f6173ab53bed23ffdf7_add (data) {
+            geo_json_f9f3296324c78f6173ab53bed23ffdf7
                 .addData(data);
         }
-            geo_json_2851759be216108cd38ea3eb5dae2c93_add({"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "features": [{"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "geometry": {"coordinates": [[[[-56.253071858376096, -34.84775896419041], [-56.25268062157265, -34.8477872584088], [-56.25244480479493, -34.84778580921146], [-56.25208941029196, -34.847282231301975], [-56.25170313069845, -34.84744869175797], [-56.252039813788834, -34.847962388212196], [-56.252088348569266, -34.84808547678978], [-56.25198285122136, -34.848084828002634], [-56.2515900376521, -34.84828706164526], [-56.25179278952057, -34.84851342428831], [-56.2526470102096, -34.84875914025854], [-56.25326828132076, -34.84868621245403], [-56.253071858376096, -34.84775896419041]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-03-20", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MIERCOLES Y SABADOS", "FRECUENCIA.RECICLABLE": "LUNES", "RECICLABLE": "CONTENEDOR", "TURNO": "MATUTINO", "cont.ret": "2.0", "id": null, "id_0": "20", "municipio": "A", "nombre": "COOPERATIVA PLAN JUNTOS", "poblacion": null, "viviendas": "152.0"}, "type": "Feature"}], "type": "FeatureCollection"});
+            geo_json_f9f3296324c78f6173ab53bed23ffdf7_add({"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "features": [{"bbox": [-56.25326828132076, -34.84875914025854, -56.2515900376521, -34.847282231301975], "geometry": {"coordinates": [[[[-56.253071858376096, -34.84775896419041], [-56.25268062157265, -34.8477872584088], [-56.25244480479493, -34.84778580921146], [-56.25208941029196, -34.847282231301975], [-56.25170313069845, -34.84744869175797], [-56.252039813788834, -34.847962388212196], [-56.252088348569266, -34.84808547678978], [-56.25198285122136, -34.848084828002634], [-56.2515900376521, -34.84828706164526], [-56.25179278952057, -34.84851342428831], [-56.2526470102096, -34.84875914025854], [-56.25326828132076, -34.84868621245403], [-56.253071858376096, -34.84775896419041]]]], "type": "MultiPolygon"}, "id": "0", "properties": {"FECHA.DESDE": "2026-03-20", "FRACCION": "MEZCLADO/RECICLABLE", "FRECUENCIA": "MIERCOLES Y SABADOS", "FRECUENCIA.RECICLABLE": "LUNES", "RECICLABLE": "CONTENEDOR", "TURNO": "MATUTINO", "cont.ret": "2.0", "id": null, "id_0": "20", "municipio": "A", "nombre": "COOPERATIVA PLAN JUNTOS", "poblacion": null, "viviendas": "152.0"}, "type": "Feature"}], "type": "FeatureCollection"});
 
         
     
-            geo_json_2851759be216108cd38ea3eb5dae2c93.addTo(map_8189ebf9701d82ea1d859829cbac0cbf);
+            geo_json_f9f3296324c78f6173ab53bed23ffdf7.addTo(map_25c094c6d2d50dacc337e324309ffd3b);
         
     
-            map_8189ebf9701d82ea1d859829cbac0cbf.fitBounds(
+            map_25c094c6d2d50dacc337e324309ffd3b.fitBounds(
                 [[-34.84875914025854, -56.25326828132076], [-34.847282231301975, -56.2515900376521]],
                 {}
             );
         
     
-            var circle_marker_f9f29ccdae4ec2613e56a2f019b2e02e = L.circleMarker(
+            var marker_4c9b0870c94b8298013eb01ada763223 = L.marker(
                 [-34.847794, -56.252594],
-                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#FF6600", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
-            ).addTo(map_8189ebf9701d82ea1d859829cbac0cbf);
+                {
+}
+            ).addTo(map_25c094c6d2d50dacc337e324309ffd3b);
         
     
-        var popup_76ef3def44ca258186c1c025a9585e81 = L.popup({
+            var div_icon_6b6d196eeb03aa166c4c6da7445df083 = L.divIcon({
+  "html": "\n                        \u003cdiv style=\"\n                            display: flex; justify-content: center; align-items: center;\n                            width: 22px; height: 22px; background-color: #FF6600;\n                            border: 2px solid white; border-radius: 50%;\n                            box-shadow: 0px 2px 5px rgba(0,0,0,0.4);\n                            box-sizing: border-box;\"\u003e\n                            \u003cdiv style=\"display: flex; gap: 2px;\"\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                                \u003cdiv style=\"width: 2px; height: 7px; background-color: white;\"\u003e\u003c/div\u003e\n                            \u003c/div\u003e\n                        \u003c/div\u003e\n                        ",
+  "iconSize": [22, 22],
+  "iconAnchor": [11, 11],
+  "className": "empty",
+});
+        
+    
+        var popup_03e3af67b056fa1137675fbd5195f9cd = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_4f9568556369c1ee07f736b700ba45f1 = $(`<div id="html_4f9568556369c1ee07f736b700ba45f1" style="width: 100.0%; height: 100.0%;"><b>Parada Detectada</b><br>Hora: 25-05-2026 09:41:31<br>Vel: 4.0 km/h</div>`)[0];
-                popup_76ef3def44ca258186c1c025a9585e81.setContent(html_4f9568556369c1ee07f736b700ba45f1);
+                var html_b1086e6160485c44a7dae1d766ec3f70 = $(`<div id="html_b1086e6160485c44a7dae1d766ec3f70" style="width: 100.0%; height: 100.0%;"><b>Parada</b><br>Hora: 25-05-2026 09:41:31<br>Vel: 4.0 km/h<br>Orientación: 48.0°</div>`)[0];
+                popup_03e3af67b056fa1137675fbd5195f9cd.setContent(html_b1086e6160485c44a7dae1d766ec3f70);
             
         
 
-        circle_marker_f9f29ccdae4ec2613e56a2f019b2e02e.bindPopup(popup_76ef3def44ca258186c1c025a9585e81)
+        marker_4c9b0870c94b8298013eb01ada763223.bindPopup(popup_03e3af67b056fa1137675fbd5195f9cd)
         ;
 
         
     
     
-            var layer_control_64f4b21a97228a95a74e05eed2ea09d3_layers = {
+                marker_4c9b0870c94b8298013eb01ada763223.setIcon(div_icon_6b6d196eeb03aa166c4c6da7445df083);
+            
+    
+            var layer_control_f9d9fda4de84f7fa7943256e53aaa536_layers = {
                 base_layers : {
-                    "cartodbpositron" : tile_layer_42b6f23f96ede2f01ded401281e3144d,
+                    "cartodbpositron" : tile_layer_c8a45a75aac10da88198b19d605a8010,
                 },
                 overlays :  {
-                    "Sector de Trabajo" : geo_json_2851759be216108cd38ea3eb5dae2c93,
+                    "Sector de Trabajo" : geo_json_f9f3296324c78f6173ab53bed23ffdf7,
                 },
             };
-            let layer_control_64f4b21a97228a95a74e05eed2ea09d3 = L.control.layers(
-                layer_control_64f4b21a97228a95a74e05eed2ea09d3_layers.base_layers,
-                layer_control_64f4b21a97228a95a74e05eed2ea09d3_layers.overlays,
+            let layer_control_f9d9fda4de84f7fa7943256e53aaa536 = L.control.layers(
+                layer_control_f9d9fda4de84f7fa7943256e53aaa536_layers.base_layers,
+                layer_control_f9d9fda4de84f7fa7943256e53aaa536_layers.overlays,
                 {
   "position": "topright",
   "collapsed": false,
   "autoZIndex": true,
 }
-            ).addTo(map_8189ebf9701d82ea1d859829cbac0cbf);
+            ).addTo(map_25c094c6d2d50dacc337e324309ffd3b);
 
         
 </script>

@@ -60,6 +60,7 @@ system2(python_venv, args = "vistas/informe_operativa/informeOP_generar_pdf.py")
 system2(python_venv, args = "vistas/informediario/reportes/actualizar_ayer.py")
 system2(python_venv, args = "vistas/informediario/reportes/generar_mapas.py")  # requiere actualizar_ayer primero
 
+system2(python_venv, args = "scripts/qgis/qgis_mapaAtraso.py")
 
 # ── 5. ACTUALIZAR APP SHINY ───────────────────────────────────────────────────
 

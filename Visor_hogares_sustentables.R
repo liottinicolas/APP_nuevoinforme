@@ -530,6 +530,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
           paste0(
             '<div style="margin-bottom: 8px;">',
             '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Matrícula:</span> ', mat, '<br>',
+            '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Servicio:</span> ', toupper(fraccion_val), '<br>',
             '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Horario:</span> ', visitas_str,
             '</div>'
           )
@@ -550,6 +551,7 @@ graficar_mapa_hogar_sector <- function(df_sf, sector_polygon, usar_iconos = TRUE
             paste0(
               '<div style="margin-bottom: 8px;">',
               '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Matrícula:</span> ', mat, '<br>',
+              '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Servicio:</span> ', toupper(fraccion_val), '<br>',
               '<span style="font-weight: 700; color: rgba(255,255,255,0.95);">Horario:</span> ', inicio_raw, ' - ', fin_raw,
               '</div>'
             )
@@ -852,7 +854,7 @@ exportar_mapa_hogares_sector <- function(df_sf, sector_polygon, salida_html, usa
 # =============================================================================
 
 # --- Ajustar parámetros de ejecución ---
-fecha_proceso <- "2026-05-26" # <-- Ajustar la fecha de consulta aquí
+fecha_proceso <- "2026-06-14" # <-- Ajustar la fecha de consulta aquí
 tolerancia_metros <- 50 # <-- Buffer en metros para visualización en el mapa (captura amplia)
 umbral_validacion_metros <- 15 # <-- Buffer en metros para validar que el vehículo ingresó al sector (validación estrecha)
 min_paradas_vehiculo <- 10 # <-- Mínimo de paradas (velocidad == 0) por camión para ser registrado e incluido
@@ -862,7 +864,8 @@ min_cobertura_diagonal <- 0.35 # <-- Proporción mínima de extensión diagonal 
 min_ratio_area <- 0.08 # <-- Proporción mínima de área del convex hull (8%) en el núcleo (evita tránsitos lineales o colineales por una sola calle)
 min_tiempo_permanencia_minutos <- 30 # <-- Tiempo mínimo en minutos de permanencia del vehículo dentro del sector para ser incluido (excluye camiones de paso rápido)
 usar_iconos_proc <- FALSE # <-- Poner en FALSE para círculos simples, TRUE para iconos personalizados IMM
-modalidades_filtro <- c("intradomiciliario") # <-- Filtro por modalidad (ej: c("intradomiciliario") o c("intradomiciliario", "intrapredial") o NULL para todos)
+modalidades_filtro <- c("intradomiciliaria") # <-- Filtro por modalidad (ej: c("intradomiciliaria") o c("intradomiciliaria", "intrapredial") o NULL para todos)
+actualizar_capa_hs <- TRUE # <-- Poner en TRUE si se desea actualizar la capa territorial desde Postgres antes de cargarla
 
 
 
@@ -883,12 +886,32 @@ datos_por_turno <- obtener_posiciones_flota_ambos_turnos_api(
 )
 
 # 2. Cargar capa territorial local de Hogares Sustentables
+if (actualizar_capa_hs) {
+  message("🔄 Conectando a Postgres para actualizar la capa 'Hogares_sustentables'...")
+  tryCatch({
+    con <- conectar_postgres()
+    actualizar_capa_postgres(con, "Hogares_sustentables")
+    DBI::dbDisconnect(con)
+    message("✅ Capa territorial 'Hogares_sustentables' actualizada con éxito desde Postgres.")
+  }, error = function(e) {
+    message("❌ Error al actualizar la capa territorial desde Postgres: ", e$message)
+  })
+}
+
 capa_hogares <- cargar_capa_local_postgres("Hogares_sustentables")
 
-# Aplicar filtro por modalidad si está especificado
+# Aplicar filtro por modalidad si está especificado (normalizando 'intradomiciliario' e 'intradomiciliaria')
 if (!is.null(modalidades_filtro) && length(modalidades_filtro) > 0) {
+  modalidades_buscar <- tolower(modalidades_filtro)
+  if ("intradomiciliario" %in% modalidades_buscar) {
+    modalidades_buscar <- c(modalidades_buscar, "intradomiciliaria")
+  }
+  if ("intradomiciliaria" %in% modalidades_buscar) {
+    modalidades_buscar <- c(modalidades_buscar, "intradomiciliario")
+  }
+  
   capa_hogares <- capa_hogares %>%
-    filter(tolower(modalidad) %in% tolower(modalidades_filtro))
+    filter(tolower(modalidad) %in% modalidades_buscar)
 }
 
 sectores <- unique(capa_hogares$nombre)

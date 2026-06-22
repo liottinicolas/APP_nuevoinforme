@@ -56,11 +56,11 @@ listar_tablas_postgres <- function(con) {
 con <- conectar_postgres()
 
 # Opcional: ver qué tablas hay disponibles
-# tablas <- listar_tablas_postgres(con)
-# print(tablas)
+tablas <- listar_tablas_postgres(con)
+print(tablas)
 
 # Al terminar de trabajar, cerrar la conexión:
-# dbDisconnect(con)
+ dbDisconnect(con)
 
 # =============================================================================
 ## LEER CAPAS ----
@@ -158,16 +158,106 @@ cargar_capa_local_postgres <- function(tabla, base_dir = "db/POSTGRES", formato 
   }
 }
 
+#' Carga todas las capas de barrido, papeleo y avenidas (online u offline).
+#'
+#' Si se pasa una conexión activa `con`, busca y descarga las capas directamente de la base de datos.
+#' Si `con` es NULL o inválida, intenta cargarlas desde los archivos locales (RDS o GPKG).
+#'
+#' @param con      Conexión DBI activa (opcional).
+#' @param base_dir Carpeta raíz de almacenamiento local (por defecto "db/POSTGRES").
+#' @param formato  Formato de carga local ("RDS" o "GPKG").
+#' @return Una lista nombrada de objetos sf.
+cargar_capas_barrido <- function(con = NULL, base_dir = "db/POSTGRES", formato = c("RDS", "GPKG")) {
+  formato <- match.arg(formato)
+  patron  <- "barrido|papeleo|avenida"
+
+  if (!is.null(con) && DBI::dbIsValid(con)) {
+    cat("Cargando capas de barrido desde la base de datos PostgreSQL...\n")
+    tablas <- listar_tablas_postgres(con)
+    
+    # Filtrar capas de barrido en el esquema public usando base R
+    idx <- (tablas$table_schema == "public") & grepl(patron, tablas$table_name, ignore.case = TRUE)
+    capas_filtradas <- tablas$table_name[idx]
+
+    if (length(capas_filtradas) == 0) {
+      warning("No se encontraron capas que coincidan con '", patron, "' en la base de datos.")
+      return(list())
+    }
+
+    capas <- list()
+    for (capa in capas_filtradas) {
+      sf_obj <- leer_capa_postgres(con, capa, schema = "public")
+      if (!is.null(sf_obj)) {
+        capas[[capa]] <- sf_obj
+      }
+    }
+    return(capas)
+  } else {
+    cat("Cargando capas de barrido desde almacenamiento local (", formato, ")...\n", sep = "")
+    if (formato == "RDS") {
+      dir_rds <- file.path(base_dir, "RDS")
+      if (!dir.exists(dir_rds)) {
+        stop("No existe el directorio de RDS: ", dir_rds)
+      }
+      archivos <- list.files(dir_rds, pattern = "\\.rds$", full.names = FALSE)
+      archivos_filtrados <- archivos[grepl(patron, archivos, ignore.case = TRUE)]
+
+      if (length(archivos_filtrados) == 0) {
+        warning("No se encontraron archivos RDS de barrido/papeleo/avenida.")
+        return(list())
+      }
+
+      capas <- list()
+      for (arch in archivos_filtrados) {
+        nombre_capa <- sub("\\.rds$", "", arch)
+        ruta <- file.path(dir_rds, arch)
+        capas[[nombre_capa]] <- readRDS(ruta)
+      }
+      return(capas)
+    } else {
+      gpkg_path <- file.path(base_dir, "GPKG", "capas.gpkg")
+      if (!file.exists(gpkg_path)) {
+        stop("No existe el archivo GPKG: ", gpkg_path)
+      }
+      capas_existentes <- tryCatch(sf::st_layers(gpkg_path)$name, error = function(e) character(0))
+      capas_filtradas  <- capas_existentes[grepl(patron, capas_existentes, ignore.case = TRUE)]
+
+      if (length(capas_filtradas) == 0) {
+        warning("No se encontraron capas de barrido/papeleo/avenida en el GPKG.")
+        return(list())
+      }
+
+      capas <- list()
+      for (capa in capas_filtradas) {
+        capas[[capa]] <- sf::st_read(gpkg_path, layer = capa, quiet = TRUE)
+      }
+      return(capas)
+    }
+  }
+}
+
+
+
 # =============================================================================
 ## PRUEBA / EJEMPLOS DE USO ----
 # =============================================================================
 
 # --- PASO 1: actualizar desde la base (requiere conexión) ---
-con <- conectar_postgres()
-capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
-PLUMA_movimientos <- actualizar_capa_postgres(con, "PLUMA_movimientos")
-papeleras <- actualizar_capa_postgres(con, "papeleras")
-dbDisconnect(con)
+# con <- conectar_postgres()
+# capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
+# PLUMA_movimientos <- actualizar_capa_postgres(con, "PLUMA_movimientos")
+# papeleras <- actualizar_capa_postgres(con, "papeleras")
+# circuitos <- actualizar_capa_postgres(con,"Circuitos con turnos y frecuencias")
+# # #circuitos_intra <- leer_capa_postgres(con,"Circuitos_intradomiciliaria")
+# # PLUMA_movimientos <- leer_capa_postgres(con,"PLUMA_movimientos")
+# # #recoleccionManual_aPie <- leer_capa_postgres(con,"RECOLECCION MANUAL A PIE")
+# # recoleccionManual_Puntos <- leer_capa_postgres(con,"RECOLECCION MANUAL PUNTOS")
+# # recoleccionManual_rutas <- leer_capa_postgres(con,"RECOLECCION MANUAL RUTAS")
+# # recoleccionManual_zonas <- leer_capa_postgres(con,"RECOLECCION MANUAL ZONAS")
+# Rutas_hogares_sustentables <- leer_capa_postgres(con,"Rutas_hogares_sustentables")
+# 
+# 
+# dbDisconnect(con)
 
 # --- PASO 2: la próxima vez, cargar desde disco (sin conexión) ---
 capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")
@@ -353,34 +443,45 @@ capa_intra_proximo <- st_read(con, Id(schema = "public", table = "Intra_proximo"
 
 
 ########################## CREO LAS MATRICULAS CON SUS CAMIONES Y CSOO
-
+  
 # Crear el data frame con la información de la flota
-df_flota <- data.frame(
-  Matricula = c(
-    1858, 2196, 2198, 2199, 2202, 2203, 2640, 2980, 3156, 3157, 3159, 3160, 3161, 3162, # Canton 2
-    1862, 3008, 1891, 1900, 3014, 2619, 3114, 3116, 3117, 3119,                         # Sin Base
-    2184, 2185, 2188, 2200, 2201, 2204, 2205, 2463, 3115, 3128, 3129, 3155              # Haiti
-  ),
-  Marca = c(
-    rep("Freighliner", 8), rep("Scania 280", 6), # Canton 2
-    rep("Freighliner", 6), rep("Scania 280", 4), # Sin Base
-    rep("Freighliner", 8), rep("Scania 280", 4)  # Haiti
-  ),
-  Base = c(
-    rep("Canton 2", 14),
-    rep("", 10),
-    rep("Haiti", 12)
-  ),
-  Servicio = c(
-    rep("Mezclado", 24),
-    rep("Reciclable", 12)
-  ),
+# 1. Definición de los bloques de datos según el orden de la imagen
+bloque_1 <- data.frame(
+  Matricula = c(1862, 3008, 1891, 1900, 3014, 2619, 3114, 3116, 3117, 3119),
+  Marca     = c(rep("Freightliner", 6), rep("Scania 280", 4)),
+  Servicio  = "Mezclado",
   stringsAsFactors = FALSE
 )
 
-# Agregar el prefijo "SIM" a la columna Matricula
+bloque_2 <- data.frame(
+  Matricula = c(1858, 2196, 2198, 2199, 2202, 2203, 2640, 2980, 3156, 3157, 3159, 3160, 3161, 3162),
+  Marca     = c(rep("Freightliner", 8), rep("Scania 280", 6)),
+  Servicio  = "Mezclado",
+  stringsAsFactors = FALSE
+)
+
+bloque_3 <- data.frame(
+  Matricula = c(1863, 1869, 1897, 1898, 1899, 1902, 2192, 2462, 2668, 2685, 2689, 2846, 2907, 2924, 
+                1889, 2183, 2186, 2187, 2190, 2370, 2464, 2733, 2979, 3127),
+  Marca     = c(rep("Freightliner", 23), "Scania"),
+  Servicio  = "Mezclado",
+  stringsAsFactors = FALSE
+)
+
+bloque_4 <- data.frame(
+  Matricula = c(2184, 2185, 2188, 2200, 2201, 2204, 2205, 2463, 3115, 3128, 3129, 3155),
+  Marca     = c(rep("Freightliner", 8), rep("Scania 280", 4)),
+  Servicio  = "Reciclable",
+  stringsAsFactors = FALSE
+)
+
+# 2. Combinar los bloques en un único Data Frame
+df_flota <- rbind(bloque_1, bloque_2, bloque_3, bloque_4)
+
+# 3. Agregar el prefijo "SIM" a la columna Matricula
 df_flota$Matricula <- paste0("SIM", df_flota$Matricula)
 
+rm(bloque_1,bloque_2,bloque_3,bloque_4)
 
 ########################
 

@@ -116,23 +116,22 @@ def load_data():
     # Extraer Municipio
     df['Municipio'] = df['Circuito'].astype(str).str.split('_').str[0]
     
-    now = datetime.now()
-    # Acumulaciones
-    df['Acumulacion_horas'] = (now - df['Fecha Último Levante']).dt.total_seconds() / 3600
+    # Acumulaciones basadas en la fecha del archivo
+    df['Acumulacion_horas'] = (dt_archivo - df['Fecha Último Levante']).dt.total_seconds() / 3600
     df['Acumulacion_horas'] = df['Acumulacion_horas'].round(1)
     
-    df['Acumulacion_dias_porhora'] = (now - df['Fecha Último Levante']).dt.total_seconds() / 86400
+    df['Acumulacion_dias_porhora'] = (dt_archivo - df['Fecha Último Levante']).dt.total_seconds() / 86400
     df['Acumulacion_dias_porhora'] = df['Acumulacion_dias_porhora'].round(0)
     
-    df['Acumulacion_dias_calendario'] = (pd.to_datetime(now.date()) - df['Fecha Último Levante'].dt.floor('D')).dt.days
+    df['Acumulacion_dias_calendario'] = (pd.to_datetime(dt_archivo.date()) - df['Fecha Último Levante'].dt.floor('D')).dt.days
     
     return df, dt_archivo
     
 def procesar_atrasos(df):
     MOTIVOS_EXCLUIR_ATRASO = [
-        "No Está (20)","Roto (18)","Fuego (19)","Sobrepeso (11)",
-        "Fuera de Alcance (21)","Tapa Bloqueda (14)","Cruzado(23)",
-        "Buzonera Girada (24)","Volcado (22)","Calle Cerrada (13)"
+        "No Está (20)", "Roto (18)", "Fuego (19)", "Sobrepeso (11)",
+        "Fuera de Alcance (21)", "Tapa Bloqueda (14)", "Cruzado (23)",
+        "Buzonera Girada (24)", "Volcado (22)", "Calle Cerrada (13)"
     ]
     
     ################################ DESDE ACA
@@ -208,7 +207,7 @@ def procesar_atrasos(df):
     return tabla_final, detalle
 
 def procesar_grua(df):
-    MOTIVOS_GRUA = ["Roto (18)", "Sobrepeso (11)", "Fuera de Alcance (21)", "Buzonera Girada (24)", "Cruzado(23)", "Calle Cerrada(13)"]
+    MOTIVOS_GRUA = ["Roto (18)", "Sobrepeso (11)", "Fuera de Alcance (21)", "Buzonera Girada (24)", "Cruzado (23)", "Calle Cerrada (13)"]
     df_grua = df[df['Motivo No Levante'].isin(MOTIVOS_GRUA)].copy()
     
     def agg_tramos(x):
@@ -258,7 +257,7 @@ def procesar_fuego(df):
     
     return resumen
     
-def procesar_no_esta(df):
+def procesar_no_esta(df, dt_archivo=None):
     df_ne = df[df['Motivo No Levante'] == "No Está (20)"].copy()
     
     def agg_tramos(x):
@@ -284,8 +283,10 @@ def procesar_no_esta(df):
         res = pyreadr.read_r(ruta_rds)
         hist = res[None].copy() # dataframe crudo
         
-        # Filtro 90 días hacia atrás a partir de hoy
-        fecha_corte = pd.to_datetime(datetime.now().date() - pd.Timedelta(days=90))
+        ref_date = dt_archivo if dt_archivo is not None else datetime.now()
+        
+        # Filtro 90 días hacia atrás a partir de la fecha del archivo
+        fecha_corte = pd.to_datetime(ref_date.date() - pd.Timedelta(days=90))
         hist['Fecha_hora_pasaje'] = pd.to_datetime(hist['Fecha_hora_pasaje'], errors='coerce')
         hist = hist[hist['Fecha_hora_pasaje'] >= fecha_corte].copy()
         
@@ -329,9 +330,8 @@ def procesar_no_esta(df):
         inicio_epi_agg = inicio_epi.groupby(['gid', 'epi_id'])['Fecha_hora_pasaje'].min().reset_index()
         inicio_epi_agg.columns = ['gid', 'epi_id', 'inicio_no_esta']
         
-        now = datetime.now()
-        inicio_epi_agg['duracion_dias'] = (now - inicio_epi_agg['inicio_no_esta']).dt.total_seconds() / 86400
-        inicio_epi_agg['duracion_dias'] = inicio_epi_agg['duracion_dias'].round(0).fillna(0).astype(int)
+        inicio_epi_agg['duracion_dias'] = (ref_date - inicio_epi_agg['inicio_no_esta']).dt.total_seconds() / 86400.0
+        inicio_epi_agg['duracion_dias'] = inicio_epi_agg['duracion_dias'].round(2).fillna(0.0)
         
         # Unir con los atributos de foto del dia
         snap_attrs = df_ne[['GID', 'Circuito', 'Posición', 'Ubicación']].drop_duplicates(subset=['GID'])
@@ -505,7 +505,7 @@ if __name__ == "__main__":
         print('Procesando Fuego...')
         res_fuego = procesar_fuego(df)
         print('Procesando No Esta...')
-        res_ne, det_ne = procesar_no_esta(df)
+        res_ne, det_ne = procesar_no_esta(df, dt_archivo)
 
         # Determinar el slot de hora según la hora del archivo
         # < 11:00 → 0915 | >= 12:00 → 1220

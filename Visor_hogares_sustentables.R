@@ -854,7 +854,7 @@ exportar_mapa_hogares_sector <- function(df_sf, sector_polygon, salida_html, usa
 # =============================================================================
 
 # --- Ajustar parámetros de ejecución ---
-fecha_proceso <- "2026-06-14" # <-- Ajustar la fecha de consulta aquí
+fecha_proceso <- "2026-06-15" # <-- Ajustar la fecha de consulta aquí
 tolerancia_metros <- 50 # <-- Buffer en metros para visualización en el mapa (captura amplia)
 umbral_validacion_metros <- 15 # <-- Buffer en metros para validar que el vehículo ingresó al sector (validación estrecha)
 min_paradas_vehiculo <- 10 # <-- Mínimo de paradas (velocidad == 0) por camión para ser registrado e incluido

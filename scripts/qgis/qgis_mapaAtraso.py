@@ -9,15 +9,15 @@ import pandas as pd
 import geopandas as gpd
 
 def find_qgz_files():
-    # Buscar únicamente el archivo UNA_PORGID.qgz en la carpeta de recuperados en G:
-    base_pattern = r"G:\Desarrollo Ambiental\Limpieza\Spaa\Infograf*\08. MAPAS DIARIOS\03 UNA\Recuperado31\UNA_PORGID.qgz"
+    # Buscar el archivo EDCL_PORGID.qgz en la carpeta de ESTADO DE LEVANTE
+    base_pattern = r"G:\Desarrollo Ambiental\Limpieza\Spaa\Infograf*\08. MAPAS DIARIOS\01 ESTADO DE LEVANTE\EDCL_PORGID.qgz"
     
     # Resolver ruta real usando glob
     resolved_paths = glob.glob(base_pattern)
     if not resolved_paths:
-        raise FileNotFoundError("No se encontró el archivo UNA_PORGID.qgz en la unidad G:")
+        raise FileNotFoundError("No se encontró el archivo EDCL_PORGID.qgz en la unidad G:")
     
-    return [(resolved_paths[0], "Mapa UNA_PORGID")]
+    return [(resolved_paths[0], "Mapa EDCL_PORGID")]
 
 def get_qgz_path():
     files = find_qgz_files()
@@ -25,23 +25,23 @@ def get_qgz_path():
         return files[0][0]
     raise FileNotFoundError("No se encontró el archivo QGZ.")
 
-def get_latest_local_una_csv():
+def get_latest_local_atraso_csv():
     # Buscar todos los archivos CSV locales en la ruta de Trabajo IM
-    pattern = r"C:\Users\im4445285\OneDrive\Trabajo IM\APP_nuevoinforme\vistas\informediario\reportes\Mapas\UNA *.csv"
+    pattern = r"C:\Users\im4445285\OneDrive\Trabajo IM\APP_nuevoinforme\vistas\informediario\reportes\Mapas\Atraso *.csv"
     files = glob.glob(pattern)
     if not files:
-        raise FileNotFoundError("No se encontró ningún archivo CSV de tipo UNA en la carpeta local de reportes.")
+        raise FileNotFoundError("No se encontró ningún archivo CSV de tipo Atraso en la carpeta local de reportes.")
         
     date_file_pairs = []
     for filepath in files:
         filename = os.path.basename(filepath)
-        match = re.search(r"UNA\s+(\d{4}-\d{2}-\d{2})\.csv", filename, re.IGNORECASE)
+        match = re.search(r"Atraso\s+(\d{4}-\d{2}-\d{2})\.csv", filename, re.IGNORECASE)
         if match:
             date_str = match.group(1)
             date_file_pairs.append((date_str, filepath))
             
     if not date_file_pairs:
-        raise FileNotFoundError("No se encontraron CSVs locales con el formato UNA AAAA-MM-DD.csv")
+        raise FileNotFoundError("No se encontraron CSVs locales con el formato Atraso AAAA-MM-DD.csv")
         
     # Ordenar por fecha cronológica descendente (el más reciente primero)
     date_file_pairs.sort(key=lambda x: x[0], reverse=True)
@@ -65,10 +65,60 @@ def list_project_layers(qgz_path):
                     layer_names.append(name_elem.text)
             return layer_names
 
+def read_excel_values(csv_date):
+    # Buscar el archivo de informe excel con la fecha correspondiente
+    pattern = f"C:\\Users\\im4445285\\OneDrive\\Trabajo IM\\APP_nuevoinforme\\vistas\\informediario\\reportes\\archivo_informe {csv_date} *.xlsx"
+    files = glob.glob(pattern)
+    if not files:
+        print(f"[-] No se encontró el archivo excel de informe para la fecha {csv_date}")
+        return None
+        
+    excel_path = files[0]
+    print(f"[+] Leyendo valores desde excel: {os.path.basename(excel_path)}")
+    try:
+        # data_only=True en openpyxl (usado por pandas internamente) lee el valor cacheado de las fórmulas
+        df = pd.read_excel(excel_path, sheet_name="Datos Mapas", header=None)
+        
+        # M es la columna 12 (A=0, ..., M=12)
+        # M3 -> Fila 3 (indice 2)
+        # M4 -> Fila 4 (indice 3)
+        # M5 -> Fila 5 (indice 4)
+        # M6 -> Fila 6 (indice 5)
+        # M7 -> Fila 7 (indice 6)
+        row_indices = {
+            "Texto 2 días": 2,
+            "Texto 2/3 días": 3,
+            "Texto 3/4 días": 4,
+            "Texto 4/5 días": 5,
+            "Texto + 5días": 6
+        }
+        
+        values = {}
+        for key, row_idx in row_indices.items():
+            val = df.iloc[row_idx, 12] # Columna M (indice 12)
+            
+            if pd.isna(val):
+                formatted_val = "0.00%"
+            elif isinstance(val, (int, float)):
+                # Si viene como un ratio decimal <= 1 (ej: 0.5371) lo multiplicamos por 100
+                if val <= 1.0:
+                    formatted_val = f"{val * 100:.2f}%".replace(".", ",")
+                else:
+                    formatted_val = f"{val:.2f}%".replace(".", ",")
+            else:
+                formatted_val = str(val).strip()
+                
+            values[key] = formatted_val
+            print(f"    {key}: {formatted_val}")
+            
+        return values
+    except Exception as e:
+        print(f"[-] Error al leer el archivo excel: {e}")
+        return None
+
 def update_qgis_print_layout(root, csv_date):
-    print("\n[+] Analizando composición 'MAPA GRAL MVD' para actualización de textos...")
+    print("\n[+] Analizando composición de impresión para actualización de textos...")
     
-    # 1. Parsear fecha
     try:
         dt = datetime.datetime.strptime(csv_date, "%Y-%m-%d")
     except ValueError as ve:
@@ -86,20 +136,27 @@ def update_qgis_print_layout(root, csv_date):
     }
     weekday_name = dias_semana[dt.weekday()]
     formatted_date = dt.strftime("%d/%m/%Y")
-    filename_pdf = f"UNA(P) {csv_date}.pdf"
+    filename_pdf = f"EDCL {csv_date}.pdf"
     
-    # Buscar el layout "MAPA GRAL MVD"
-    layout_name = "MAPA GRAL MVD"
+    # Intentamos buscar posibles nombres de composición (por ejemplo 'MAPA GRAL MVD' o similar)
+    layout_names = ["MAPA GRAL MVD", "ATRASO", "ESTADO DE LEVANTE"]
     layout = None
-    for l in root.findall(".//Layout"):
-        if l.attrib.get("name") == layout_name:
-            layout = l
+    for name in layout_names:
+        for l in root.findall(".//Layout"):
+            if l.attrib.get("name") == name:
+                layout = l
+                print(f"[+] Composición encontrada: '{name}'")
+                break
+        if layout is not None:
             break
             
     if layout is None:
-        print(f"[-] Advertencia: No se encontró la composición '{layout_name}' en el proyecto.")
+        print("[-] Advertencia: No se encontró ninguna composición de impresión conocida.")
         return False
         
+    # Leer valores de días acumulados del Excel
+    excel_values = read_excel_values(csv_date)
+    
     modified = False
     
     # Modificar elementos dentro del Layout
@@ -108,12 +165,12 @@ def update_qgis_print_layout(root, csv_date):
             item_id = item.attrib.get("id", "")
             label_text = item.attrib.get("labelText", "")
             
-            # A. Elemento 'Estado' (Contiene "ESTADO DE LOS CONTENEDORES")
-            if label_text and "ESTADO DE LOS CONTENEDORES" in label_text.upper():
-                new_text = re.sub(r"\d{2}/\d{2}/\d{4}", formatted_date, label_text)
-                if new_text != label_text:
+            # A. Elemento 'Titulo'
+            if item_id == "Titulo":
+                new_text = f"ESTADO DE LOS CONTENEDORES CON DÍAS DE ACUMULACIÓN I A LAS 06:00 DEL {formatted_date}"
+                if label_text != new_text:
                     item.attrib["labelText"] = new_text
-                    print(f"    [~] 'Estado' actualizado: '{new_text}'")
+                    print(f"    [~] 'Titulo' actualizado: '{new_text}'")
                     modified = True
                     
             # B. Elemento 'Dia'
@@ -130,16 +187,22 @@ def update_qgis_print_layout(root, csv_date):
                     print(f"    [~] 'Fecha' actualizado: '{formatted_date}'")
                     modified = True
                     
-            # D. Elemento 'Nombre archivo' (UNA(P) AAAA-MM-DD.pdf)
-            elif item_id == "Nombre archivo":
+            # D. Elemento 'Nombre archivo' o 'Texto archivo'
+            elif item_id in ["Nombre archivo", "Texto archivo"]:
                 if label_text != filename_pdf:
                     item.attrib["labelText"] = filename_pdf
-                    print(f"    [~] 'Nombre archivo' actualizado: '{filename_pdf}'")
+                    print(f"    [~] '{item_id}' actualizado: '{filename_pdf}'")
                     modified = True
                     
-    if not modified:
-        print("    [!] Los textos de la composición ya están actualizados con la fecha del CSV.")
-        
+            # E. Elementos de acumulación de días
+            elif item_id in ["Texto 2 días", "Texto 2/3 días", "Texto 3/4 días", "Texto 4/5 días", "Texto + 5días"]:
+                if excel_values and item_id in excel_values:
+                    new_val = excel_values[item_id]
+                    if label_text != new_val:
+                        item.attrib["labelText"] = new_val
+                        print(f"    [~] '{item_id}' actualizado: '{new_val}'")
+                        modified = True
+                        
     return modified
 
 def add_csv_layer_to_qgis_project(qgz_path, csv_path, layer_name, csv_date, group_name="DATOS"):
@@ -201,7 +264,7 @@ def add_csv_layer_to_qgis_project(qgz_path, csv_path, layer_name, csv_date, grou
                 
                 modified = True
                 
-        # 3. Si no existe la capa, crear una nueva
+        # 3. Si no existe la capa, crear una nueva con el campo Acumulacion_general
         else:
             unique_suffix = str(uuid.uuid4()).replace("-", "_")
             layer_id = f"{layer_name.replace(' ', '_')}_{unique_suffix}"
@@ -258,29 +321,29 @@ def add_csv_layer_to_qgis_project(qgz_path, csv_path, layer_name, csv_date, grou
     <field name="GID" configurationFlags="NoFlag">
       <editWidget type="TextEdit"><options><Option /></options></editWidget>
     </field>
-    <field name="RANGO UNAP" configurationFlags="NoFlag">
+    <field name="Acumulacion_general" configurationFlags="NoFlag">
       <editWidget type="TextEdit"><options><Option /></options></editWidget>
     </field>
   </fieldConfiguration>
   <aliases>
     <alias field="GID" index="0" name="" />
-    <alias field="RANGO UNAP" index="1" name="" />
+    <alias field="Acumulacion_general" index="1" name="" />
   </aliases>
   <splitPolicies>
     <policy field="GID" policy="Duplicate" />
-    <policy field="RANGO UNAP" policy="Duplicate" />
+    <policy field="Acumulacion_general" policy="Duplicate" />
   </splitPolicies>
   <defaults>
     <default field="GID" expression="" applyOnUpdate="0" />
-    <default field="RANGO UNAP" expression="" applyOnUpdate="0" />
+    <default field="Acumulacion_general" expression="" applyOnUpdate="0" />
   </defaults>
   <constraints>
     <constraint field="GID" exp_strength="0" constraints="0" unique_strength="0" notnull_strength="0" />
-    <constraint field="RANGO UNAP" exp_strength="0" constraints="0" unique_strength="0" notnull_strength="0" />
+    <constraint field="Acumulacion_general" exp_strength="0" constraints="0" unique_strength="0" notnull_strength="0" />
   </constraints>
   <constraintExpressions>
     <constraint field="GID" exp="" desc="" />
-    <constraint field="RANGO UNAP" exp="" desc="" />
+    <constraint field="Acumulacion_general" exp="" desc="" />
   </constraintExpressions>
   <attributeactions>
     <defaultAction key="Canvas" value="{{{{00000000-0000-0000-0000-000000000000}}}}" />
@@ -288,7 +351,7 @@ def add_csv_layer_to_qgis_project(qgz_path, csv_path, layer_name, csv_date, grou
   <attributetableconfig sortOrder="0" actionWidgetStyle="DropDown" sortExpression="">
     <columns>
       <column type="field" hidden="0" width="-1" name="GID" />
-      <column type="field" hidden="0" width="-1" name="RANGO UNAP" />
+      <column type="field" hidden="0" width="-1" name="Acumulacion_general" />
       <column type="actions" hidden="1" width="-1" />
     </columns>
   </attributetableconfig>
@@ -306,15 +369,15 @@ def add_csv_layer_to_qgis_project(qgz_path, csv_path, layer_name, csv_date, grou
   <editorlayout>GeneratedLayout</editorlayout>
   <editable>
     <field name="GID" editable="1" />
-    <field name="RANGO UNAP" editable="1" />
+    <field name="Acumulacion_general" editable="1" />
   </editable>
   <labelOnTop>
     <field labelOnTop="0" name="GID" />
-    <field labelOnTop="0" name="RANGO UNAP" />
+    <field labelOnTop="0" name="Acumulacion_general" />
   </labelOnTop>
   <reuseLastValue>
     <field name="GID" reuseLastValue="0" />
-    <field name="RANGO UNAP" reuseLastValue="0" />
+    <field name="Acumulacion_general" reuseLastValue="0" />
   </reuseLastValue>
   <dataDefinedFieldProperties/>
 </maplayer>"""
@@ -384,13 +447,13 @@ def add_csv_layer_to_qgis_project(qgz_path, csv_path, layer_name, csv_date, grou
                     vectorjoins_elem.append(new_join_elem)
                     modified = True
                 else:
-                    print(f"[!] La unión de '{layer_name}' con '{target_join_layer_name}' por 'GID' ya está creada.")
+                    print(f"[!] La unión de '{layer_name}' con '{target_join_layer_name}' ya está creada.")
                 
                 # --- PARTE B: SIMBOLOGÍA (SYMBOLOGY) ---
                 renderer_elem = target_join_layer.find("renderer-v2")
                 if renderer_elem is not None and renderer_elem.attrib.get("type") == "categorizedSymbol":
                     old_styling_field = renderer_elem.attrib.get("attr")
-                    new_styling_field = f"{layer_name}_RANGO UNAP"
+                    new_styling_field = f"{layer_name}_Acumulacion_general"
                     
                     if old_styling_field != new_styling_field:
                         print(f"[+] Actualizando simbología categorizada en '{target_join_layer_name}':")
@@ -446,8 +509,8 @@ if __name__ == "__main__":
         
         # 2. Buscar el último CSV local en la ruta solicitada
         print("\n[+] Buscando el último archivo CSV en la carpeta local de reportes...")
-        csv_path, csv_date = get_latest_local_una_csv()
-        layer_name = f"UNA {csv_date}"
+        csv_path, csv_date = get_latest_local_atraso_csv()
+        layer_name = f"Atraso {csv_date}"
         formatted_csv_path = csv_path.replace("\\", "/")
         print(f"    Archivo encontrado: {os.path.basename(csv_path)}")
         print(f"    Ruta del archivo: {formatted_csv_path}")

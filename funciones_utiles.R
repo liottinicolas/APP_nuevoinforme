@@ -51,10 +51,22 @@ generar_reporte_pdf_camionesylevantesIMFID <- function(fecha = NULL, instalar_li
     }
     use_virtualenv("r-reticulate", required = TRUE)
 
-    # 2. Instalar librerías Python si se solicitó (solo necesario la primera vez)
+    # 2. Instalar librerías Python si se solicitó (solo instala las que falten)
     if (instalar_librerias) {
-        message("Instalando/verificando librerías de Python...")
-        py_install(c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "odfpy", "xlwings", "pyreadr", "streamlit", "plotly"))
+        message("Verificando librerías de Python instaladas...")
+        librerias <- c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "odfpy", "xlwings", "pyreadr", "streamlit", "plotly")
+        faltantes <- c()
+        for (lib in librerias) {
+            if (!py_module_available(lib)) {
+                faltantes <- c(faltantes, lib)
+            }
+        }
+        if (length(faltantes) > 0) {
+            message("Instalando librerías de Python faltantes: ", paste(faltantes, collapse = ", "))
+            py_install(faltantes)
+        } else {
+            message("✅ Todas las librerías de Python ya están instaladas.")
+        }
     }
 
     # 3. Pasar la fecha a Python como variable de entorno FECHA_REPORTE.
@@ -113,8 +125,20 @@ generar_reporte_pdf_informediario <- function(fecha = NULL, instalar_librerias =
     use_virtualenv("r-reticulate", required = TRUE)
 
     if (instalar_librerias) {
-        message("Instalando/verificando librerías de Python...")
-        py_install(c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "odfpy", "xlwings", "pyreadr", "streamlit", "plotly"))
+        message("Verificando librerías de Python instaladas...")
+        librerias <- c("pandas", "numpy", "matplotlib", "reportlab", "fpdf2", "openpyxl", "odfpy", "xlwings", "pyreadr", "streamlit", "plotly")
+        faltantes <- c()
+        for (lib in librerias) {
+            if (!py_module_available(lib)) {
+                faltantes <- c(faltantes, lib)
+            }
+        }
+        if (length(faltantes) > 0) {
+            message("Instalando librerías de Python faltantes: ", paste(faltantes, collapse = ", "))
+            py_install(faltantes)
+        } else {
+            message("✅ Todas las librerías de Python ya están instaladas.")
+        }
     }
 
     if (!is.null(fecha)) {
@@ -162,9 +186,14 @@ correr_dashboard_camiones <- function(instalar_paquetes = FALSE) {
 
     message("Iniciando dashboard en Streamlit...")
 
-    # Ruta hardcodeada al ejecutable de streamlit dentro del virtualenv de esta PC.
-    # ⚠️ Si cambiás de usuario/máquina, verificar que la ruta siga siendo correcta.
-    streamlit_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Documentos y papeles importantes", ".virtualenvs", "r-reticulate", "Scripts", "streamlit.exe")
+    # Determinar dinámicamente la ruta del ejecutable de streamlit en el virtualenv
+    venv_root <- Sys.getenv("WORKON_HOME")
+    if (venv_root == "") {
+        venv_root <- file.path(Sys.getenv("USERPROFILE"), ".virtualenvs")
+    }
+    streamlit_path <- file.path(venv_root, "r-reticulate", if (.Platform$OS.type == "windows") "Scripts/streamlit.exe" else "bin/streamlit")
+    # Reemplazar barras invertidas por normales para evitar problemas
+    streamlit_path <- gsub("\\\\", "/", streamlit_path)
 
     # run() de processx lanza el proceso en background y devuelve un objeto controlable
     px <- run(streamlit_path,

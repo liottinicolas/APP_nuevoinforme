@@ -6,7 +6,6 @@ import uuid
 import datetime
 import xml.etree.ElementTree as ET
 import pandas as pd
-import geopandas as gpd
 
 def find_qgz_files():
     # Buscar el archivo EDLR_PORGID.qgz en la carpeta de REPETIDOS

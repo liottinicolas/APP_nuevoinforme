@@ -7,6 +7,10 @@ import datetime
 import xml.etree.ElementTree as ET
 import pandas as pd
 
+# Rutas dinámicas basadas en la ubicación del script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(script_dir, "..", ".."))
+
 def find_qgz_files():
     # Buscar únicamente el archivo UNA_PORGID.qgz en la carpeta de recuperados en G:
     base_pattern = r"G:\Desarrollo Ambiental\Limpieza\Spaa\Infograf*\08. MAPAS DIARIOS\03 UNA\Recuperado31\UNA_PORGID.qgz"
@@ -26,7 +30,7 @@ def get_qgz_path():
 
 def get_latest_local_una_csv():
     # Buscar todos los archivos CSV locales en la ruta de Trabajo IM
-    pattern = r"C:\Users\im4445285\OneDrive\Trabajo IM\APP_nuevoinforme\vistas\informediario\reportes\Mapas\UNA *.csv"
+    pattern = os.path.join(project_root, "vistas", "informediario", "reportes", "Mapas", "UNA *.csv")
     files = glob.glob(pattern)
     if not files:
         raise FileNotFoundError("No se encontró ningún archivo CSV de tipo UNA en la carpeta local de reportes.")

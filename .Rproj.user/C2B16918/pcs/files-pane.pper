@@ -1,6 +1,10 @@
 {
     "sortOrder": [
         {
+            "columnIndex": 2,
+            "ascending": true
+        },
+        {
             "columnIndex": 4,
             "ascending": false
         },
@@ -9,13 +13,9 @@
             "ascending": true
         },
         {
-            "columnIndex": 2,
-            "ascending": false
-        },
-        {
             "columnIndex": 3,
             "ascending": false
         }
     ],
-    "path": "C:/Users/im4445285/OneDrive/Trabajo IM/APP_nuevoinforme"
+    "path": "C:/Users/im4445285/OneDrive/Trabajo IM/APP_nuevoinforme/scripts"
 }

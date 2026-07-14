@@ -11,6 +11,8 @@
 
 source("global.R")
 source("funciones_utiles.R")          # Funciones auxiliares compartidas
+
+source("funciones_descarga_consulta10393ubicaciones.R") # Funcion para descargar por DIA las ubicaciones.
 source("cargaDeDatos.R")              # Carga de datos base del proyecto
 
 source("informes/informe_diario.R")   # Define generar_reporte_dia() y afines

@@ -2,7 +2,7 @@ library(readxl)
 library(dplyr)
 library(lubridate)
 
-xlsx_path <- "c:/Users/im4445285/OneDrive/Trabajo IM/APP_nuevoinforme/informes/planificados/planificacion.xlsx"
+xlsx_path <- "informes/planificados/planificacion.xlsx"
 
 # Load base template
 base_template <- read_excel(xlsx_path, sheet = "PLANIFICACION", range = cell_cols("A:L"))

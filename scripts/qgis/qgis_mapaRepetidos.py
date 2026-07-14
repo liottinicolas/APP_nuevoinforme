@@ -7,6 +7,10 @@ import datetime
 import xml.etree.ElementTree as ET
 import pandas as pd
 
+# Rutas dinámicas basadas en la ubicación del script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(script_dir, "..", ".."))
+
 def find_qgz_files():
     # Buscar el archivo EDLR_PORGID.qgz en la carpeta de REPETIDOS
     base_pattern = r"G:\Desarrollo Ambiental\Limpieza\Spaa\Infograf*\08. MAPAS DIARIOS\02 REPETIDOS\EDLR_PORGID.qgz"
@@ -26,7 +30,7 @@ def get_qgz_path():
 
 def get_latest_local_repite_csv():
     # Buscar todos los archivos CSV locales en la ruta de Trabajo IM
-    pattern = r"C:\Users\im4445285\OneDrive\Trabajo IM\APP_nuevoinforme\vistas\informediario\reportes\Mapas\Repite *.csv"
+    pattern = os.path.join(project_root, "vistas", "informediario", "reportes", "Mapas", "Repite *.csv")
     files = glob.glob(pattern)
     if not files:
         raise FileNotFoundError("No se encontró ningún archivo CSV de tipo Repite en la carpeta local de reportes.")
@@ -66,7 +70,7 @@ def list_project_layers(qgz_path):
 
 def read_excel_values(csv_date):
     # Buscar el archivo de informe excel con la fecha correspondiente
-    pattern = f"C:\\Users\\im4445285\\OneDrive\\Trabajo IM\\APP_nuevoinforme\\vistas\\informediario\\reportes\\archivo_informe {csv_date} *.xlsx"
+    pattern = os.path.join(project_root, "vistas", "informediario", "reportes", f"archivo_informe {csv_date} *.xlsx")
     files = glob.glob(pattern)
     if not files:
         print(f"[-] No se encontró el archivo excel de informe para la fecha {csv_date}")

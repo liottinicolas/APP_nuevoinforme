@@ -202,7 +202,7 @@ descargar_capa_mvd <- function(nombre_tecnico, limite = NULL) {
 mi_capa <- descargar_capa_mvd("gol:intradomiciliario_circuito")
 
 
-ver <- descargar_capa_mvd("imm:V_DF_POSICIONES_MAPAWEB2_GEOM")
+ver <- descargar_capa_mvd("imm:V_DF_PROM_LLENADO_CONTENEDORES")
 
 
 library(httr2)
@@ -216,7 +216,7 @@ Al ser un GeoJSON, no necesitamos extraer manualmente las coordenadas ni pelear 
 
 Aquí tienes el código exacto y más limpio para leerlo:
   
-  R
+
 library(httr2)
 library(sf)
 

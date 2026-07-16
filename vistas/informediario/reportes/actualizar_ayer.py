@@ -6,27 +6,44 @@ import pyreadr
 import shutil
 
 def update_excel_with_xlwings(filepath, output_filename):
+    import tempfile
     output_path = os.path.join(os.path.dirname(filepath), output_filename)
     
-    print(f"Resguardando archivo original. Creando copia de trabajo: {output_path}")
-    # Copiamos primero para garantizar que el archivo original no sea tocado por Excel
-    shutil.copy2(filepath, output_path)
+    temp_path = None
+    wb = None
+    app = None
+    exito = False
     
-    print("Iniciando Excel en segundo plano para procesar la copia...")
-    
-# add_book=False evita que Excel cree un "Libro1" vacío al abrirse
-    app = xw.App(visible=False, add_book=False)
-    app.display_alerts = False       # Desactiva avisos (ej: "Desea guardar cambios")
-    app.screen_updating = False      # Evita parpadeos y acelera el proceso
-    # --------------------------
-
     try:
-        # Si estás en OneDrive, un pequeño delay ayuda a evitar el bloqueo por sincronización
-        import time
-        time.sleep(1) 
+        # Crear ruta temporal en el directorio de temporales del sistema
+        temp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, output_filename)
         
-        # Abrir el workbook (la copia que ya hicimos)
-        wb = app.books.open(output_path)
+        # Si existe una copia temporal previa, la borramos para empezar limpios
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception as e:
+                print(f"Advertencia: no se pudo borrar el archivo temporal previo {temp_path}: {e}")
+                
+        print(f"Resguardando archivo original. Creando copia de trabajo temporal local: {temp_path}")
+        # Copiamos primero para garantizar que el archivo original no sea tocado por Excel
+        shutil.copy2(filepath, temp_path)
+        
+        print("Iniciando Excel en segundo plano para procesar la copia...")
+        
+        # add_book=False evita que Excel cree un "Libro1" vacío al abrirse
+        app = xw.App(visible=False, add_book=False)
+        app.display_alerts = False       # Desactiva avisos (ej: "Desea guardar cambios")
+        app.screen_updating = False      # Evita parpadeos y acelera el proceso
+        # --------------------------
+        
+        # Un pequeño delay de cortesía
+        import time
+        time.sleep(0.5) 
+        
+        # Abrir el workbook (la copia temporal local)
+        wb = app.books.open(temp_path)
         
         hojas = [sheet.name for sheet in wb.sheets]
         
@@ -324,9 +341,22 @@ def update_excel_with_xlwings(filepath, output_filename):
             app.api.DisplayAlerts = False
             app.api.EnableEvents = False
             
-            # RefreshAll() actualiza TODAS las tablas dinámicas, conexiones
-            # y rangos con nombre dinámicos del libro de una sola vez
-            wb.api.RefreshAll()
+            # RefreshAll() puede hacer que Excel se caiga por conexiones del Data Model (Power Pivot).
+            # En su lugar, refrescamos individualmente cada Pivot Cache, lo cual es seguro y estable.
+            pcs = wb.api.PivotCaches()
+            print(f"Refrescando {pcs.Count} Pivot Caches...")
+            for i in range(1, pcs.Count + 1):
+                try:
+                    pc = pcs.Item(i)
+                    try:
+                        pc.BackgroundQuery = False
+                    except Exception:
+                        pass
+                    pc.Refresh()
+                    print(f"  -> PivotCache {i} refrescado con éxito.")
+                except Exception as pc_err:
+                    print(f"  -> Advertencia al refrescar PivotCache {i}: {pc_err}")
+            
             app.calculate()
             print("¡Todas las tablas dinámicas actualizadas!")
         except Exception as e:
@@ -339,6 +369,28 @@ def update_excel_with_xlwings(filepath, output_filename):
 
         print("Guardando y cerrando los cambios en el archivo nuevo...")
         wb.save()
+        wb.close()
+        wb = None
+        
+        # Cerramos/Matamos Excel antes de copiar el archivo para asegurarnos de liberar todos los handles
+        try:
+            app.kill()
+        except:
+            try:
+                app.quit()
+            except:
+                pass
+        
+        # Copiar de la ruta temporal al destino final en OneDrive
+        print(f"Copiando archivo final al destino en OneDrive: {output_path}")
+        shutil.copy2(temp_path, output_path)
+        
+        # Borrar el archivo temporal local
+        try:
+            os.remove(temp_path)
+        except Exception as e:
+            print(f"Advertencia: no se pudo eliminar el archivo temporal {temp_path}: {e}")
+            
         print("¡Listo! Documento generado y actualizado con exito.")
         exito = True
         return exito
@@ -346,11 +398,25 @@ def update_excel_with_xlwings(filepath, output_filename):
     finally:
         # Importante: siempre intentamos cerrar excel y la aplicacion final del código
         # para que no queden procesos residuales colgados consumiendo RAM
-        try:
-            wb.close()
-        except:
-            pass
-        app.quit()
+        if wb is not None:
+            try:
+                wb.close()
+            except:
+                pass
+        if app is not None:
+            try:
+                app.kill()
+            except:
+                try:
+                    app.quit()
+                except:
+                    pass
+        
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except:
+                pass
 
 if __name__ == "__main__":
     import glob

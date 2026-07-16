@@ -8,6 +8,7 @@
 #   - generar_reporte_pdf_informediario()          → PDF informe diario
 #   - correr_dashboard_camiones()                  → lanza Streamlit en navegador
 #   - actualizar_github_datos()                    → sube datos vía git push
+#   - exportar_resumen_contenedores()              → exporta resumen de contenedores a Excel
 # ==============================================================================
 
 
@@ -280,3 +281,109 @@ actualizar_github_datos <- function(data_dir = "vistas/") {
 
 # Uso:
 # actualizar_github_datos(data_dir = "vistas/")
+
+
+# ── Exportar Resumen de Contenedores ──────────────────────────────────────────
+
+# Exporta un archivo de Excel con la cantidad diaria de contenedores
+# según rango de fechas, oficina y estado (activos o todos).
+#
+# Parámetros:
+#   fecha_inicio - fecha inicial del filtro en formato "YYYY-MM-DD"
+#   fecha_fin    - fecha final del filtro en formato "YYYY-MM-DD"
+#   Solo_activos - si TRUE, filtra solo contenedores activos (Estado es NA/vacío)
+#   Oficina      - puede ser "IM", "Fideicomiso" o "Total" (sin filtro de oficina)
+#   df           - data.frame opcional con los datos de ubicaciones. Si es NULL,
+#                  se busca en el entorno global o se lee el archivo RDS.
+#
+# Uso:
+#   exportar_resumen_contenedores("2026-02-10", "2026-02-17", Solo_activos = TRUE, Oficina = "IM")
+exportar_resumen_contenedores <- function(fecha_inicio, fecha_fin, Solo_activos = TRUE, Oficina = "Total", df = NULL) {
+    library(dplyr)
+    library(openxlsx)
+
+    # 1. Cargar historico_ubicaciones si df es NULL
+    if (is.null(df)) {
+        if (exists("historico_ubicaciones", envir = .GlobalEnv)) {
+            df <- get("historico_ubicaciones", envir = .GlobalEnv)
+        } else {
+            ruta_rds <- "db/10393_ubicaciones/historico_ubicaciones.rds"
+            if (file.exists(ruta_rds)) {
+                df <- readRDS(ruta_rds)
+            } else {
+                stop("No se encontró la variable 'historico_ubicaciones' ni el archivo RDS correspondiente en db/10393_ubicaciones/historico_ubicaciones.rds.")
+            }
+        }
+    }
+
+    # 2. Guardar valores de parámetros en variables locales para evitar conflictos de ámbito con dplyr
+    f_inicio <- as.Date(fecha_inicio)
+    f_fin <- as.Date(fecha_fin)
+    ofi_val <- trimws(Oficina)
+
+    # 3. Filtrar por rango de fechas
+    df_filtrado <- df %>%
+        filter(as.Date(Fecha) >= f_inicio & as.Date(Fecha) <= f_fin)
+
+    # 4. Filtrar por Estado (Solo_activos)
+    if (Solo_activos) {
+        df_filtrado <- df_filtrado %>%
+            filter(is.na(Estado) | trimws(Estado) == "")
+    }
+
+    # 5. Filtrar por Oficina (IM, Fideicomiso o Total)
+    if (tolower(ofi_val) == "im") {
+        df_filtrado <- df_filtrado %>%
+            filter(toupper(trimws(Oficina)) == "IM")
+    } else if (tolower(ofi_val) == "fideicomiso") {
+        df_filtrado <- df_filtrado %>%
+            filter(toupper(trimws(Oficina)) == "FIDEICOMISO")
+    } else if (tolower(ofi_val) != "total") {
+        df_filtrado <- df_filtrado %>%
+            filter(toupper(trimws(Oficina)) == toupper(ofi_val))
+    }
+
+    # 6. Agrupar por día y contar contenedores (cantidad de filas)
+    df_resumen <- df_filtrado %>%
+        group_by(Fecha) %>%
+        summarise(
+            Contenedores = n(),
+            .groups = "drop"
+        ) %>%
+        arrange(Fecha)
+
+    # 7. Crear la carpeta Salidas si no existe
+    if (!dir.exists("Salidas")) {
+        dir.create("Salidas", recursive = TRUE)
+    }
+
+    # 8. Generar nombre de archivo y ruta de exportación
+    estado_str <- if (Solo_activos) "activos" else "todos"
+    nombre_archivo <- paste0("contenedores_", fecha_inicio, "_", fecha_fin, "_", ofi_val, "_", estado_str, ".xlsx")
+    ruta_salida <- file.path("Salidas", nombre_archivo)
+
+    # 9. Exportar a Excel
+    write.xlsx(
+        df_resumen,
+        file = ruta_salida,
+        asTable = TRUE,
+        tableStyle = "TableStyleMedium2"
+    )
+
+    message("✅ Resumen exportado con éxito en: ", ruta_salida)
+    return(df_resumen)
+}
+
+# Ejemplos de uso de la función:
+#
+# Caso 1: Obtener contenedores activos para la oficina "IM"
+# exportar_resumen_contenedores(fecha_inicio = "2026-02-10", fecha_fin = "2026-07-16", Solo_activos = TRUE, Oficina = "IM")
+#
+# Caso 2: Obtener el total de contenedores (activos e inactivos) de toda la base (Oficina = "Total")
+# exportar_resumen_contenedores(fecha_inicio = "2026-02-10", fecha_fin = "2026-07-16", Solo_activos = TRUE, Oficina = "Total")
+#
+# Caso 3: Obtener contenedores activos para la oficina "Fideicomiso"
+# exportar_resumen_contenedores(fecha_inicio = "2026-02-10", fecha_fin = "2026-02-17", Solo_activos = TRUE, Oficina = "Fideicomiso")
+#
+# Caso 4: Pasándole un dataframe ya cargado en memoria directamente
+# exportar_resumen_contenedores(fecha_inicio = "2026-02-10", fecha_fin = "2026-02-17", Solo_activos = TRUE, Oficina = "IM", df = historico_ubicaciones)

@@ -1,7 +1,7 @@
 {
     "sortOrder": [
         {
-            "columnIndex": 2,
+            "columnIndex": 1,
             "ascending": true
         },
         {
@@ -9,12 +9,12 @@
             "ascending": false
         },
         {
-            "columnIndex": 1,
-            "ascending": true
-        },
-        {
             "columnIndex": 3,
             "ascending": false
+        },
+        {
+            "columnIndex": 2,
+            "ascending": true
         }
     ],
     "path": "C:/Users/im4445285/OneDrive/Trabajo IM/APP_nuevoinforme"

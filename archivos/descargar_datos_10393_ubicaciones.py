@@ -91,22 +91,42 @@ def descargar_reporte_apex():
         page.goto(URL_INICIAL)
         page.wait_for_load_state("networkidle")
         
-        # Verificar si estamos en la página de login (estándar o SSO)
-        is_sso = page.locator("#username").count() > 0
-        is_apex_login = page.locator(SELECTOR_USUARIO).count() > 0
+        # Función auxiliar para comprobar si un selector existe y es visible en pantalla
+        def campo_visible(selector):
+            try:
+                loc = page.locator(selector)
+                return loc.count() > 0 and loc.first.is_visible()
+            except Exception:
+                return False
 
-        if is_apex_login or is_sso:
+        is_apex_login = campo_visible(SELECTOR_USUARIO)
+        selector_sso_user = "#usernameUserInput:visible, input[name='usernameUserInput']:visible, #username:visible, input[name='username']:visible"
+        is_sso = campo_visible(selector_sso_user)
+        selector_generic_user = "input[type='text']:visible, input[type='email']:visible"
+        is_generic_login = campo_visible(selector_generic_user) and campo_visible("input[type='password']:visible")
+
+        if is_apex_login or is_sso or is_generic_login:
             print("🔑 Detectada pantalla de inicio de sesión...")
+            try:
+                page.evaluate("() => { const b = document.getElementById('cookie-consent-banner'); if (b) b.remove(); }")
+            except Exception:
+                pass
+
             if is_apex_login:
                 print("-> Modo: Oracle APEX Estándar")
-                page.fill(SELECTOR_USUARIO, USUARIO)
-                page.fill(SELECTOR_PASSWORD, CONTRASENA)
-                page.click(SELECTOR_LOGIN_BTN)
-            else:
+                page.fill(f"{SELECTOR_USUARIO}:visible", USUARIO)
+                page.fill(f"{SELECTOR_PASSWORD}:visible", CONTRASENA)
+                page.click("button[type='submit']:visible, #P101_LOGIN", force=True)
+            elif is_sso:
                 print("-> Modo: SSO Montevideo (GUB.UY)")
-                page.fill("#username", USUARIO)
-                page.fill("#password", CONTRASENA)
-                page.click("#loginForm button[type='submit']")
+                page.fill(selector_sso_user, USUARIO)
+                page.fill("input[type='password']:visible", CONTRASENA)
+                page.click("#sign-in-button:visible, button[type='submit']:visible, input[type='submit']:visible, #loginForm button", force=True)
+            else:
+                print("-> Modo: Formulario de Login Genérico Detectado")
+                page.fill(selector_generic_user, USUARIO)
+                page.fill("input[type='password']:visible", CONTRASENA)
+                page.click("button[type='submit']:visible, input[type='submit']:visible", force=True)
                 
             print("⏳ Enviando credenciales y esperando redirección...")
             try:

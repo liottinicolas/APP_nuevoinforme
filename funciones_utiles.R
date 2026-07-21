@@ -377,10 +377,10 @@ exportar_resumen_contenedores <- function(fecha_inicio, fecha_fin, Solo_activos 
 # Ejemplos de uso de la función:
 #
 # Caso 1: Obtener contenedores activos para la oficina "IM"
-# exportar_resumen_contenedores(fecha_inicio = "2026-02-10", fecha_fin = "2026-07-16", Solo_activos = TRUE, Oficina = "IM")
+# exportar_resumen_contenedores(fecha_inicio = "2025-07-01", fecha_fin = "2026-07-16", Solo_activos = TRUE, Oficina = "IM")
 #
 # Caso 2: Obtener el total de contenedores (activos e inactivos) de toda la base (Oficina = "Total")
-# exportar_resumen_contenedores(fecha_inicio = "2026-02-10", fecha_fin = "2026-07-16", Solo_activos = TRUE, Oficina = "Total")
+# exportar_resumen_contenedores(fecha_inicio = "2025-07-01", fecha_fin = "2026-07-16", Solo_activos = TRUE, Oficina = "Total")
 #
 # Caso 3: Obtener contenedores activos para la oficina "Fideicomiso"
 # exportar_resumen_contenedores(fecha_inicio = "2026-02-10", fecha_fin = "2026-02-17", Solo_activos = TRUE, Oficina = "Fideicomiso")

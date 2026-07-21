@@ -107,29 +107,46 @@ def descargar_reporte_limpieza():
             browser.close()
             sys.exit(1)
 
-        # 2. Hacer clic en "Funcionarios" en el popup
-        print("⏳ Esperando selección de perfil (Funcionario/Empresa) en el popup...")
+        # 2. Hacer clic en "Funcionarios" en el popup si se solicita selección de perfil
+        print("⏳ Esperando selección de perfil (Funcionario/Empresa) o formulario SSO en el popup...")
+        selector_perfil = "#icon-1, #icon-3, [data-testid='login-page-sign-in-with-Funcionarios'], [data-testid*='Funcionarios'], button:has-text('Funcionarios')"
+        selector_sso_user = "#usernameUserInput, input[name='usernameUserInput'], #username, input[name='username'], input[type='password']"
+        
         try:
-            popup_page.wait_for_selector("#icon-3", timeout=15000)
-            print("🖱️ Haciendo clic en 'Funcionario' en el popup...")
-            popup_page.click("#icon-3")
-            popup_page.wait_for_load_state("networkidle")
+            popup_page.wait_for_selector(f"{selector_perfil}, {selector_sso_user}", timeout=15000)
+            
+            # Remover banner de cookies si tapa los elementos interactivos
+            try:
+                popup_page.evaluate("() => { const b = document.getElementById('cookie-consent-banner'); if (b) b.remove(); }")
+            except Exception:
+                pass
+
+            # Verificar si está la pantalla de selección de perfil
+            loc_perfil = popup_page.locator(selector_perfil)
+            if loc_perfil.count() > 0 and loc_perfil.first.is_visible():
+                print("🖱️ Haciendo clic en 'Funcionario' en el popup...")
+                loc_perfil.first.click(force=True)
+                popup_page.wait_for_load_state("networkidle")
+            else:
+                print("ℹ️ Se detectó redirección directa al login SSO (sin paso intermedio de perfil).")
         except Exception as e:
-            print(f"❌ Error seleccionando perfil: {e}")
-            if not popup_page.is_closed():
-                popup_page.screenshot(path=os.path.join(CARPETA_CAPTURAS, "limpieza_error_perfil.png"))
-            context.close()
-            browser.close()
-            sys.exit(1)
+            print(f"⚠️ Advertencia al verificar el perfil ({e}). Se intentará continuar al SSO...")
 
         # 3. Rellenar credenciales en el SSO
         print("⏳ Esperando login SSO en el popup...")
         try:
-            popup_page.wait_for_selector("#username", timeout=15000)
+            # Remover banner de cookies si reaparece
+            try:
+                popup_page.evaluate("() => { const b = document.getElementById('cookie-consent-banner'); if (b) b.remove(); }")
+            except Exception:
+                pass
+
+            selector_sso_user_visible = "#usernameUserInput:visible, input[name='usernameUserInput']:visible, #username:visible, input[name='username']:visible"
+            popup_page.wait_for_selector(selector_sso_user_visible, timeout=15000)
             print("🔑 Ingresando credenciales...")
-            popup_page.fill("#username", USUARIO)
+            popup_page.fill(selector_sso_user_visible, USUARIO)
             popup_page.fill("#password", CONTRASENA)
-            popup_page.click("#loginForm button[type='submit']")
+            popup_page.click("#sign-in-button:visible, #loginForm button[type='submit'], button[type='submit']:visible", force=True)
             print("⏳ Enviando credenciales...")
         except Exception as e:
             print(f"❌ Error ingresando credenciales en el SSO: {e}")

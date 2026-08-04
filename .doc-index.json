@@ -1,0 +1,46 @@
+{
+  "last_updated": "2026-07-23T00:00:00Z",
+  "version": "1.0.0",
+  "files_documented": 33,
+  "modules": [
+    { "name": "01-orquestador-y-infraestructura", "files": ["nuevoinforme.R", "global.R", "funciones_utiles.R", "cargaDeDatos.R", "conexionDSN.R", "ver.R", "APP_nuevoinforme.Rproj", "renv.lock"] },
+    { "name": "02-descarga-automatizada", "files": ["funciones_descarga_consulta10393ubicaciones.R", "funciones_descarga_reportesGOL.R"] },
+    { "name": "03-conexiones-y-cache-db", "files": ["db/POSTGRES/conexionPOSTGRES.R", "db/DFR/conexionDFR.R", "endesuso/conexionDFR.R", "db/10393_ubicaciones/funciones_db_ubicaciones.R", "db/GOL_reportes/funciones_db_golReportesDiarios.R"] },
+    { "name": "04-motor-informe-diario", "files": ["informes/informe_diario.R", "informes/informecamiones.R", "informes/pruebaplani.R"] },
+    { "name": "05-visores-flota-y-mapas", "files": ["prueba_api.R", "Visor_vehiculos.R", "Visor_hogares_sustentables.R", "Pesadas_Intra.R", "mail.py", "process_logo.py", "test_logo_conversion.R"] },
+    { "name": "06-scripts-batch-limpieza", "files": ["scripts/barrido/barrido.R", "scripts/generar_mapas_KML.R", "scripts/qgis/qgis_mapaAtraso.py", "scripts/qgis/qgis_mapaRepetidos.py", "scripts/qgis/qgis_mapaUNA.py"] },
+    { "name": "07-app-informediario", "files": ["vistas/App_Informe_Diario/Informe_diario.py", "vistas/informediario/informe_diario_pdf.py", "vistas/informediario/informe_diario_a4v_pdf.py", "vistas/informediario/reportes/actualizar_ayer.py", "vistas/informediario/reportes/generar_mapas.py"] },
+    { "name": "08-app-levantes-camiones", "files": ["vistas/App_Levantes_Camiones/Levantes_Camiones.py", "vistas/informe_levantes_camiones_porturno_IM_FID/generar_pdfs_reportlab.py", "vistas/informe_levantes_camiones_porturno_IM_FID/generar_reporte_pdf_camionesylevantesIMFID.py"] },
+    { "name": "09-app-informe-operativa", "files": ["vistas/informe_operativa/informeOP_generar_pdf.py", "vistas/informe_operativa/informeOP.qmd"] },
+    { "name": "10-app-informe-llenado", "files": ["vistas/App_informe_llenado/App.R", "vistas/App_informe_llenado/limpieza_datos.R", "vistas/App_informe_llenado/limpieza_datos-939868WN.R"] }
+  ],
+  "changes_this_cycle": [
+    {
+      "type": "initial_documentation",
+      "timestamp": "2026-07-23T00:00:00Z",
+      "auto_detected": false,
+      "impact": "n/a",
+      "note": "Primera documentación completa del proyecto, generada con la skill proyecto-documentador"
+    }
+  ],
+  "data_sources": [
+    "postgres://pdbqgistest.imm.gub.uy:5411/qgis",
+    "wfs://geoserver-ed.imm.gub.uy/geoserver/wfs (DFR, autenticado)",
+    "wfs://montevideo.gub.uy/app/geoserver/ows (público)",
+    "wms://montevideo.gub.uy/app/geowebcache/service/wms",
+    "api://intranet.imm.gub.uy/app/visor-vehiculos-v2/api/vehiculos/posiciones",
+    "api://intranet.imm.gub.uy/app/limpieza-gestion-operativa/api/frontend/v1/contenedores",
+    "imap://imap.imm.gub.uy:993"
+  ],
+  "dependencies": {
+    "r_version": "4.5.1",
+    "r_packages_count": 138,
+    "r_key_packages": ["shiny", "bs4Dash", "sf", "leaflet", "DBI", "RPostgres", "pins", "gert", "gh", "reticulate", "openxlsx", "readxl", "readODS", "here", "processx"],
+    "python_key_packages": ["streamlit", "pandas", "plotly", "pyreadr", "reportlab", "matplotlib", "openpyxl", "xlwings", "numpy", "PIL"]
+  },
+  "known_critical_findings": [
+    "Credencial PostgreSQL hardcodeada en db/POSTGRES/conexionPOSTGRES.R",
+    "Credencial IMAP hardcodeada en mail.py",
+    "Repositorio Git dentro de carpeta sincronizada por OneDrive (archivos de conflicto -939868WN detectados incluso en .git/)"
+  ]
+}

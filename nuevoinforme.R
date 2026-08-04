@@ -141,3 +141,10 @@ source("vistas/App_informe_llenado/limpieza_datos.R")
 # )
 # 
 # cat("¡Archivo 'Resumen_GOL_Filtrado.xlsx' generado con éxito, ordenado y sin tildes!\n")
+
+
+
+
+
+
+

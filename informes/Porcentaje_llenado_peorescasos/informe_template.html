@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informe: peores contenedores por saturación - Municipio __MUNICIPIO__</title>
+<!-- Leaflet embebido localmente (sin CDN) para evitar bloqueos de red/CSP corporativos -->
+<style>__LEAFLET_CSS__</style>
+<script>__LEAFLET_JS__</script>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page-plane:     #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --border:         rgba(11,11,11,0.10);
+    --seq-100: #fee5d9;
+    --seq-250: #fcbba1;
+    --seq-400: #fc9272;
+    --seq-550: #fb6a4a;
+    --seq-650: #de2d26;
+    --seq-700: #a50f15;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header { padding: 28px 32px 12px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 14px; margin: 0 0 20px; }
+  section { padding: 20px 32px; }
+  h2 { font-size: 16px; margin: 0 0 4px; }
+  .section-note { color: var(--text-secondary); font-size: 13px; margin: 0 0 14px; }
+  #map { height: 560px; border-radius: 8px; border: 1px solid var(--border); }
+  .legend-box {
+    background: var(--surface-1); padding: 10px 12px; border-radius: 6px;
+    border: 1px solid var(--border); font-size: 12px; color: var(--text-primary);
+    line-height: 1.5;
+  }
+  .legend-title { font-weight: 600; margin-bottom: 6px; }
+  .legend-gradient {
+    width: 160px; height: 10px; border-radius: 4px; margin: 4px 0 2px;
+    background: linear-gradient(to right, var(--seq-100), var(--seq-250), var(--seq-400), var(--seq-550), var(--seq-650), var(--seq-700));
+  }
+  .legend-ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); width: 160px; }
+  .legend-size-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .legend-dot { border-radius: 50%; background: var(--seq-550); border: 1px solid var(--border); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--surface-1); }
+  th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--gridline); font-variant-numeric: tabular-nums; }
+  th:nth-child(1), th:nth-child(2), th:nth-child(3), td:nth-child(1), td:nth-child(2), td:nth-child(3) { text-align: left; font-variant-numeric: normal; }
+  th { color: var(--text-secondary); font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap; }
+  th.sorted::after { content: " \25BE"; }
+  tbody tr:hover { background: var(--page-plane); }
+  .table-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  #filtro { padding: 8px 10px; font-size: 13px; border: 1px solid var(--border); border-radius: 6px; width: 280px; }
+  #descargar-csv {
+    padding: 8px 14px; font-size: 13px; font-weight: 600; color: #ffffff;
+    background: var(--seq-650); border: none; border-radius: 6px; cursor: pointer;
+  }
+  #descargar-csv:hover { background: var(--seq-700); }
+  .table-wrap { max-height: 560px; overflow: auto; border: 1px solid var(--border); border-radius: 8px; }
+  thead th { position: sticky; top: 0; background: var(--surface-1); }
+  .definiciones-box {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 22px; font-size: 13px; line-height: 1.6;
+  }
+  .definiciones-box dt { font-weight: 600; margin-top: 12px; }
+  .definiciones-box dt:first-child { margin-top: 0; }
+  .definiciones-box dd { margin: 2px 0 0; color: var(--text-secondary); }
+  .definiciones-box code {
+    background: var(--page-plane); border-radius: 4px; padding: 1px 5px; font-size: 12px;
+  }
+  .creditos { text-align: center; padding: 20px 32px 14px; }
+  .creditos span {
+    font-size: 9px; color: var(--text-muted); opacity: 0.35; letter-spacing: 0.02em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Peores contenedores por saturación &mdash; Municipio __MUNICIPIO__</h1>
+  <p class="subtitle">Ventana: __FECHA_MIN__ a __FECHA_MAX__ (últimos 30 días con datos disponibles) &middot; contenedores con al menos 3 recolecciones efectivas</p>
+</header>
+
+<section>
+  <h2>Mapa de contenedores</h2>
+  <p class="section-note">Se muestran los __N_EVALUADOS__ contenedores evaluados. Color y tamaño codifican la tasa de saturación (% de recolecciones en las que el contenedor estaba al 100%): a mayor rojo y mayor tamaño, peor.</p>
+  <div id="map"></div>
+</section>
+
+<section>
+  <h2>Tabla: contenedores en riesgo</h2>
+  <div class="table-toolbar">
+    <input id="filtro" type="text" placeholder="Filtrar por gid, dirección o circuito...">
+    <button id="descargar-csv" type="button">Descargar tabla (CSV)</button>
+  </div>
+  <div class="table-wrap">
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th data-key="gid" data-type="text">GID</th>
+        <th data-key="direccion" data-type="text">Dirección</th>
+        <th data-key="circuito" data-type="text">Circuito</th>
+        <th data-key="n_recolecciones" data-type="num">Recolecciones</th>
+        <th data-key="n_saturaciones" data-type="num">Saturaciones</th>
+        <th data-key="tasa_saturacion" data-type="num" class="sorted">Tasa saturación</th>
+        <th data-key="llenado_promedio" data-type="num">Llenado promedio</th>
+        <th data-key="frecuencia_dias" data-type="num">Frecuencia (días)</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-body"></tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Definiciones y cálculos</h2>
+  <div class="definiciones-box">
+    <dl>
+      <dt>Recolección efectiva</dt>
+      <dd>Visita en la que el camión efectivamente levantó el contenedor (<code>Levantado == "S"</code>). Es la base de todos los cálculos siguientes.</dd>
+
+      <dt>Saturaciones</dt>
+      <dd>Cantidad de recolecciones efectivas en las que el contenedor estaba exactamente al 100% de llenado.</dd>
+
+      <dt>Tasa de saturación</dt>
+      <dd><code>saturaciones / recolecciones</code>. Proporción de veces que, al pasar el camión, el contenedor ya estaba lleno. Es la métrica principal de severidad (0% a 100%).</dd>
+
+      <dt>Llenado promedio</dt>
+      <dd>Promedio del % de llenado registrado en cada recolección efectiva del contenedor.</dd>
+
+      <dt>Frecuencia (días)</dt>
+      <dd><code>(última recolección − primera recolección) / (recolecciones − 1)</code>. Promedio de días entre una recolección y la siguiente. Un valor cercano a 1 indica recolección diaria; un valor más alto indica recolección espaciada.</dd>
+
+      <dt>Ventana analizada</dt>
+      <dd>Últimos 30 días con datos disponibles, contenedores con al menos 3 recolecciones efectivas para poder calcular una frecuencia representativa.</dd>
+    </dl>
+  </div>
+</section>
+
+<script>
+const mapaData = __JSON_MAPA__;
+const tablaData = __JSON_TABLA__;
+
+// --- Escala secuencial de un solo hue (rojo), light -> dark (ColorBrewer Reds) ---
+const rampAnchors = ["#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"];
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function lerp(a, b, t) { return a + (b - a) * t; }
+function colorForRate(t) {
+  t = Math.max(0, Math.min(1, t));
+  const n = rampAnchors.length - 1;
+  const pos = t * n;
+  const i = Math.min(Math.floor(pos), n - 1);
+  const localT = pos - i;
+  const c0 = hexToRgb(rampAnchors[i]), c1 = hexToRgb(rampAnchors[i + 1]);
+  const rgb = [lerp(c0[0], c1[0], localT), lerp(c0[1], c1[1], localT), lerp(c0[2], c1[2], localT)].map(Math.round);
+  return "rgb(" + rgb.join(",") + ")";
+}
+// Tamaño con escala de raíz cuadrada (área proporcional al valor, no el radio)
+const R_MIN = 4, R_MAX = 15;
+function radiusForRate(t) {
+  return R_MIN + (R_MAX - R_MIN) * Math.sqrt(Math.max(0, Math.min(1, t)));
+}
+
+const map = L.map("map");
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+  maxZoom: 20,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+}).addTo(map);
+
+const bounds = [];
+mapaData.forEach(function(d) {
+  const marker = L.circleMarker([d.lat, d.lon], {
+    radius: radiusForRate(d.tasa_saturacion),
+    fillColor: colorForRate(d.tasa_saturacion),
+    color: "#fcfcfb",
+    weight: 1,
+    fillOpacity: 0.85
+  }).addTo(map);
+  marker.bindTooltip(
+    "<strong>GID " + d.gid + "</strong><br>" +
+    d.direccion + " (" + d.circuito + ")<br>" +
+    "Tasa de saturación: " + (d.tasa_saturacion * 100).toFixed(1) + "%<br>" +
+    "Llenado promedio: " + d.llenado_promedio + "%<br>" +
+    "Recolecciones: " + d.n_recolecciones + " (" + d.n_saturaciones + " saturadas)<br>" +
+    "Frecuencia: cada " + d.frecuencia_dias + " días"
+  );
+  bounds.push([d.lat, d.lon]);
+});
+if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
+
+const legend = L.control({ position: "bottomright" });
+legend.onAdd = function() {
+  const div = L.DomUtil.create("div", "legend-box");
+  div.innerHTML =
+    '<div class="legend-title">Tasa de saturación</div>' +
+    '<div class="legend-gradient"></div>' +
+    '<div class="legend-ticks"><span>0%</span><span>50%</span><span>100%</span></div>' +
+    '<div class="legend-size-row"><div class="legend-dot" style="width:8px;height:8px;"></div><span>baja</span>' +
+    '<div class="legend-dot" style="width:22px;height:22px;"></div><span>alta</span></div>';
+  return div;
+};
+legend.addTo(map);
+
+// --- Tabla: render, filtro de texto y orden por columna ---
+let filas = tablaData.slice();
+let ordenActual = { key: "tasa_saturacion", asc: false };
+
+function render() {
+  const tbody = document.getElementById("tabla-body");
+  tbody.innerHTML = filas.map(function(d) {
+    return "<tr>" +
+      "<td>" + d.gid + "</td>" +
+      "<td>" + d.direccion + "</td>" +
+      "<td>" + d.circuito + "</td>" +
+      "<td>" + d.n_recolecciones + "</td>" +
+      "<td>" + d.n_saturaciones + "</td>" +
+      "<td>" + (d.tasa_saturacion * 100).toFixed(1) + "%</td>" +
+      "<td>" + d.llenado_promedio.toFixed(1) + "%</td>" +
+      "<td>" + d.frecuencia_dias.toFixed(2) + "</td>" +
+      "</tr>";
+  }).join("");
+}
+render();
+
+document.getElementById("filtro").addEventListener("input", function(e) {
+  const q = e.target.value.toLowerCase();
+  filas = tablaData.filter(function(d) {
+    return (d.gid + " " + d.direccion + " " + d.circuito).toLowerCase().indexOf(q) !== -1;
+  });
+  ordenar(ordenActual.key, ordenActual.asc, true);
+});
+
+document.querySelectorAll("#tabla th").forEach(function(th) {
+  th.addEventListener("click", function() {
+    const key = th.dataset.key;
+    const asc = ordenActual.key === key ? !ordenActual.asc : false;
+    document.querySelectorAll("#tabla th").forEach(function(t) { t.classList.remove("sorted"); });
+    th.classList.add("sorted");
+    ordenar(key, asc);
+  });
+});
+
+function ordenar(key, asc) {
+  const th = document.querySelector('#tabla th[data-key="' + key + '"]');
+  const tipo = th ? th.dataset.type : "num";
+  filas.sort(function(a, b) {
+    let va = a[key], vb = b[key];
+    if (tipo === "text") { va = String(va).toLowerCase(); vb = String(vb).toLowerCase(); }
+    if (va < vb) return asc ? -1 : 1;
+    if (va > vb) return asc ? 1 : -1;
+    return 0;
+  });
+  ordenActual = { key: key, asc: asc };
+  render();
+}
+
+// --- Descarga de la tabla visible (filtrada/ordenada) como CSV ---
+function csvEscape(valor) {
+  const texto = String(valor);
+  if (/[",\n]/.test(texto)) return '"' + texto.replace(/"/g, '""') + '"';
+  return texto;
+}
+
+document.getElementById("descargar-csv").addEventListener("click", function() {
+  const encabezados = ["gid", "direccion", "circuito", "n_recolecciones", "n_saturaciones", "tasa_saturacion_pct", "llenado_promedio_pct", "frecuencia_dias"];
+  const filasCsv = filas.map(function(d) {
+    return [
+      d.gid, d.direccion, d.circuito, d.n_recolecciones, d.n_saturaciones,
+      (d.tasa_saturacion * 100).toFixed(1), d.llenado_promedio.toFixed(1), d.frecuencia_dias.toFixed(2)
+    ].map(csvEscape).join(",");
+  });
+  const csv = "﻿" + [encabezados.join(",")].concat(filasCsv).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "contenedores_en_riesgo_MunicipioB.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+</script>
+
+<footer class="creditos"><span>By Nicolas Liotti</span></footer>
+</body>
+</html>

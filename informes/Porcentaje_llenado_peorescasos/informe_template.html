@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Informe: peores contenedores por saturación - Municipio __MUNICIPIO__</title>
+<title>Informe: peores contenedores por saturación - __FILTROS__</title>
 <!-- Leaflet embebido localmente (sin CDN) para evitar bloqueos de red/CSP corporativos -->
 <style>__LEAFLET_CSS__</style>
 <script>__LEAFLET_JS__</script>
@@ -85,8 +85,8 @@
 <body>
 
 <header>
-  <h1>Peores contenedores por saturación &mdash; Municipio __MUNICIPIO__</h1>
-  <p class="subtitle">Ventana: __FECHA_MIN__ a __FECHA_MAX__ (últimos 30 días con datos disponibles) &middot; contenedores con al menos 3 recolecciones efectivas</p>
+  <h1>Peores contenedores por saturación &mdash; __FILTROS__</h1>
+  <p class="subtitle">Ventana: __FECHA_MIN__ a __FECHA_MAX__ &middot; contenedores con al menos __MIN_RECOLECCIONES__ recolecciones efectivas</p>
 </header>
 
 <section>
@@ -140,7 +140,7 @@
       <dd><code>(última recolección − primera recolección) / (recolecciones − 1)</code>. Promedio de días entre una recolección y la siguiente. Un valor cercano a 1 indica recolección diaria; un valor más alto indica recolección espaciada.</dd>
 
       <dt>Ventana analizada</dt>
-      <dd>Últimos 30 días con datos disponibles, contenedores con al menos 3 recolecciones efectivas para poder calcular una frecuencia representativa.</dd>
+      <dd>__FECHA_MIN__ a __FECHA_MAX__, contenedores con al menos __MIN_RECOLECCIONES__ recolecciones efectivas para poder calcular una frecuencia representativa.</dd>
     </dl>
   </div>
 </section>
@@ -285,7 +285,7 @@ document.getElementById("descargar-csv").addEventListener("click", function() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "contenedores_en_riesgo_MunicipioB.csv";
+  a.download = "contenedores_en_riesgo___SLUG__.csv";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

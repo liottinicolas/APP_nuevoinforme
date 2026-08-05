@@ -14,10 +14,12 @@ leaflet_css <- paste(readLines("informes/_vendor/leaflet/leaflet.css", warn = FA
 leaflet_js <- paste(readLines("informes/_vendor/leaflet/leaflet.js", warn = FALSE), collapse = "\n")
 
 reemplazos <- list(
-  "__MUNICIPIO__" = d$municipio,
+  "__FILTROS__" = paste0("Municipio ", d$municipio),
   "__FECHA_MIN__" = as.character(d$fecha_min),
   "__FECHA_MAX__" = as.character(d$fecha_max),
   "__N_EVALUADOS__" = as.character(d$n_evaluados),
+  "__MIN_RECOLECCIONES__" = "3",
+  "__SLUG__" = paste0("Municipio", d$municipio),
   "__LEAFLET_CSS__" = leaflet_css,
   "__LEAFLET_JS__" = leaflet_js,
   "__JSON_MAPA__" = d$json_mapa,

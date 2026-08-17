@@ -1,0 +1,10 @@
+file: GID_inactivos.rds
+file_size: 1072056
+pin_hash: 2def4c0e3514d592
+type: rds
+title: 'GID_inactivos: a pinned 30642 x 16 data frame'
+description: ~
+tags: ~
+urls: ~
+created: 20260817T145739Z
+api_version: 1

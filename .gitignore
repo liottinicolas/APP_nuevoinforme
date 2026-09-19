@@ -1,16 +1,56 @@
-.Rproj.user
+# --- Estado de IDE / sesion local (nunca debe versionarse) ---
+.Rproj.user/
 .Rhistory
+*.Rhistory
 .RData
 .Ruserdata
-.Rhistory
-.Rhistory
-.Rhistory
+*.RDataTmp
+__pycache__/
+*.pyc
+*.lnk
+
 # Mapas y salidas auto-generadas
 salidas/
 
 # Archivos de reportes diarios generados
 vistas/informediario/reportes/archivos/
+vistas/informediario/reportes/Mapas/
+vistas/informediario/reportes/*.xlsx
+vistas/informediario/__pycache__/
 vistas/informe_operativa/*.pdf
 vistas/informe_operativa/*.xlsx
+vistas/informe_operativa/Contenedores_*.ods.ods
+vistas/informe_operativa/__pycache__/
 vistas/informe_levantes_camiones_porturno_IM_FID/*.pdf
 vistas/informe_levantes_camiones_porturno_IM_FID/*.xlsx
+vistas/mapas/*.zip
+
+# Cache de datos intermedios que cada script de informe recalcula solo en cada corrida
+informes/**/data/*.rds
+informes/**/datos_informe_html.rds
+vistas/informediario/data/*.rds
+vistas/informe_levantes_camiones_porturno_IM_FID/data/*.rds
+
+# Base de datos local (historicos RDS, capas DFR, etc.) - ya se sincroniza via OneDrive,
+# no hace falta pushearla a GitHub. Cada RDS commiteado queda para siempre en el historial.
+# (Los .R con funciones de cada modulo SI se versionan, por eso no se ignora db/ entero.)
+db/**/*.rds
+db/**/*.parquet
+db/**/*.gpkg
+db/**/*.csv
+
+# CSVs diarios descargados (input de cargaDeDatos.R) - mismo motivo que db/.
+# archivos/capturas/, los .py y los .html en la raiz de archivos/ SI se versionan.
+archivos/10393_ubicaciones/
+archivos/GOL_reportes/
+
+# Historicos RDS generados por UNA_POR_CIRCUITO y los pedidos ad-hoc de Pedidos/
+# (los .R/.r de ambas carpetas SI se versionan)
+UNA_POR_CIRCUITO/rds/
+UNA_POR_CIRCUITO/salidas/
+Pedidos/*.rds
+Pedidos/*.xlsx
+
+# Pines de datos para la Shiny app: ahora se publican en un repo de GitHub aparte
+# (ver vistas/App_informe_llenado/limpieza_datos.R), no en este repo de codigo.
+vistas/App_informe_llenado/data/

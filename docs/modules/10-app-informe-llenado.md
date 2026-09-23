@@ -8,8 +8,9 @@ Tipo: Shiny App (R, `bs4Dash` + `leaflet`) + script de preparación de datos (`p
 
 ## 📊 Entrada (Input)
 
-- En local: pines en `vistas/App_informe_llenado/data/` (`GID_activos`, `GID_inactivos`, `historico_llenado_web`)
-- En producción (Shiny Cloud): mismos pines vía `board_url()` apuntando a `raw.githubusercontent.com/liottinicolas/APP_nuevoinforme/main/vistas/App_informe_llenado/data/`
+- En local: pines en un repo de datos aparte, clonado como carpeta hermana del proyecto (`../APP_nuevoinforme-data/data/`)
+- En producción (Shiny Cloud): mismos pines vía `board_url()` apuntando a `raw.githubusercontent.com/liottinicolas/APP_nuevoinforme-data/main/data/`
+- Los pines viven en un repo de GitHub separado (`APP_nuevoinforme-data`) para no ensuciar el historial de este repo de código con binarios que cambian todos los días
 - Fuentes originales (para `limpieza_datos.R`): `db/DFR/RDS/dfr_E_DF_POSICIONES_RECORRIDO.rds` (activos), `db/DFR/RDS/dfr_C_DF_POSICIONES_RECORRIDO_HISTORICO.rds` (inactivos), `db/GOL_reportes/historico_llenadoGol.rds`
 
 ## 🔄 Proceso

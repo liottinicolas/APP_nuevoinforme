@@ -317,5 +317,6 @@ analizar_peores_contenedores <- function(
 # analizar_peores_contenedores(municipio = "B", fecha_inicio = "2026-07-01", fecha_fin = "2026-07-15")
 # analizar_peores_contenedores(municipio = "B", exportar_html = TRUE)
 
-
-ver <- analizar_peores_contenedores(gids = c("184421", "184471", "107365"), exportar_html = TRUE)
+source("informes/Porcentaje_llenado_peorescasos/generar_pdf_contenedores.R")
+ver <- analizar_peores_contenedores(gids = c("184421", "184471", "107365"))
+generar_pdf_contenedores(ver)

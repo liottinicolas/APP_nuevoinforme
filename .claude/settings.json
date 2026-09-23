@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(python \"C:\\\\Users\\\\IM4445~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-im4445285-OneDrive-Trabajo-IM-APP-nuevoinforme\\\\1c26fe3b-f3bf-4cf9-bc16-d633a3acff46\\\\scratchpad\\\\test_ocr.py\")",
+      "PowerShell(python \"c:\\\\Users\\\\im4445285\\\\OneDrive\\\\Trabajo IM\\\\Resoluciones\\\\renombrar.py\" \"c:\\\\Users\\\\im4445285\\\\OneDrive\\\\Trabajo IM\\\\Resoluciones\\\\2026-09-14\" --dry-run 2>&1)",
+      "PowerShell(python \"c:\\\\Users\\\\im4445285\\\\OneDrive\\\\Trabajo IM\\\\Resoluciones\\\\renombrar.py\" \"c:\\\\Users\\\\im4445285\\\\OneDrive\\\\Trabajo IM\\\\Resoluciones\\\\2026-09-14\" --dry-run > \"$env:TEMP\\\\ocr_dryrun.txt\" 2>&1; Write-Output \"EXIT: $LASTEXITCODE\"; \\(Get-Content \"$env:TEMP\\\\ocr_dryrun.txt\" | Measure-Object -Line\\).Lines)",
+      "Read(//c/Users/im4445285/AppData/Local/Temp/**)",
+      "PowerShell(python \"c:\\\\Users\\\\im4445285\\\\OneDrive\\\\Trabajo IM\\\\Resoluciones\\\\renombrar.py\" \"c:\\\\Users\\\\im4445285\\\\OneDrive\\\\Trabajo IM\\\\Resoluciones\\\\2026-09-14\" --dry-run > \"$env:TEMP\\\\ocr_dryrun2.txt\" 2>&1; Write-Output \"EXIT: $LASTEXITCODE\")"
+    ]
+  }
+}

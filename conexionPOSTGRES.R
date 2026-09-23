@@ -259,6 +259,12 @@ cargar_capas_barrido <- function(con = NULL, base_dir = "db/POSTGRES", formato =
 # 
 # dbDisconnect(con)
 
+con <- conectar_postgres()
+recoleccion_PEV<- leer_capa_postgres(con,"Relevamiento PEV")
+recoleccion_RBB_MR<- leer_capa_postgres(con,"RBB_Operativo")
+recoleccion_SSEE_MR<- leer_capa_postgres(con,"SSEE")
+dbDisconnect(con) 
+
 # --- PASO 2: la próxima vez, cargar desde disco (sin conexión) ---
 capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")
 capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo", formato = "GPKG")

@@ -1,0 +1,5 @@
+# Los pines de datos se publican en un repo de GitHub aparte
+# (APP_nuevoinforme-data, ver limpieza_datos.R). Si esta carpeta llegara a
+# existir localmente al deployar, no debe subirse: si se empaqueta, queda
+# congelada en el servidor y App.R deja de leer datos frescos vía board_url().
+data/

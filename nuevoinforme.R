@@ -35,6 +35,20 @@ actualizar_capas_wfs(base_dir = "db/DFR")
 # Datos operativos desde PostgreSQL (llenado GOL, ubicaciones, etc.)
 # source("db/POSTGRES/conexionPOSTGRES.R")
 
+# UNA POR CIRCUITO: recalcula el historico de ubicaciones enriquecido
+# (PERIODO, ultimo levante, UNA) a partir de lo que se acaba de actualizar
+# arriba (historico_ubicaciones, historico_llenadoGol y las capas del DFR).
+# Corre en procesos de R aparte (ver UNA_POR_CIRCUITO/scripts/UNA_por_circuito.r)
+# para no competir por memoria con el resto de este script, y por defecto en
+# modo incremental (solo procesa los dias nuevos). Si falla, no corta el
+# resto del informe diario.
+.wd_antes_de_una <- getwd()
+tryCatch(
+  source("UNA_POR_CIRCUITO/scripts/UNA_por_circuito.r"),
+  error = function(e) warning("UNA_POR_CIRCUITO fallo: ", conditionMessage(e)),
+  finally = setwd(.wd_antes_de_una)  # el script interno hace su propio setwd()
+)
+
 
 # ── 3. GENERAR INFORMES EN R ──────────────────────────────────────────────────
 
@@ -48,24 +62,53 @@ actualizar_capas_wfs(base_dir = "db/DFR")
 
 # Informe PDF camiones y levantes IMF/FID (fecha = NULL usa el día de hoy)
 generar_reporte_pdf_camionesylevantesIMFID(fecha = "2026-02-17", instalar_librerias = FALSE)  # uso con fecha específica
-generar_reporte_pdf_camionesylevantesIMFID(fecha = NULL, instalar_librerias = TRUE)
+  generar_reporte_pdf_camionesylevantesIMFID(fecha = NULL, instalar_librerias = TRUE)
 
 
 # ── 4. GENERAR INFORMES EN PYTHON ─────────────────────────────────────────────
 # Usa el Python del entorno virtual de reticulate (se detecta automáticamente en cualquier PC)
 
-python_venv <- reticulate::virtualenv_python("r-reticulate")
+  python_venv <- reticulate::virtualenv_python("r-reticulate")
+
+# Corre un script de Python con el venv indicado, corta con stop() si falla
+# (status != 0) y muestra la salida (stdout+stderr) en consola en cualquier caso.
+ejecutar_python <- function(python_venv, script) {
+  res <- system2(python_venv, args = script, stdout = TRUE, stderr = TRUE)
+  if (!is.null(attr(res, "status")) && attr(res, "status") != 0) {
+    stop(script, " fallo:\n", paste(res, collapse = "\n"))
+  }
+  cat(res, sep = "\n")
+  invisible(res)
+}
 
 # Informe operativa (genera el PDF de la vista operativa)
-system2(python_venv, args = "vistas/informe_operativa/informeOP_generar_pdf.py")
+ejecutar_python(python_venv, "vistas/informe_operativa/informeOP_generar_pdf.py")
+
+# Vuelve a generar los mapas (CSV + capas/textos en QGIS) a partir del
+# archivo_informe ya existente. Está separada en una función porque además de
+# correr acá como parte del pipeline diario, hay que volver a llamarla sola
+# (actualizar_mapas()) cada vez que alguien edite y guarde a mano el excel
+# durante el día (por ejemplo al completar Disponibilidad a partir de un mail):
+# ese guardado recalcula todo el libro y deja los mapas de QGIS con los valores
+# de la corrida matutina. NO vuelve a correr actualizar_ayer.py: ese script
+# avanza el "archivo madre" al día siguiente y no está pensado para correrse
+# dos veces el mismo día.
+actualizar_mapas <- function() {
+  python_venv <- reticulate::virtualenv_python("r-reticulate")
+
+  cat("Recordá cerrar QGIS Desktop antes de correr esto: los scripts\n")
+  cat("qgis_mapa*.py necesitan escribir el .qgz y fallan si está abierto.\n\n")
+
+  ejecutar_python(python_venv, "vistas/informediario/reportes/generar_mapas.py")
+
+  ejecutar_python(python_venv, "scripts/qgis/qgis_mapaUNA.py")
+  ejecutar_python(python_venv, "scripts/qgis/qgis_mapaAtraso.py")
+  ejecutar_python(python_venv, "scripts/qgis/qgis_mapaRepetidos.py")
+}
 
 # Informe diario: primero actualiza los datos de ayer, luego genera los mapas
-system2(python_venv, args = "vistas/informediario/reportes/actualizar_ayer.py")
-system2(python_venv, args = "vistas/informediario/reportes/generar_mapas.py")  # requiere actualizar_ayer primero
-
-system2(python_venv, args = "scripts/qgis/qgis_mapaUNA.py")
-system2(python_venv, args = "scripts/qgis/qgis_mapaAtraso.py")
-system2(python_venv, args = "scripts/qgis/qgis_mapaRepetidos.py")
+ejecutar_python(python_venv, "vistas/informediario/reportes/actualizar_ayer.py")
+actualizar_mapas()
 
 # ── 5. ACTUALIZAR APP SHINY ───────────────────────────────────────────────────
 
@@ -73,7 +116,7 @@ system2(python_venv, args = "scripts/qgis/qgis_mapaRepetidos.py")
 source("vistas/App_informe_llenado/limpieza_datos.R")
 
 # Solo ejecutar si hubo cambios en el código de la app (no en los datos):
-# rsconnect::deployApp("vistas/App_informe_llenado/")
+  # rsconnect::deployApp("vistas/App_informe_llenado/")
 
 
 

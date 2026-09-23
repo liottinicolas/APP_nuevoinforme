@@ -1,4 +1,5 @@
 import os
+import re
 import datetime
 import xlwings as xw
 import pandas as pd
@@ -341,22 +342,42 @@ def update_excel_with_xlwings(filepath, output_filename):
             app.api.DisplayAlerts = False
             app.api.EnableEvents = False
             
-            # RefreshAll() puede hacer que Excel se caiga por conexiones del Data Model (Power Pivot).
-            # En su lugar, refrescamos individualmente cada Pivot Cache, lo cual es seguro y estable.
-            pcs = wb.api.PivotCaches()
-            print(f"Refrescando {pcs.Count} Pivot Caches...")
-            for i in range(1, pcs.Count + 1):
+            # Recorremos las tablas dinámicas hoja por hoja (en vez de la colección genérica
+            # wb.api.PivotCaches(), que puede tener índices que fallan al leerse por COM) y
+            # refrescamos el PivotCache propio de cada una. RefreshAll() se evita porque puede
+            # hacer que Excel se caiga por conexiones del Data Model (Power Pivot).
+            #
+            # NOTA: algunas Pivot Caches (Dias acumulacion, Ranking, Informacion) tienen el rango de
+            # origen fijo en un número de fila viejo (ej. Hoy!F1C1:F11780C16). Si la hoja fuente crece
+            # por encima de eso, esas filas quedan afuera del refresh. Se intentó corregir el rango
+            # automáticamente por código (recrear la Pivot Cache y reasignarla con ChangePivotCache),
+            # pero la llamada a PivotCaches.Create() falla en este entorno con un error de bajo nivel
+            # de COM (E_INVALIDARG) que no se pudo resolver sin poder probar contra un Excel real. La
+            # corrección real se hizo a mano en Excel: se cambió el origen de esas tablas a columna
+            # completa (igual que ya tenían TotalContenedores/Repetidos, que nunca tuvieron el problema),
+            # así que un Refresh() simple alcanza.
+            total_tablas = 0
+            for hoja_pv in wb.sheets:
                 try:
-                    pc = pcs.Item(i)
+                    pts = hoja_pv.api.PivotTables()
+                    cant_pts = pts.Count
+                except Exception:
+                    continue
+                for j in range(1, cant_pts + 1):
+                    total_tablas += 1
                     try:
-                        pc.BackgroundQuery = False
-                    except Exception:
-                        pass
-                    pc.Refresh()
-                    print(f"  -> PivotCache {i} refrescado con éxito.")
-                except Exception as pc_err:
-                    print(f"  -> Advertencia al refrescar PivotCache {i}: {pc_err}")
-            
+                        pt = pts.Item(j)
+                        pc = pt.PivotCache()
+                        try:
+                            pc.BackgroundQuery = False
+                        except Exception:
+                            pass
+                        pc.Refresh()
+                    except Exception as e:
+                        print(f"  -> Advertencia al refrescar tabla dinámica #{j} de '{hoja_pv.name}': {e}")
+
+            print(f"Se refrescaron {total_tablas} tabla(s) dinámica(s).")
+
             app.calculate()
             print("¡Todas las tablas dinámicas actualizadas!")
         except Exception as e:

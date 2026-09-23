@@ -68,6 +68,57 @@ def list_project_layers(qgz_path):
                     layer_names.append(name_elem.text)
             return layer_names
 
+def read_excel_values(csv_date):
+    # Buscar el archivo de informe excel con la fecha correspondiente
+    pattern = os.path.join(project_root, "vistas", "informediario", "reportes", f"archivo_informe {csv_date} *.xlsx")
+    files = glob.glob(pattern)
+    if not files:
+        print(f"[-] No se encontró el archivo excel de informe para la fecha {csv_date}")
+        return None
+
+    excel_path = files[0]
+    print(f"[+] Leyendo valores desde excel: {os.path.basename(excel_path)}")
+    try:
+        # data_only=True en openpyxl (usado por pandas internamente) lee el valor cacheado de las fórmulas
+        df = pd.read_excel(excel_path, sheet_name="Datos Mapas", header=None)
+
+        # M es la columna 12 (A=0, ..., M=12)
+        # M31 -> Fila 31 (indice 30)
+        # M32 -> Fila 32 (indice 31)
+        # M33 -> Fila 33 (indice 32)
+        # M34 -> Fila 34 (indice 33)
+        # M35 -> Fila 35 (indice 34)
+        row_indices = {
+            "textoUnaVerde": 30,
+            "textoUnaAmarillo": 31,
+            "textoUnaNaranja": 32,
+            "textoUnaRojo": 33,
+            "textoUnaNegro": 34
+        }
+
+        values = {}
+        for key, row_idx in row_indices.items():
+            val = df.iloc[row_idx, 12] # Columna M (indice 12)
+
+            if pd.isna(val):
+                formatted_val = "0.00%"
+            elif isinstance(val, (int, float)):
+                # Si viene como un ratio decimal <= 1 (ej: 0.5371) lo multiplicamos por 100
+                if val <= 1.0:
+                    formatted_val = f"{val * 100:.2f}%".replace(".", ",")
+                else:
+                    formatted_val = f"{val:.2f}%".replace(".", ",")
+            else:
+                formatted_val = str(val).strip()
+
+            values[key] = formatted_val
+            print(f"    {key}: {formatted_val}")
+
+        return values
+    except Exception as e:
+        print(f"[-] Error al leer el archivo excel: {e}")
+        return None
+
 def update_qgis_print_layout(root, csv_date):
     print("\n[+] Analizando composición 'MAPA GRAL MVD' para actualización de textos...")
     
@@ -102,9 +153,12 @@ def update_qgis_print_layout(root, csv_date):
     if layout is None:
         print(f"[-] Advertencia: No se encontró la composición '{layout_name}' en el proyecto.")
         return False
-        
+
+    # Leer valores de rangos UNA del Excel
+    excel_values = read_excel_values(csv_date)
+
     modified = False
-    
+
     # Modificar elementos dentro del Layout
     for item in layout.iter():
         if item.tag == "LayoutItem":
@@ -139,7 +193,16 @@ def update_qgis_print_layout(root, csv_date):
                     item.attrib["labelText"] = filename_pdf
                     print(f"    [~] '{item_id}' actualizado: '{filename_pdf}'")
                     modified = True
-                    
+
+            # E. Elementos de rangos UNA
+            elif item_id in ["textoUnaVerde", "textoUnaAmarillo", "textoUnaNaranja", "textoUnaRojo", "textoUnaNegro"]:
+                if excel_values and item_id in excel_values:
+                    new_val = excel_values[item_id]
+                    if label_text != new_val:
+                        item.attrib["labelText"] = new_val
+                        print(f"    [~] '{item_id}' actualizado: '{new_val}'")
+                        modified = True
+
     if not modified:
         print("    [!] Los textos de la composición ya están actualizados con la fecha del CSV.")
         

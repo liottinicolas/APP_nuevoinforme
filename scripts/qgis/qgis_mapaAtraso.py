@@ -170,7 +170,7 @@ def update_qgis_print_layout(root, csv_date):
             
             # A. Elemento 'Titulo'
             if item_id == "Titulo":
-                new_text = f"ESTADO DE LOS CONTENEDORES CON DÍAS DE ACUMULACIÓN I A LAS 06:00 DEL {formatted_date}"
+                new_text = f"ESTADO DE LOS CONTENEDORES CON DÍAS DE ACUMULACIÓN | A LAS 06:00 DEL {formatted_date}"
                 if label_text != new_text:
                     item.attrib["labelText"] = new_text
                     print(f"    [~] 'Titulo' actualizado: '{new_text}'")

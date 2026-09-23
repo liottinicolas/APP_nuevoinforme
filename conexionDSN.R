@@ -96,9 +96,18 @@ cargar_capa_mvd <- function(nombre_capa, transformar_gps = TRUE) {
 
 
 ## Cargo
-nombre_capaver <- cargar_capa_mvd("mapstore-tematicas:ssmm_contenedores_domiciliarios")
+nombre_capaver <- cargar_capa_mvd("gol_publico:intradomiciliario_circuito")
 # Dibujo
 plot(st_geometry(nombre_capaver))
+
+nombre_capaver2 <- cargar_capa_mvd("gol_publico:intradomiciliario_circuito_segmento")
+
+plot(st_geometry(nombre_capaver2))
+
+
+
+
+
 
 
 # Forma 2 - Más interna y manual ----
@@ -156,7 +165,6 @@ View(layers)
 # 
 # OutputFormats: Te confirma si la capa se puede bajar como JSON, GML, Shapefile, etc.
 
-
 # 3. FUNCIÓN PARA CARGAR LA CAPA (POR NOMBRE TÉCNICO)
 # 1. Definimos la URL base
 url_base_wfs <- "http://geoserver.montevideo.gub.uy/geoserver/wfs"
@@ -199,7 +207,7 @@ descargar_capa_mvd <- function(nombre_tecnico, limite = NULL) {
 
 # --- EJEMPLO DE USO ---
 # Una vez que viste el nombre en el View(layers), lo usas aquí:
-mi_capa <- descargar_capa_mvd("gol:intradomiciliario_circuito")
+mi_capa <- descargar_capa_mvd("gol:v_intradomiciliario_circuito")
 
 
 ver <- descargar_capa_mvd("imm:V_DF_PROM_LLENADO_CONTENEDORES")

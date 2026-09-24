@@ -87,37 +87,14 @@ def listar_identidades():
     return identidades
 
 
-def enviar_correo(
-    destinatario,
-    asunto,
-    cuerpo,
-    es_html=False,
-    cc=None,
-    cco=None,
-    identidad_id=None,
-    remitente=None,
-    nombre_remitente=None,
-):
-    """Envía un correo usando la API SOAP/JSON de Zimbra (mismo mecanismo que el webmail).
+def _a_lista(valor):
+    if not valor:
+        return []
+    return [valor] if isinstance(valor, str) else list(valor)
 
-    `destinatario`, `cc` y `cco` aceptan un string o una lista de direcciones.
 
-    Para enviar desde otra identidad (Preferencias > Cuentas), pasá `identidad_id`
-    (usá listar_identidades() para verlos) junto con `remitente`/`nombre_remitente`
-    con la dirección y nombre de esa identidad.
-    """
-    session = requests.Session()
-    auth_token = _autenticar(session)
-
-    remitente_final = remitente or EMAIL
-    nombre_final = nombre_remitente or "Nicolás Liotti"
-
-    def _a_lista(valor):
-        if not valor:
-            return []
-        return [valor] if isinstance(valor, str) else list(valor)
-
-    destinatarios = _a_lista(destinatario)
+def _enviar_mensaje(session, auth_token, destinatarios, asunto, cuerpo, es_html, cc, cco, identidad_id, remitente_final, nombre_final):
+    """Arma y manda un único SendMsgRequest ya autenticado. Uso interno."""
     copiados = _a_lista(cc)
     copiados_ocultos = _a_lista(cco)
 
@@ -159,6 +136,68 @@ def enviar_correo(
     return result
 
 
+def enviar_correo(
+    destinatario,
+    asunto,
+    cuerpo,
+    es_html=False,
+    cc=None,
+    cco=None,
+    identidad_id=None,
+    remitente=None,
+    nombre_remitente=None,
+):
+    """Envía UN correo, todos los destinatarios juntos en el mismo mensaje.
+
+    `destinatario`, `cc` y `cco` aceptan un string o una lista de direcciones.
+    Si están todos en `destinatario`/`cc`, cada uno ve las direcciones de los demás
+    (usá `cco` o `enviar_correo_individual` si no querés que se vean entre sí).
+
+    Para enviar desde otra identidad (Preferencias > Cuentas), pasá `identidad_id`
+    (usá listar_identidades() para verlos) junto con `remitente`/`nombre_remitente`
+    con la dirección y nombre de esa identidad.
+    """
+    session = requests.Session()
+    auth_token = _autenticar(session)
+    remitente_final = remitente or EMAIL
+    nombre_final = nombre_remitente or "Nicolás Liotti"
+    destinatarios = _a_lista(destinatario)
+
+    return _enviar_mensaje(
+        session, auth_token, destinatarios, asunto, cuerpo, es_html, cc, cco,
+        identidad_id, remitente_final, nombre_final,
+    )
+
+
+def enviar_correo_individual(
+    destinatarios,
+    asunto,
+    cuerpo,
+    es_html=False,
+    identidad_id=None,
+    remitente=None,
+    nombre_remitente=None,
+):
+    """Manda el MISMO correo a cada destinatario por separado (uno no ve la dirección del otro).
+
+    Se autentica una sola vez y hace un SendMsgRequest por cada dirección en `destinatarios`.
+    """
+    session = requests.Session()
+    auth_token = _autenticar(session)
+    remitente_final = remitente or EMAIL
+    nombre_final = nombre_remitente or "Nicolás Liotti"
+
+    resultados = []
+    for destinatario in _a_lista(destinatarios):
+        resultados.append(
+            _enviar_mensaje(
+                session, auth_token, [destinatario], asunto, cuerpo, es_html,
+                None, None, identidad_id, remitente_final, nombre_final,
+            )
+        )
+    return resultados
+
+
  # if __name__ == "__main__":
  #    enviar_correo(
  #        destinatario="nicolas.liotti@imm.gub.uy",
@@ -184,12 +223,29 @@ if __name__ == "__main__":
     enviar_correo(
         destinatario=["nicolas.liotti@imm.gub.uy", "nicolasliotti92@gmail.com"],
         asunto="Prueba de envío",
-        cuerpo="Este es un correo de prueba.",
+        cuerpo="""
+            <html>
+                <body>
+                    <h2>Prueba de envío</h2>
+                    <p>Este es un correo de <strong>prueba</strong> en formato HTML.</p>
+                </body>
+            </html>
+        """,
+        es_html=True,
         identidad_id="9835e787-818b-4ab5-9d38-50fe40b662a5",
         remitente="recoleccion.nodomiciliarios@imm.gub.uy",
         nombre_remitente="recoleccion no domiciliarios",
     )
     
+    enviar_correo_individual(
+    destinatarios=["nicolas.liotti@imm.gub.uy", "nicolas.liotti@imm.gub.uy"],
+    asunto="eaaaa",
+    cuerpo="vpi",
+    es_html=True,
+    identidad_id="9835e787-818b-4ab5-9d38-50fe40b662a5",
+    remitente="recoleccion.nodomiciliarios@imm.gub.uy",
+    nombre_remitente="recoleccion no domiciliarios",
+)
 
 
 # --- CÓDIGO ANTERIOR: búsqueda y conteo de remitentes de la bandeja de entrada ---

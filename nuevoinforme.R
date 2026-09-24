@@ -26,6 +26,17 @@ source("informes/informecamiones.R")  # Define generar_reporte_pdf_camiones...()
 source("db/DFR/conexionDFR.R")
 actualizar_capas_wfs(base_dir = "db/DFR")
 
+# Circuitos de contenedores GOL (API limpieza-gestion-operativa): guarda en
+# db/GOL_reportes/historico_circuitos_gol.rds una versión nueva de cada
+# circuito solo cuando cambió su "periodo". Si falla, no corta el informe.
+source("db/GOL_reportes/funciones_db_circuitosGOL.R")
+tryCatch(
+  actualizar_historico_circuitos_gol(),
+  error = function(e) warning("Historico circuitos GOL fallo: ", conditionMessage(e))
+)
+
+
+
 # Uso de referencia (carga local de capas ya descargadas):
 # lista_sf <- cargar_capas_local(base_dir = "db/DFR", formato = "RDS")
 # posiciones_dfr_viejos <- lista_sf[["dfr_C_DF_POSICIONES_RECORRIDO:HISTORICO"]]

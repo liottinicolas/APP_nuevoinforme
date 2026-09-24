@@ -86,25 +86,9 @@ if (!is.null(segmentos_intra)) {
 # --- 2. Contenedores y sus circuitos --------------------------------------
 # Fuente: API REST frontend de limpieza-gestion-operativa (devuelve GeoJSON)
 
-url_api_gol <- "https://intranet.imm.gub.uy/app/limpieza-gestion-operativa/api/frontend/v1"
-
-#' Descarga un endpoint GeoJSON de la API frontend de limpieza-gestion-operativa
-descargar_api_gol <- function(path) {
-  url <- paste0(url_api_gol, "/", path)
-  message("⏳ Solicitando: ", path, " ...")
-
-  resp <- tryCatch(
-    request(url) |> req_headers(`Accept` = "application/json, text/plain, */*") |> req_perform(),
-    error = function(e) { message("❌ Error de conexión: ", conditionMessage(e)); NULL }
-  )
-  if (is.null(resp)) return(NULL)
-
-  capa <- tryCatch(st_read(resp_body_string(resp), quiet = TRUE), error = function(e) {
-    message("❌ No se pudo leer como GeoJSON: ", conditionMessage(e)); NULL
-  })
-  if (!is.null(capa)) message("✅ ", path, ": ", nrow(capa), " features")
-  capa
-}
+# url_api_gol y descargar_api_gol() están definidas en este archivo compartido
+# (también lo usa nuevoinforme.R para el historial de circuitos)
+source("db/GOL_reportes/funciones_db_circuitosGOL.R")
 
 contenedores          <- descargar_api_gol("contenedores")
 contenedores_circuitos <- descargar_api_gol("contenedores/circuitos")

@@ -61,6 +61,34 @@ agregar_periodo <- function(historico, zona, manual = PERIODO_MANUAL) {
 }
 
 
+#' Tabla de circuitos: una fila por Circuito_corto con sus datos y PERIODO.
+#'
+#' Los valores se toman de la fila con la Fecha mas reciente de cada circuito
+#' (si alguno cambiara en el tiempo, queda el vigente). Ultima_fecha es el
+#' ultimo dia con ubicaciones: distingue los circuitos que ya no estan.
+#'
+#' @param historico data.frame con Circuito, Municipio, Circuito_corto,
+#'   Oficina, PERIODO y Fecha (salida de agregar_periodo()).
+#' @return data.frame con Circuito, Municipio, Circuito_corto, Oficina,
+#'   Periodo, Ultima_fecha, ordenado por Municipio y Circuito_corto.
+resumir_circuitos <- function(historico) {
+  dt <- data.table::as.data.table(
+    historico[, c("Circuito", "Municipio", "Circuito_corto", "Oficina", "PERIODO", "Fecha")]
+  )
+  dt[, Fecha := as.Date(Fecha)]
+  res <- dt[order(Fecha), .(
+    Circuito     = data.table::last(Circuito),
+    Municipio    = data.table::last(Municipio),
+    Oficina      = data.table::last(Oficina),
+    Periodo      = data.table::last(PERIODO),
+    Ultima_fecha = max(Fecha)
+  ), by = Circuito_corto]
+  res <- res[order(Municipio, Circuito_corto),
+             .(Circuito, Municipio, Circuito_corto, Oficina, Periodo, Ultima_fecha)]
+  as.data.frame(res)
+}
+
+
 #' Wrapper de archivo: lee los .rds, agrega PERIODO y guarda.
 #'
 #' @param ruta_historico .rds del historico de ubicaciones original.
@@ -70,13 +98,22 @@ agregar_periodo <- function(historico, zona, manual = PERIODO_MANUAL) {
 #'   FALSE procesa solo las filas con Fecha posterior a la ya guardada en
 #'   `ruta_salida` y las anexa (si `ruta_salida` no existe aun, igual
 #'   procesa todo).
+#' @param ruta_circuitos .rds con la tabla de circuitos (resumir_circuitos()),
+#'   que limpieza_datos.R publica como pin para la app.
 #' @return (invisible) el data.frame resultante.
 actualizar_periodo <- function(
   ruta_historico = "db/10393_ubicaciones/historico_ubicaciones.rds",
   ruta_zona      = "db/DFR/RDS/dfr_V_DF_ZONA_RECORRIDO_GEOM.rds",
   ruta_salida    = "UNA_POR_CIRCUITO/rds/historico_ubicaciones_con_periodo.rds",
-  actualizar_todo = TRUE
+  actualizar_todo = TRUE,
+  ruta_circuitos = "UNA_POR_CIRCUITO/rds/circuitos_periodo.rds"
 ) {
+  guardar_circuitos <- function(h) {
+    circuitos <- resumir_circuitos(h)
+    saveRDS(circuitos, ruta_circuitos)
+    message(sprintf("Tabla de circuitos: %s circuitos -> %s", nrow(circuitos), ruta_circuitos))
+  }
+
   message("Leyendo ", ruta_historico, " ...")
   historico <- readRDS(ruta_historico)
 
@@ -88,7 +125,10 @@ actualizar_periodo <- function(
                     nrow(historico), format(corte)))
     if (nrow(historico) == 0) {
       message("Sin filas nuevas. No se modifica ", ruta_salida)
-      return(invisible(readRDS(ruta_salida)))
+      guardado <- readRDS(ruta_salida)
+      # La primera vez la tabla de circuitos se arma aunque no haya filas nuevas
+      if (!file.exists(ruta_circuitos)) guardar_circuitos(guardado)
+      return(invisible(guardado))
     }
   }
 
@@ -113,5 +153,6 @@ actualizar_periodo <- function(
 
   saveRDS(res, ruta_salida)
   message("Guardado en: ", ruta_salida)
+  guardar_circuitos(res)
   invisible(res)
 }

@@ -39,12 +39,16 @@ if (!dir.exists(ruta_repo_datos)) {
 ruta_origen_activos   <- "db/DFR/RDS/dfr_E_DF_POSICIONES_RECORRIDO.rds"
 ruta_origen_inactivos <- "db/DFR/RDS/dfr_C_DF_POSICIONES_RECORRIDO_HISTORICO.rds"
 ruta_origen_llenado   <- "db/GOL_reportes/historico_llenadoGol.rds"
+# Una fila por circuito con Municipio, Oficina y Periodo (la genera
+# UNA_POR_CIRCUITO/scripts/funciones_periodo.R en cada corrida del pipeline UNA)
+ruta_origen_circuitos <- "UNA_POR_CIRCUITO/rds/circuitos_periodo.rds"
 
 # --- 2. Cargar los datos ---
 message("📂 Cargando datos locales...")
 GID_activos           <- readRDS(ruta_origen_activos)
 GID_inactivos         <- readRDS(ruta_origen_inactivos)
 historico_llenado_web <- readRDS(ruta_origen_llenado)
+circuitos_periodo     <- readRDS(ruta_origen_circuitos)
 message("✅ Datos cargados.")
 
 # --- 3. Recortar el histórico de llenado (retención de 12 meses) ---
@@ -82,6 +86,7 @@ board <- pins::board_folder(ruta_board, versioned = FALSE)
 board %>% pin_write(GID_activos,           "GID_activos",           type = "rds")
 board %>% pin_write(GID_inactivos,         "GID_inactivos",         type = "rds")
 board %>% pin_write(historico_llenado_web, "historico_llenado_web", type = "rds")
+board %>% pin_write(circuitos_periodo,     "circuitos_periodo",     type = "rds")
 
 # board_url() (usado por App.R en producción) necesita este manifest para
 # poder resolver, a partir de una URL base fija, la subcarpeta con hash de

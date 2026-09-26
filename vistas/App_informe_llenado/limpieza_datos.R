@@ -61,9 +61,9 @@ peso_original_mb <- round(object.size(historico_llenado_web) / 1024^2, 1)
 historico_llenado_web <- historico_llenado_web %>%
   filter(as.Date(Fecha) >= (Sys.Date() - 365)) %>%
   select(
-    gid, Fecha, Fecha_hora_pasaje, Circuito_corto, Posicion, Direccion,
-    Levantado, Turno_levantado, Id_viaje_GOL, Incidencia,
-    Porcentaje_llenado, Condicion, contenedor_activo
+    gid, Fecha, Fecha_hora_pasaje, Municipio, Oficina, Circuito_corto,
+    Posicion, Direccion, Levantado, Turno_levantado, Id_viaje_GOL,
+    Incidencia, Porcentaje_llenado, Condicion, contenedor_activo
   )
 
 peso_recortado_mb <- round(object.size(historico_llenado_web) / 1024^2, 1)

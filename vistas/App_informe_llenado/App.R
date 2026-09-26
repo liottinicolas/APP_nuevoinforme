@@ -27,6 +27,138 @@ preprocesar_datos <- function(df) {
   return(st_transform(df, 4326))
 }
 
+# --- INDICADORES ---
+# Umbrales de la pestaña Circuitos y de la capa de color del mapa
+DIAS_INDICADORES_MAPA    <- 30    # ventana de la capa de color del mapa
+UMBRAL_ATRASO            <- 1.5   # días reales / planificados a partir del cual un circuito está atrasado
+UMBRAL_SATURACION        <- 0.8   # contenedor crítico: lleno en al menos este % de sus levantes
+UMBRAL_BASURA_AFUERA     <- 0.5   # contenedor crítico: "Basura Afuera" en al menos este % de sus levantes
+MIN_LEVANTES_CRITICO     <- 5     # levantes mínimos en el período para calificar un contenedor
+CONDICIONES_CONTENEDOR   <- c("Basura Afuera", "Requiere Limpieza", "Requiere Mantenimiento",
+                              "Fuera de Lugar", "Dos Ciclos", "Escombro", "Poda")
+
+# Garantiza Municipio y Oficina en el histórico. Los pines generados antes de
+# que limpieza_datos.R incluyera esas columnas no las traen: se completan desde
+# circuitos_periodo o, en su defecto, del prefijo del circuito (A_103 -> A).
+completar_historico <- function(df, circuitos) {
+  df$Fecha <- as.Date(df$Fecha)
+  if (!is.null(circuitos)) {
+    ref <- distinct(circuitos, Circuito_corto, .keep_all = TRUE)
+    idx <- match(df$Circuito_corto, ref$Circuito_corto)
+    if (!"Municipio" %in% names(df)) df$Municipio <- ref$Municipio[idx]
+    if (!"Oficina" %in% names(df))   df$Oficina   <- ref$Oficina[idx]
+  }
+  if (!"Municipio" %in% names(df)) df$Municipio <- NA_character_
+  if (!"Oficina" %in% names(df))   df$Oficina   <- NA_character_
+  sin_mun <- is.na(df$Municipio)
+  df$Municipio[sin_mun] <- sub("_.*$", "", df$Circuito_corto[sin_mun])
+  df
+}
+
+# Días entre levantes consecutivos de cada contenedor (un levante por día).
+# Cada intervalo se asigna al circuito del levante que lo cierra.
+dias_entre_levantes <- function(df) {
+  df %>%
+    filter(Levantado %in% "S") %>%
+    distinct(gid, Fecha, .keep_all = TRUE) %>%
+    arrange(gid, Fecha) %>%
+    group_by(gid) %>%
+    mutate(dias = as.numeric(Fecha - lag(Fecha))) %>%
+    ungroup() %>%
+    filter(!is.na(dias)) %>%
+    select(gid, Circuito_corto, Municipio, dias)
+}
+
+# Tasas de un grupo de registros. Se usa dentro de summarise().
+# El llenado se mide solo en los levantes: los "N" pueden venir con 0 % cuando
+# el camión no llegó a revisar el contenedor, y eso no es un llenado observado.
+resumir_registros <- function(.data) {
+  .data %>%
+    summarise(
+      programados = n(),
+      levantes    = sum(Levantado %in% "S"),
+      p_levantado = levantes / programados,
+      p_incidencia = sum(Levantado %in% "N") / programados,
+      p_no_paso   = sum(is.na(Levantado)) / programados,
+      llenado     = if (levantes > 0) mean(Porcentaje_llenado[Levantado %in% "S"], na.rm = TRUE) else NA_real_,
+      saturacion  = if (levantes > 0) mean(Porcentaje_llenado[Levantado %in% "S"] == 100, na.rm = TRUE) else NA_real_,
+      .groups = "drop"
+    )
+}
+
+# Indicadores por contenedor en los últimos `dias` días con datos (capa del mapa)
+indicadores_por_gid <- function(df, dias) {
+  hasta <- max(df$Fecha, na.rm = TRUE)
+  df %>%
+    filter(Fecha > hasta - dias) %>%
+    group_by(gid) %>%
+    resumir_registros()
+}
+
+indicadores_por_circuito <- function(df, circuitos) {
+  frecuencia <- dias_entre_levantes(df) %>%
+    group_by(Circuito_corto) %>%
+    summarise(frecuencia_real = mean(dias), .groups = "drop")
+
+  res <- df %>%
+    group_by(Municipio, Circuito_corto) %>%
+    resumir_registros() %>%
+    left_join(frecuencia, by = "Circuito_corto")
+
+  if (!is.null(circuitos)) {
+    plan <- circuitos %>%
+      distinct(Circuito_corto, .keep_all = TRUE) %>%
+      select(Circuito_corto, Oficina, Dias_recoleccion, Turno, Periodo)
+    res <- left_join(res, plan, by = "Circuito_corto")
+  } else {
+    res <- mutate(res, Oficina = NA_character_, Dias_recoleccion = NA_character_,
+                  Turno = NA_character_, Periodo = NA_real_)
+  }
+  res %>% mutate(atraso = frecuencia_real / Periodo)
+}
+
+indicadores_por_municipio <- function(df, por_circuito) {
+  frecuencia <- dias_entre_levantes(df) %>%
+    group_by(Municipio) %>%
+    summarise(frecuencia_real = mean(dias), .groups = "drop")
+  atrasados <- por_circuito %>%
+    group_by(Municipio) %>%
+    summarise(
+      circuitos = n(),
+      # Sin plan publicado no se puede saber: vacío en vez de 0
+      atrasados = if (all(is.na(atraso))) NA_integer_ else sum(atraso > UMBRAL_ATRASO, na.rm = TRUE),
+      .groups = "drop"
+    )
+  df %>%
+    group_by(Municipio) %>%
+    resumir_registros() %>%
+    left_join(frecuencia, by = "Municipio") %>%
+    left_join(atrasados, by = "Municipio")
+}
+
+# Contenedores que casi siempre están llenos o con basura afuera
+contenedores_criticos <- function(df) {
+  ultimo <- df %>%
+    arrange(desc(Fecha)) %>%
+    distinct(gid, .keep_all = TRUE) %>%
+    select(gid, Municipio, Circuito_corto, Direccion)
+  basura <- df %>%
+    filter(Levantado %in% "S") %>%
+    group_by(gid) %>%
+    summarise(p_basura = mean(grepl("Basura Afuera", Condicion, fixed = TRUE)), .groups = "drop")
+
+  df %>%
+    group_by(gid) %>%
+    resumir_registros() %>%
+    left_join(basura, by = "gid") %>%
+    filter(
+      levantes >= MIN_LEVANTES_CRITICO,
+      saturacion >= UMBRAL_SATURACION | p_basura >= UMBRAL_BASURA_AFUERA
+    ) %>%
+    left_join(ultimo, by = "gid") %>%
+    arrange(desc(saturacion), desc(p_basura))
+}
+
 # Inicialización de la placa de datos (global)
 if (dir.exists("data")) {
   global_board <- pins::board_folder("data", versioned = FALSE)
@@ -85,10 +217,23 @@ datos_compartidos <- reactivePoll(
       current_board <- pins::board_url(url_github)
     }
 
+    # circuitos_periodo es opcional: si todavía no se publicó el pin, la app
+    # funciona igual, solo sin la frecuencia planificada de cada circuito.
+    circuitos <- tryCatch(
+      pin_read(current_board, "circuitos_periodo"),
+      error = function(e) {
+        message("⚠️ No se pudo leer el pin circuitos_periodo: ", conditionMessage(e))
+        NULL
+      }
+    )
+    historico <- completar_historico(pin_read(current_board, "historico_llenado_web"), circuitos)
+
     list(
       activos           = preprocesar_datos(pin_read(current_board, "GID_activos")),
       inactivos         = preprocesar_datos(pin_read(current_board, "GID_inactivos")),
-      historico_llenado = pin_read(current_board, "historico_llenado_web")
+      historico_llenado = historico,
+      circuitos         = circuitos,
+      indicadores_mapa  = indicadores_por_gid(historico, DIAS_INDICADORES_MAPA)
     )
   }
 )
@@ -104,6 +249,13 @@ COL_INCIDENCIA   <- "#B63A3A"  # pasó pero no levantó (Levantado = "N")
 COL_SIN_REGISTRO <- "#8C9592"  # programado, el camión no pasó (Levantado = NA)
 COL_LLENO        <- "#D9A21F"  # llenado al 100%
 
+# Capa de color del mapa: cada rampa se ancla en el color de su significado
+# (ámbar = lleno, gris = el camión no pasó). Cortes en % de 0 a 100.
+CORTES_MAPA <- c(0, 20, 40, 60, 80, 100)
+RAMPA_SATURACION <- c("#F4E7C2", "#E9C96E", "#D9A21F", "#A87400", "#6B4A00")
+RAMPA_NO_PASO    <- c("#E4E7E6", "#BAC1BE", "#8C9592", "#5E6A67", "#2F3836")
+COL_SIN_DATOS    <- "#FFFFFF"
+
 MESES_ES <- c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
               "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre")
 
@@ -115,6 +267,11 @@ fmt_num <- function(x, digitos = 1) {
   format(round(x, digitos), decimal.mark = ",", big.mark = ".", nsmall = 0, trim = TRUE)
 }
 fmt_fecha <- function(x) format(as.Date(x), "%d/%m/%Y")
+# Proporción (0-1) como porcentaje; vectorizado, NA -> "Sin datos"
+fmt_pct <- function(x) ifelse(is.na(x), "Sin datos", paste0(fmt_num(100 * x, 0), "%"))
+fmt_pct_levantes <- function(x, n) {
+  ifelse(is.na(x) | n == 0, "Sin levantes", paste0(fmt_pct(x), " de ", n, " levantes"))
+}
 esc <- function(x) htmlEscape(ifelse(is.na(x), "", as.character(x)))
 
 # Popup de un contenedor en el mapa (vectorizado sobre las filas de df)
@@ -128,7 +285,13 @@ popup_contenedor <- function(df, activo) {
       fila("Dirección", direccion),
       fila("Circuito", df$COD_RECORRIDO),
       fila("Posición", df$POSICION),
-      fila("En servicio desde", fmt_fecha(df$FECHA_DESDE))
+      fila("En servicio desde", fmt_fecha(df$FECHA_DESDE)),
+      if ("saturacion" %in% names(df)) {
+        paste0(
+          fila(paste0("Lleno (", DIAS_INDICADORES_MAPA, " días)"), fmt_pct_levantes(df$saturacion, df$levantes)),
+          fila(paste0("No pasó (", DIAS_INDICADORES_MAPA, " días)"), fmt_pct(df$p_no_paso))
+        )
+      } else ""
     )
   } else {
     paste0(
@@ -158,7 +321,8 @@ linea_tiempo <- function(df, desde, hasta) {
   por_dia <- df %>%
     mutate(
       dia = as.Date(Fecha),
-      pct = suppressWarnings(as.numeric(Porcentaje_llenado))
+      # Solo los levantes miden llenado (un "N" puede venir con 0 % sin que nadie lo haya visto)
+      pct = ifelse(Levantado %in% "S", suppressWarnings(as.numeric(Porcentaje_llenado)), NA_real_)
     ) %>%
     group_by(dia) %>%
     summarise(
@@ -433,11 +597,32 @@ estilos <- tags$style(HTML("
   .dataTables_wrapper .page-item.active .page-link { background: var(--tinta); border-color: var(--tinta); color: #fff; }
   .dataTables_wrapper .page-item.disabled .page-link { background: transparent; color: var(--tinta-suave); }
 
+  /* Valor de texto (ej. motivo de incidencia): más chico que un número */
+  .dato-valor-texto { font-size: 1.2rem; line-height: 1.2; align-items: flex-start; }
+  .seccion-nota { color: var(--tinta-suave); font-size: 0.875rem; margin: -0.5rem 0 0.9rem; max-width: 70ch; }
+
+  /* Estado del contenedor: % de levantes con cada observación */
+  .condiciones { display: grid; grid-template-columns: max-content minmax(6rem, 22rem) max-content;
+                 gap: 0.45rem 1rem; align-items: center; font-size: 0.875rem; }
+  .cond-barra { height: 10px; background: var(--linea); border-radius: 2px; overflow: hidden; }
+  .cond-barra span { display: block; height: 100%; background: var(--tinta-suave); border-radius: 2px; }
+  .cond-valor { font-variant-numeric: tabular-nums; color: var(--tinta-suave); }
+  .cond-valor strong { color: var(--tinta); font-weight: 600; }
+
+  /* Leyenda de la capa de color del mapa */
+  .leaflet-control.info.legend { font-family: inherit; font-size: 0.8rem; color: var(--tinta);
+                                 border: 1px solid var(--linea); border-radius: 8px; box-shadow: none; }
+
+  /* Filas clicables (contenedores críticos) */
+  .tabla-clicable table.dataTable tbody tr { cursor: pointer; }
+
   /* Pantallas chicas: el panel del mapa pasa arriba del mapa */
   @media (max-width: 640px) {
     .mapa-wrap { display: flex; flex-direction: column; height: auto; border: none; border-radius: 0; overflow: visible; }
     .mapa-panel { position: static; order: -1; width: auto; box-shadow: none; margin-bottom: 0.75rem; }
     #map { height: 65vh !important; border: 1px solid var(--linea); border-radius: 8px; }
+    .condiciones { grid-template-columns: 1fr max-content; }
+    .cond-barra { display: none; }
   }
 "))
 
@@ -446,6 +631,8 @@ script_enter <- tags$script(HTML("
   $(document).on('keydown', '#busqueda_mapa', function(e) {
     if (e.key === 'Enter') { $('#btn_buscar').click(); }
   });
+  // Al cambiar de pestaña, arrancar desde arriba (sino se hereda el scroll de la anterior)
+  $(document).on('shown.bs.tab', function() { window.scrollTo(0, 0); });
 "))
 
 ui <- page_navbar(
@@ -475,6 +662,17 @@ ui <- page_navbar(
           "seleccion_estado", "Mostrar contenedores",
           choices = c("Activos" = "act", "Inactivos" = "inact"),
           inline = TRUE
+        ),
+        conditionalPanel(
+          "input.seleccion_estado == 'act'",
+          selectInput(
+            "color_mapa", "Color de los puntos",
+            choices = c(
+              "Contenedor activo"                                     = "estado",
+              "Lleno al levantar (% de levantes, últimos 30 días)"    = "saturacion",
+              "El camión no pasó (% de programados, últimos 30 días)" = "no_paso"
+            )
+          )
         ),
         checkboxInput("usar_clustering", "Agrupar puntos cercanos", value = TRUE)
       )
@@ -507,6 +705,52 @@ ui <- page_navbar(
           h2(class = "seccion-titulo", "Registros"),
           div(class = "tabla-registros", DTOutput("tabla_historico"))
         )
+      )
+    )
+  ),
+
+  nav_panel(
+    "Circuitos", value = "circ",
+    div(
+      class = "historial",
+      div(
+        class = "controles",
+        dateRangeInput(
+          "rango_fechas_circuitos",
+          "Período",
+          start = Sys.Date() - 30,
+          end = Sys.Date(),
+          max = Sys.Date(),
+          format = "dd/mm/yyyy",
+          separator = "a",
+          language = "es"
+        ),
+        selectInput("municipio_circuitos", "Municipio", choices = c("Todos" = ""))
+      ),
+      uiOutput("aviso_circuitos"),
+      div(
+        class = "seccion",
+        h2(class = "seccion-titulo", "Por municipio"),
+        div(class = "tabla-registros", DTOutput("tabla_municipios"))
+      ),
+      div(
+        class = "seccion",
+        h2(class = "seccion-titulo", "Por circuito"),
+        p(class = "seccion-nota", paste0(
+          "Ordenado por atraso: días reales entre levantes dividido los días planificados. ",
+          "Más de ", fmt_num(UMBRAL_ATRASO), " se marca en rojo."
+        )),
+        div(class = "tabla-registros", DTOutput("tabla_circuitos"))
+      ),
+      div(
+        class = "seccion",
+        h2(class = "seccion-titulo", "Contenedores críticos"),
+        p(class = "seccion-nota", paste0(
+          "Con al menos ", MIN_LEVANTES_CRITICO, " levantes en el período, y lleno en el ",
+          fmt_num(100 * UMBRAL_SATURACION, 0), "% o más de ellos, o con basura afuera en el ",
+          fmt_num(100 * UMBRAL_BASURA_AFUERA, 0), "% o más. Tocá una fila para ver su historial."
+        )),
+        div(class = "tabla-registros tabla-clicable", DTOutput("tabla_criticos"))
       )
     )
   ),
@@ -552,6 +796,18 @@ server <- function(input, output, session) {
       setView(lng = lng_mvd, lat = lat_mvd, zoom = 12)
   })
 
+  # Activos con los indicadores de los últimos DIAS_INDICADORES_MAPA días
+  # (para colorear el mapa y completar el popup)
+  activos_con_indicadores <- reactive({
+    ind <- datos()$indicadores_mapa
+    df <- datos()$activos
+    idx <- match(as.character(df$GID), as.character(ind$gid))
+    df$levantes   <- ifelse(is.na(idx), 0L, ind$levantes[idx])
+    df$saturacion <- ind$saturacion[idx]
+    df$p_no_paso  <- ind$p_no_paso[idx]
+    df
+  })
+
   # Actualización dinámica de marcadores mediante leafletProxy
   observe({
     req(datos())
@@ -571,18 +827,41 @@ server <- function(input, output, session) {
     }
 
     # Activos: punto lleno verde. Inactivos: punto hueco (retirado).
+    proxy %>% removeControl("leyenda_color")
+
     if (input$seleccion_estado == "act") {
-      df <- datos()$activos
+      df <- activos_con_indicadores()
+      modo <- input$color_mapa
+      if (is.null(modo) || modo == "estado") {
+        relleno <- COL_LEVANTADO
+        borde <- COL_LEVANTADO
+      } else {
+        valor <- if (modo == "saturacion") df$saturacion else df$p_no_paso
+        rampa <- if (modo == "saturacion") RAMPA_SATURACION else RAMPA_NO_PASO
+        pal <- colorBin(rampa, domain = c(0, 100), bins = CORTES_MAPA, na.color = COL_SIN_DATOS)
+        relleno <- pal(100 * valor)
+        borde <- COL_TINTA
+        proxy %>%
+          addLegend(
+            position = "bottomleft",
+            layerId = "leyenda_color",
+            colors = c(rampa, COL_SIN_DATOS),
+            labels = c(paste0(head(CORTES_MAPA, -1), "–", CORTES_MAPA[-1], "%"),
+                       if (modo == "saturacion") "Sin levantes" else "Sin programación"),
+            title = if (modo == "saturacion") "Lleno al levantar" else "El camión no pasó",
+            opacity = 1
+          )
+      }
       proxy %>%
         addCircleMarkers(
           data = df,
           group = "activos",
           radius = 5,
-          color = COL_LEVANTADO,
+          color = borde,
           weight = 1,
           opacity = 0.9,
-          fillColor = COL_LEVANTADO,
-          fillOpacity = 0.7,
+          fillColor = relleno,
+          fillOpacity = if (identical(relleno, COL_LEVANTADO)) 0.7 else 0.85,
           popup = popup_contenedor(df, activo = TRUE),
           label = ~as.character(GID),
           layerId = ~as.character(GID),
@@ -618,7 +897,7 @@ server <- function(input, output, session) {
   # --- Búsqueda de GID en el mapa (Autofocus + Popup automático) ---
   buscar_gid_en_mapa <- function(gid_buscado) {
     # Buscar primero en activos, luego en inactivos
-    df_act  <- datos()$activos
+    df_act  <- activos_con_indicadores()
     df_inac <- datos()$inactivos
 
     encontrado <- df_act[as.character(df_act$GID) == gid_buscado, ]
@@ -835,11 +1114,20 @@ server <- function(input, output, session) {
   }
 
   # Resumen del período: los mismos indicadores que antes, como una sola banda de datos
-  resumen_periodo <- function(df) {
+  # Plan del circuito (fila de circuitos_periodo) o NULL si no hay
+  plan_circuito <- function(circuito) {
+    cp <- datos()$circuitos
+    if (is.null(cp) || length(circuito) == 0 || is.na(circuito)) return(NULL)
+    fila <- cp[cp$Circuito_corto == circuito, ]
+    if (nrow(fila) == 0) NULL else fila[1, ]
+  }
+
+  resumen_periodo <- function(df, plan = NULL) {
     total_programado <- nrow(df)
 
-    # Llenado promedio en el rango seleccionado (ignorando NA)
-    llenado_prom <- mean(suppressWarnings(as.numeric(df$Porcentaje_llenado)), na.rm = TRUE)
+    # Llenado promedio en el rango seleccionado, solo en los levantes: los "N"
+    # pueden venir con 0 % cuando el camión no llegó a revisar el contenedor.
+    llenado_prom <- mean(suppressWarnings(as.numeric(df$Porcentaje_llenado[df$Levantado %in% "S"])), na.rm = TRUE)
     llenado_txt <- if (is.nan(llenado_prom)) "Sin datos" else paste0(fmt_num(llenado_prom), "%")
 
     # Frecuencia promedio de levante: días entre fechas con levante
@@ -867,18 +1155,30 @@ server <- function(input, output, session) {
     n_incidencia <- sum(df$Levantado == "N", na.rm = TRUE)
     n_no_paso    <- sum(is.na(df$Levantado))
 
-    dato <- function(valor, texto, muestra = NULL) {
+    # Frecuencia planificada del circuito, para comparar con la real
+    frecuencia_nota <- "entre un levante y el siguiente, en promedio"
+    if (!is.null(plan) && !is.na(plan$Periodo)) {
+      frecuencia_nota <- paste0(
+        frecuencia_nota, ". Plan: cada ", fmt_num(plan$Periodo), " días",
+        if (!is.na(plan$Dias_recoleccion)) paste0(" (", plan$Dias_recoleccion, ")") else ""
+      )
+    }
+
+    # Motivo más frecuente de no levante
+    motivos <- sort(table(df$Incidencia[df$Levantado %in% "N"]), decreasing = TRUE)
+
+    dato <- function(valor, texto, muestra = NULL, clase = NULL) {
       div(
         class = "dato",
-        div(class = "dato-valor", if (!is.null(muestra)) span(class = paste("muestra", muestra)), valor),
+        div(class = paste("dato-valor", clase), if (!is.null(muestra)) span(class = paste("muestra", muestra)), valor),
         p(class = "dato-texto", texto)
       )
     }
 
     div(
       class = "resumen",
-      dato(llenado_txt, "llenado promedio cuando pasa el camión"),
-      dato(frecuencia_txt, "entre un levante y el siguiente, en promedio"),
+      dato(llenado_txt, "llenado promedio cuando se levanta"),
+      dato(frecuencia_txt, frecuencia_nota),
       dato(saturacion_txt, "de los levantes lo encontraron lleno", "muestra-lleno"),
       dato(
         paste0(fmt_num(100 * n_incidencia / total_programado), "%"),
@@ -889,7 +1189,38 @@ server <- function(input, output, session) {
         paste0(fmt_num(100 * n_no_paso / total_programado), "%"),
         paste0("el camión no pasó (", n_no_paso, " de ", total_programado, " programados)"),
         "muestra-nopaso"
-      )
+      ),
+      if (length(motivos) > 0) {
+        dato(
+          names(motivos)[1],
+          paste0("motivo más frecuente de no levante (", motivos[[1]], " de ", n_incidencia, " incidencias)"),
+          clase = "dato-valor-texto"
+        )
+      }
+    )
+  }
+
+  # % de los levantes del período con cada observación sobre el contenedor
+  estado_contenedor <- function(df) {
+    lev <- df[df$Levantado %in% "S", ]
+    if (nrow(lev) == 0) return(p(class = "seccion-nota", "Sin levantes en el período."))
+    etiquetas <- strsplit(ifelse(is.na(lev$Condicion), "", lev$Condicion), ";", fixed = TRUE)
+    etiquetas <- lapply(etiquetas, trimws)
+    conteo <- vapply(CONDICIONES_CONTENEDOR, function(e) sum(vapply(etiquetas, function(x) e %in% x, logical(1))), integer(1))
+    conteo <- sort(conteo[conteo > 0], decreasing = TRUE)
+    if (length(conteo) == 0) {
+      return(p(class = "seccion-nota", paste0("Ninguna observación en los ", nrow(lev), " levantes del período.")))
+    }
+    div(
+      class = "condiciones",
+      lapply(names(conteo), function(e) {
+        prop <- conteo[[e]] / nrow(lev)
+        tagList(
+          span(e),
+          div(class = "cond-barra", span(style = sprintf("width:%s%%", round(100 * prop, 1)))),
+          span(class = "cond-valor", strong(fmt_pct(prop)), paste0(" (", conteo[[e]], " de ", nrow(lev), " levantes)"))
+        )
+      })
     )
   }
 
@@ -944,7 +1275,13 @@ server <- function(input, output, session) {
       div(
         class = "seccion",
         h2(class = "seccion-titulo", "Resumen del período"),
-        resumen_periodo(df)
+        resumen_periodo(df, plan_circuito(df$Circuito_corto[which.max(as.Date(df$Fecha))]))
+      ),
+      div(
+        class = "seccion",
+        h2(class = "seccion-titulo", "Estado del contenedor"),
+        p(class = "seccion-nota", "Observaciones que dejó el camión al levantarlo, en % de los levantes del período."),
+        estado_contenedor(df)
       )
     )
   })
@@ -998,6 +1335,146 @@ server <- function(input, output, session) {
         "Porcentaje_llenado",
         backgroundColor = styleEqual(100, "rgba(217, 162, 31, 0.22)")
       )
+  })
+
+  # --- Lógica de Circuitos ---
+
+  # Municipios disponibles en el selector (se actualiza con los datos)
+  observe({
+    mun <- sort(unique(na.omit(datos()$historico_llenado$Municipio)))
+    updateSelectInput(
+      session, "municipio_circuitos",
+      choices = c("Todos" = "", setNames(mun, paste("Municipio", mun))),
+      selected = isolate(input$municipio_circuitos)
+    )
+  })
+
+  # Registros del período (todos los municipios: la tabla por municipio los compara)
+  registros_periodo <- reactive({
+    req(datos(), input$rango_fechas_circuitos)
+    desde <- input$rango_fechas_circuitos[1]
+    hasta <- input$rango_fechas_circuitos[2]
+    req(desde <= hasta)
+    datos()$historico_llenado %>% filter(Fecha >= desde, Fecha <= hasta)
+  })
+
+  registros_municipio <- reactive({
+    df <- registros_periodo()
+    if (nzchar(input$municipio_circuitos)) df <- filter(df, Municipio == input$municipio_circuitos)
+    df
+  })
+
+  por_circuito <- reactive({
+    indicadores_por_circuito(registros_periodo(), datos()$circuitos)
+  })
+
+  criticos <- reactive({
+    contenedores_criticos(registros_municipio())
+  })
+
+  output$aviso_circuitos <- renderUI({
+    req(input$rango_fechas_circuitos)
+    avisos <- list(
+      if (input$rango_fechas_circuitos[1] > input$rango_fechas_circuitos[2]) {
+        "La fecha de inicio es posterior a la de fin."
+      },
+      if (is.null(datos()$circuitos)) {
+        "Todavía no están publicadas las frecuencias planificadas de los circuitos: no se puede calcular el atraso."
+      }
+    )
+    avisos <- Filter(Negate(is.null), avisos)
+    if (length(avisos) == 0) return(NULL)
+    div(class = "vacio", lapply(avisos, p))
+  })
+
+  # Formato común de las tablas de indicadores
+  tabla_indicadores <- function(df, colnames, pct, dec1 = character(0), orden, clicable = FALSE, paginar = TRUE) {
+    tabla <- datatable(
+      df,
+      colnames = colnames,
+      class = "compact hover",
+      selection = if (clicable) "single" else "none",
+      options = list(
+        paging = paginar,
+        dom = if (paginar) "lfrtip" else "t",
+        pageLength = 15,
+        lengthMenu = c(15, 30, 60, 150),
+        order = orden,
+        language = list(url = "https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"),
+        scrollX = TRUE
+      ),
+      rownames = FALSE
+    ) %>%
+      formatPercentage(pct, digits = 0, dec.mark = ",")
+    if (length(dec1) > 0) tabla <- formatRound(tabla, dec1, digits = 1, dec.mark = ",", mark = ".")
+    tabla
+  }
+
+  output$tabla_municipios <- renderDT({
+    df <- indicadores_por_municipio(registros_periodo(), por_circuito()) %>%
+      mutate(Municipio = paste("Municipio", Municipio)) %>%
+      select(Municipio, programados, p_levantado, p_incidencia, p_no_paso,
+             saturacion, llenado, frecuencia_real, atrasados, circuitos)
+    tabla_indicadores(
+      df,
+      colnames = c("Municipio", "Programados", "Levantado", "Incidencia", "No pasó",
+                   "Lleno al levantar", "Llenado prom. (%)", "Días entre levantes",
+                   "Circuitos atrasados", "Circuitos"),
+      pct = c("p_levantado", "p_incidencia", "p_no_paso", "saturacion"),
+      dec1 = c("llenado", "frecuencia_real"),
+      orden = list(list(5, "desc")),
+      paginar = FALSE
+    ) %>%
+      formatRound("programados", digits = 0, mark = ".")
+  })
+
+  output$tabla_circuitos <- renderDT({
+    df <- por_circuito()
+    if (nzchar(input$municipio_circuitos)) df <- filter(df, Municipio == input$municipio_circuitos)
+    df <- df %>%
+      select(Circuito_corto, Municipio, Oficina, Dias_recoleccion, Turno, Periodo,
+             frecuencia_real, atraso, p_levantado, p_incidencia, p_no_paso, saturacion, llenado)
+    tabla_indicadores(
+      df,
+      colnames = c("Circuito", "Municipio", "Oficina", "Días de recolección", "Turno",
+                   "Días plan", "Días reales", "Atraso", "Levantado", "Incidencia",
+                   "No pasó", "Lleno al levantar", "Llenado prom. (%)"),
+      pct = c("p_levantado", "p_incidencia", "p_no_paso", "saturacion"),
+      dec1 = c("Periodo", "frecuencia_real", "llenado"),
+      orden = list(list(7, "desc"))
+    ) %>%
+      formatRound("atraso", digits = 2, dec.mark = ",") %>%
+      formatStyle(
+        "atraso",
+        color = styleInterval(UMBRAL_ATRASO, c(COL_TINTA, COL_INCIDENCIA)),
+        fontWeight = styleInterval(UMBRAL_ATRASO, c("400", "600"))
+      )
+  })
+
+  output$tabla_criticos <- renderDT({
+    df <- criticos() %>%
+      select(gid, Municipio, Circuito_corto, Direccion, levantes, saturacion, p_basura, p_no_paso)
+    tabla_indicadores(
+      df,
+      colnames = c("GID", "Municipio", "Circuito", "Dirección", "Levantes",
+                   "Lleno al levantar", "Basura afuera", "No pasó"),
+      pct = c("saturacion", "p_basura", "p_no_paso"),
+      orden = list(list(5, "desc")),
+      clicable = TRUE
+    )
+  })
+
+  # Click en un contenedor crítico: abre su historial con el mismo período
+  observeEvent(input$tabla_criticos_rows_selected, {
+    fila <- input$tabla_criticos_rows_selected
+    req(length(fila) == 1)
+    gid <- criticos()$gid[fila]
+    updateDateRangeInput(
+      session, "rango_fechas_historico",
+      start = input$rango_fechas_circuitos[1], end = input$rango_fechas_circuitos[2]
+    )
+    updateTextInput(session, "busqueda_gid", value = as.character(gid))
+    nav_select("menu_tabs", "hist")
   })
 }
 

@@ -140,5 +140,31 @@ descargar_capa_gol_ed <- function(nombre_capa, cql_filter = NULL) {
 
 hogares_sustentables <- descargar_capa_gol_ed("gol:hogares_sustentables")
 
+#' Guarda una capa sf como GPKG con la fecha de descarga en el nombre.
+#' Cada ejecución reemplaza la versión anterior (queda un solo archivo, el más reciente).
+#'
+#' @param capa Objeto sf
+#' @param nombre Nombre base del archivo y de la capa (ej. "hogares_sustentables")
+#' @param dir_salida Carpeta donde se guarda
+guardar_gpkg_fechado <- function(capa, nombre, dir_salida = "db/GOL_capas") {
+  if (is.null(capa)) { message("⚠️ ", nombre, ": no hay datos, no se guarda nada"); return(invisible(NULL)) }
+
+  dir.create(dir_salida, recursive = TRUE, showWarnings = FALSE)
+  fecha <- format(Sys.Date(), "%Y-%m-%d")
+  ruta  <- file.path(dir_salida, paste0(nombre, "_", fecha, ".gpkg"))
+
+  capa$fecha_descarga <- Sys.Date()
+  st_write(capa, dsn = ruta, layer = nombre, driver = "GPKG", delete_dsn = TRUE, quiet = TRUE)
+
+  # Borrar versiones de otras fechas para que no se acumulen archivos
+  anteriores <- list.files(dir_salida, pattern = paste0("^", nombre, "_\\d{4}-\\d{2}-\\d{2}\\.gpkg$"), full.names = TRUE)
+  file.remove(setdiff(anteriores, ruta))
+
+  message("💾 GPKG guardado: ", ruta, " (", round(file.size(ruta) / 1024^2, 2), " MB)")
+  invisible(ruta)
+}
+
+guardar_gpkg_fechado(hogares_sustentables, "hogares_sustentables")
+
 # --- Ejemplo de visualización rápida --------------------------------------
 # plot(st_geometry(segmentos_intra), col = as.factor(segmentos_intra$tipo_residuo))

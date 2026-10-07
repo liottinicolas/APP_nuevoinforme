@@ -3,3 +3,6 @@
 # existir localmente al deployar, no debe subirse: si se empaqueta, queda
 # congelada en el servidor y App.R deja de leer datos frescos vía board_url().
 data/
+
+# Versión anterior de la app (Leaflet), guardada solo como respaldo local
+App_v2.R

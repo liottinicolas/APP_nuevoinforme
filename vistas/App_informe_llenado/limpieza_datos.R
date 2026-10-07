@@ -26,13 +26,19 @@ if (!dir.exists(ruta_repo_datos)) {
   git_clone(url_repo_datos, ruta_repo_datos)
 } else {
   message("📥 Actualizando repo de datos local...")
-  # Si el repo remoto todavia no tiene ningun commit (primera vez), el clone
-  # local no queda con upstream configurado y el pull falla - no es un error
-  # real, solo no hay nada que traer todavia.
-  tryCatch(
-    git_pull(repo = ruta_repo_datos),
-    error = function(e) message("   (nada para traer todavia: ", conditionMessage(e), ")")
-  )
+  # No se usa git_pull: el repo vive en OneDrive, que bloquea carpetas de data/
+  # y hace fallar el checkout ("could not rmdir ... Acceso denegado"). Si el pull
+  # falla, los commits locales divergen del remoto y el push posterior se rechaza
+  # (non-fastforwardable). Como data/ se borra y se regenera entero en cada
+  # corrida, alcanza con mover HEAD/index al remoto (reset mixed, no toca el
+  # working tree): el commit de esta corrida queda encima y el push es
+  # fast-forward. Los commits locales viejos (solo pines) se descartan.
+  # Si el remoto todavia no tiene commits (primera vez), no hay nada que traer.
+  tryCatch({
+    git_fetch(repo = ruta_repo_datos, verbose = FALSE)
+    rama <- git_branch(repo = ruta_repo_datos)
+    git_reset_mixed(ref = paste0("origin/", rama), repo = ruta_repo_datos)
+  }, error = function(e) message("   (nada para traer todavia: ", conditionMessage(e), ")"))
 }
 
 # --- 1. Rutas de origen de los datos ---
@@ -61,9 +67,9 @@ peso_original_mb <- round(object.size(historico_llenado_web) / 1024^2, 1)
 historico_llenado_web <- historico_llenado_web %>%
   filter(as.Date(Fecha) >= (Sys.Date() - 365)) %>%
   select(
-    gid, Fecha, Fecha_hora_pasaje, Circuito_corto, Posicion, Direccion,
-    Levantado, Turno_levantado, Id_viaje_GOL, Incidencia,
-    Porcentaje_llenado, Condicion, contenedor_activo
+    gid, Fecha, Fecha_hora_pasaje, Municipio, Oficina, Circuito_corto,
+    Posicion, Direccion, Levantado, Turno_levantado, Id_viaje_GOL,
+    Incidencia, Porcentaje_llenado, Condicion, contenedor_activo
   )
 
 peso_recortado_mb <- round(object.size(historico_llenado_web) / 1024^2, 1)
@@ -76,9 +82,21 @@ message(sprintf(
 message("📌 Escribiendo pines locales...")
 ruta_board <- file.path(ruta_repo_datos, "data")
 
-# Borrar carpeta vieja para evitar versiones acumuladas
+# Borrar carpeta vieja para evitar versiones acumuladas.
+# unlink() falla en silencio si OneDrive tiene archivos bloqueados (sync en
+# curso); se reintenta y, si sigue sin poder, se corta con un mensaje claro
+# en vez de dejar que pin_write explote con EPERM al reemplazar la versión.
+for (intento in 1:5) {
+  if (!dir.exists(ruta_board)) break
+  unlink(ruta_board, recursive = TRUE, force = TRUE)
+  if (dir.exists(ruta_board)) Sys.sleep(2)
+}
 if (dir.exists(ruta_board)) {
-  unlink(ruta_board, recursive = TRUE)
+  stop(
+    "No se pudo borrar '", ruta_board, "' (probablemente OneDrive la tiene ",
+    "bloqueada). Pausá la sincronización de OneDrive o borrá la carpeta a ",
+    "mano y volvé a correr el script."
+  )
 }
 
 board <- pins::board_folder(ruta_board, versioned = FALSE)

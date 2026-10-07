@@ -86,7 +86,7 @@ leer_capa_postgres <- function(con, tabla, schema = "public") {
 #'
 #' Estructura generada:
 #'   <base_dir>/RDS/<tabla>.rds
-#'   <base_dir>/GPKG/capas.gpkg  (la capa se agrega/reemplaza dentro del GPKG)
+#'   <base_dir>/GPKG/<tabla>.gpkg
 #'
 #' @param con      Conexión DBI activa.
 #' @param tabla    Nombre de la tabla.
@@ -111,21 +111,14 @@ actualizar_capa_postgres <- function(con, tabla, schema = "public", base_dir = "
   saveRDS(sf_obj, ruta_rds)
   cat("  RDS  guardado:", ruta_rds, "\n")
 
-  # 3. Guardar GPKG (reemplaza la capa si ya existe)
+  # 3. Guardar GPKG (un archivo por capa; se reemplaza si ya existe)
   dir_gpkg <- file.path(base_dir, "GPKG")
   dir.create(dir_gpkg, recursive = TRUE, showWarnings = FALSE)
-  gpkg_path <- file.path(dir_gpkg, "capas.gpkg")
+  gpkg_path <- file.path(dir_gpkg, paste0(nombre_archivo, ".gpkg"))
 
-  # Borramos la capa del GPKG si ya existe para actualizarla limpia
-  if (file.exists(gpkg_path)) {
-    capas_existentes <- tryCatch(sf::st_layers(gpkg_path)$name, error = function(e) character(0))
-    if (nombre_archivo %in% capas_existentes) {
-      sf::st_delete(gpkg_path, layer = nombre_archivo)
-    }
-  }
   sf::st_write(sf_obj,
     dsn = gpkg_path, layer = nombre_archivo,
-    driver = "GPKG", append = TRUE, quiet = TRUE
+    driver = "GPKG", delete_dsn = TRUE, quiet = TRUE
   )
   cat("  GPKG guardado:", gpkg_path, "(capa:", nombre_archivo, ")\n")
 
@@ -150,7 +143,9 @@ cargar_capa_local_postgres <- function(tabla, base_dir = "db/POSTGRES", formato 
     cat("Cargando desde RDS:", ruta, "\n")
     readRDS(ruta)
   } else {
-    gpkg_path <- file.path(base_dir, "GPKG", "capas.gpkg")
+    gpkg_path <- file.path(base_dir, "GPKG", paste0(nombre_archivo, ".gpkg"))
+    # Compatibilidad: capas guardadas antes en el GPKG único
+    if (!file.exists(gpkg_path)) gpkg_path <- file.path(base_dir, "GPKG", "capas.gpkg")
     if (!file.exists(gpkg_path)) stop("No existe el archivo: ", gpkg_path)
     cat("Cargando desde GPKG:", gpkg_path, "(capa:", nombre_archivo, ")\n")
     sf::st_read(gpkg_path, layer = nombre_archivo, quiet = TRUE)
@@ -214,9 +209,28 @@ cargar_capas_barrido <- function(con = NULL, base_dir = "db/POSTGRES", formato =
       }
       return(capas)
     } else {
-      gpkg_path <- file.path(base_dir, "GPKG", "capas.gpkg")
+      dir_gpkg <- file.path(base_dir, "GPKG")
+      if (!dir.exists(dir_gpkg)) {
+        stop("No existe el directorio de GPKG: ", dir_gpkg)
+      }
+      archivos <- list.files(dir_gpkg, pattern = "\\.gpkg$", full.names = FALSE)
+      archivos <- archivos[archivos != "capas.gpkg"]
+      archivos_filtrados <- archivos[grepl(patron, archivos, ignore.case = TRUE)]
+
+      if (length(archivos_filtrados) > 0) {
+        capas <- list()
+        for (arch in archivos_filtrados) {
+          nombre_capa <- sub("\\.gpkg$", "", arch)
+          capas[[nombre_capa]] <- sf::st_read(file.path(dir_gpkg, arch), quiet = TRUE)
+        }
+        return(capas)
+      }
+
+      # Compatibilidad: capas guardadas antes en el GPKG único
+      gpkg_path <- file.path(dir_gpkg, "capas.gpkg")
       if (!file.exists(gpkg_path)) {
-        stop("No existe el archivo GPKG: ", gpkg_path)
+        warning("No se encontraron archivos GPKG de barrido/papeleo/avenida.")
+        return(list())
       }
       capas_existentes <- tryCatch(sf::st_layers(gpkg_path)$name, error = function(e) character(0))
       capas_filtradas <- capas_existentes[grepl(patron, capas_existentes, ignore.case = TRUE)]
@@ -244,7 +258,8 @@ cargar_capas_barrido <- function(con = NULL, base_dir = "db/POSTGRES", formato =
 # --- PASO 1: actualizar desde la base (requiere conexión) ---
 # # --- PASO 1: actualizar desde la base (requiere conexión) ---
 # con <- conectar_postgres()
-# capa_intra <- actualizar_capa_postgres(con, "Intradomiciliario_operativo")
+# capa_intra <- actualizar_capa_postgres(con, "Hogares_sustentables_union")
+# capa_intra <- actualizar_capa_postgres(con, "RECOLECCION MANUAL ZONAS")
 # circuitos_intra <- actualizar_capa_postgres(con, "Circuitos_intradomiciliaria")
 # Hogares_sustentables <- actualizar_capa_postgres(con, "Hogares_sustentables")
 
@@ -254,7 +269,10 @@ cargar_capas_barrido <- function(con = NULL, base_dir = "db/POSTGRES", formato =
 # # --- PASO 2: la próxima vez, cargar desde disco (sin conexión) ---
 # # capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo")
 # # capa_intra <- cargar_capa_local_postgres("Intradomiciliario_operativo", formato = "GPKG")
-Hogares_sustentables <- cargar_capa_local_postgres("Hogares_sustentables")
+actualizar_capa_postgres(con, "Hogares_sustentables_union")
+actualizar_capa_postgres(con, "RECOLECCION MANUAL ZONAS")
+Hogares_sustentables <- cargar_capa_local_postgres("Hogares_sustentables_union")
+RECOLECCION_MANUAL_ZONAS <- cargar_capa_local_postgres("RECOLECCION MANUAL ZONAS")
 #
 # # --- Verificar que cargó bien ---
 # # nrow(capa_intra)

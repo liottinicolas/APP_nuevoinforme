@@ -54,3 +54,9 @@ Pedidos/*.xlsx
 # Pines de datos para la Shiny app: ahora se publican en un repo de GitHub aparte
 # (ver vistas/App_informe_llenado/limpieza_datos.R), no en este repo de codigo.
 vistas/App_informe_llenado/data/
+
+# COMPRAS: lista de destinatarios (datos de contacto de terceros)
+COMPRAS/*.txt
+
+# Perfil de correo con credenciales en texto plano
+*.mobileconfig

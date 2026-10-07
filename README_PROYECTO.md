@@ -18,7 +18,8 @@ APP_nuevoinforme/
 ├── conexionDSN.R, conexionPOSTGRES.R  # Acceso a capas geoespaciales (WFS / Postgres)
 ├── Visor_vehiculos.R, Visor_hogares_sustentables.R, Pesadas_Intra.R, prueba_api.R
 │                                   # Análisis batch de posiciones GPS de flota y pesadas
-├── mail.py, process_logo.py, test_logo_conversion.R  # Utilidades sueltas
+├── process_logo.py, test_logo_conversion.R  # Utilidades sueltas
+├── COMPRAS/                       # Envío de correos masivos por webmail (mail.py + correos.txt)
 ├── informes/                      # Motor de negocio: informe diario, viajes por turno, planificación
 ├── db/                            # Caché local por fuente de datos (RDS/GPKG/parquet)
 │   ├── 10393_ubicaciones/         # Posiciones/estado de contenedores

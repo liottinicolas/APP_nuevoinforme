@@ -1,18 +1,14 @@
 library(shiny)
 library(bslib)
 library(htmltools)
-library(mapgl)
+library(leaflet)
+library(leaflet.extras)
 library(sf)
 library(pins)
 library(dplyr)
 library(DT)
 library(jsonlite)
 library(httr)
-# Informe en PDF del Historial (informe_pdf.R)
-library(ggplot2)
-library(showtext)
-# Exportación a Excel del Historial (informe_excel.R)
-library(openxlsx)
 
 # --- DETECCIÓN DE ENTORNO Y CARGA DE DATOS ---
 # En local: lee desde la carpeta "data/" (generada por limpieza_datos.R)
@@ -231,23 +227,13 @@ datos_compartidos <- reactivePoll(
       }
     )
     historico <- completar_historico(pin_read(current_board, "historico_llenado_web"), circuitos)
-    activos   <- preprocesar_datos(pin_read(current_board, "GID_activos"))
-    inactivos <- preprocesar_datos(pin_read(current_board, "GID_inactivos"))
-    indicadores_mapa <- indicadores_por_gid(historico, DIAS_INDICADORES_MAPA)
 
     list(
-      # Cada carga es una versión nueva: las banderas del mapa la usan para
-      # saber si el navegador ya tiene estos puntos o hay que mandarlos.
-      version           = format(Sys.time(), "%Y%m%d%H%M%S"),
-      activos           = activos,
-      inactivos         = inactivos,
+      activos           = preprocesar_datos(pin_read(current_board, "GID_activos")),
+      inactivos         = preprocesar_datos(pin_read(current_board, "GID_inactivos")),
       historico_llenado = historico,
       circuitos         = circuitos,
-      indicadores_mapa  = indicadores_mapa,
-      # Capas del mapa con el popup ya armado: se calculan una vez por carga,
-      # no en cada sesión ni en cada cambio de filtro.
-      capa_activos      = capa_mapa_activos(activos, indicadores_mapa),
-      capa_inactivos    = capa_mapa_inactivos(inactivos)
+      indicadores_mapa  = indicadores_por_gid(historico, DIAS_INDICADORES_MAPA)
     )
   }
 )
@@ -276,11 +262,6 @@ MESES_ES <- c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
 # Hasta cuántos días la línea de tiempo muestra la fecha de cada barra (≈ 3 meses)
 DIAS_MAX_EJE_DIARIO <- 100
 
-# Informe en PDF del Historial: usa la paleta y los meses de arriba
-source("informe_pdf.R", local = TRUE, encoding = "UTF-8")
-# Exportación a Excel de los registros del Historial
-source("informe_excel.R", local = TRUE, encoding = "UTF-8")
-
 # --- HELPERS DE FORMATO ---
 fmt_num <- function(x, digitos = 1) {
   format(round(x, digitos), decimal.mark = ",", big.mark = ".", nsmall = 0, trim = TRUE)
@@ -292,161 +273,6 @@ fmt_pct_levantes <- function(x, n) {
   ifelse(is.na(x) | n == 0, "Sin levantes", paste0(fmt_pct(x), " de ", n, " levantes"))
 }
 esc <- function(x) htmlEscape(ifelse(is.na(x), "", as.character(x)))
-
-# --- CÁLCULOS DE LA FICHA DEL HISTORIAL ---
-# Los usan tanto la pantalla como el PDF, así los dos muestran los mismos números.
-
-# Datos de la cabecera: estado actual y dónde está el contenedor
-calcular_ficha <- function(gid, df, activos, inactivos) {
-  act  <- activos[as.character(activos$GID) == gid, ]
-  inac <- inactivos[as.character(inactivos$GID) == gid, ]
-  esta_activo <- nrow(act) > 0
-
-  # Datos de ubicación: el registro más reciente del período; si no hay, la capa del mapa
-  ultimo <- if (nrow(df) > 0) df[order(as.Date(df$Fecha), decreasing = TRUE)[1], ] else NULL
-  direccion <- if (!is.null(ultimo)) ultimo$Direccion else if (esta_activo) act$DIRECCION[1] else NA
-  circuito  <- if (!is.null(ultimo)) ultimo$Circuito_corto else if (esta_activo) act$COD_RECORRIDO[1] else if (nrow(inac) > 0) inac$COD_RECORRIDO[1] else NA
-  posicion  <- if (!is.null(ultimo)) ultimo$Posicion else if (esta_activo) act$POSICION[1] else NA
-
-  datos <- list(
-    "Dirección"         = direccion,
-    "Circuito"          = circuito,
-    "Posición"          = posicion,
-    "En servicio desde" = if (esta_activo) fmt_fecha(act$FECHA_DESDE[1]),
-    "Retirado el"       = if (!esta_activo && nrow(inac) > 0) fmt_fecha(inac$FECHA_HASTA[1])
-  )
-  vacio <- vapply(datos, function(v) length(v) == 0 || is.na(v) || !nzchar(as.character(v)), logical(1))
-
-  list(
-    gid    = gid,
-    estado = if (esta_activo) "Activo" else if (nrow(inac) > 0) "Inactivo" else NULL,
-    datos  = lapply(datos[!vacio], as.character)
-  )
-}
-
-# Plan del circuito (fila de circuitos_periodo) o NULL si no hay
-plan_circuito <- function(circuitos, circuito) {
-  if (is.null(circuitos) || length(circuito) == 0 || is.na(circuito)) return(NULL)
-  fila <- circuitos[circuitos$Circuito_corto == circuito, ]
-  if (nrow(fila) == 0) NULL else fila[1, ]
-}
-
-# Indicadores del período. Cada uno: valor, texto que lo explica, color de su
-# significado (muestra: "lleno", "incidencia", "nopaso" o NULL) y si el valor
-# es un texto (motivo) en vez de un número.
-calcular_resumen <- function(df, plan = NULL) {
-  total_programado <- nrow(df)
-
-  # Llenado promedio en el rango seleccionado, solo en los levantes: los "N"
-  # pueden venir con 0 % cuando el camión no llegó a revisar el contenedor.
-  llenado_prom <- mean(suppressWarnings(as.numeric(df$Porcentaje_llenado[df$Levantado %in% "S"])), na.rm = TRUE)
-  llenado_txt <- if (is.nan(llenado_prom)) "Sin datos" else paste0(fmt_num(llenado_prom), "%")
-
-  # Frecuencia promedio de levante: días entre fechas con levante
-  levantes <- df %>%
-    filter(Levantado == "S") %>%
-    mutate(Fecha = as.Date(Fecha)) %>%
-    arrange(Fecha)
-  fechas_unicas <- unique(levantes$Fecha)
-  frecuencia_txt <- if (length(fechas_unicas) >= 2) {
-    paste0(fmt_num(mean(as.numeric(diff(fechas_unicas), units = "days"))), " días")
-  } else {
-    "Sin datos"
-  }
-
-  # % de levantes en los que el contenedor estaba al 100%
-  saturacion_txt <- if (nrow(levantes) > 0) {
-    paste0(fmt_num(mean(as.numeric(levantes$Porcentaje_llenado) == 100, na.rm = TRUE) * 100, 0), "%")
-  } else {
-    "Sin datos"
-  }
-
-  # "N": el camión pasó pero no levantó, hay una Incidencia que lo justifica.
-  # NA: estaba programado en el circuito pero el camión no llegó a pasar (sin registro).
-  # Son dos fallas distintas, no se agrupan.
-  n_incidencia <- sum(df$Levantado == "N", na.rm = TRUE)
-  n_no_paso    <- sum(is.na(df$Levantado))
-
-  # Frecuencia planificada del circuito, para comparar con la real
-  frecuencia_nota <- "entre un levante y el siguiente, en promedio"
-  if (!is.null(plan) && !is.na(plan$Periodo)) {
-    frecuencia_nota <- paste0(
-      frecuencia_nota, ". Plan: cada ", fmt_num(plan$Periodo), " días",
-      if (!is.na(plan$Dias_recoleccion)) paste0(" (", plan$Dias_recoleccion, ")") else ""
-    )
-  }
-
-  # Motivo más frecuente de no levante
-  motivos <- sort(table(df$Incidencia[df$Levantado %in% "N"]), decreasing = TRUE)
-
-  dato <- function(valor, texto, muestra = NULL, es_texto = FALSE) {
-    list(valor = valor, texto = texto, muestra = muestra, es_texto = es_texto)
-  }
-
-  Filter(Negate(is.null), list(
-    dato(llenado_txt, "llenado promedio cuando se levanta"),
-    dato(frecuencia_txt, frecuencia_nota),
-    dato(saturacion_txt, "de los levantes lo encontraron lleno", "lleno"),
-    dato(
-      paste0(fmt_num(100 * n_incidencia / total_programado), "%"),
-      paste0("no se levantó por una incidencia (", n_incidencia, " de ", total_programado, " programados)"),
-      "incidencia"
-    ),
-    dato(
-      paste0(fmt_num(100 * n_no_paso / total_programado), "%"),
-      paste0("el camión no pasó (", n_no_paso, " de ", total_programado, " programados)"),
-      "nopaso"
-    ),
-    if (length(motivos) > 0) {
-      dato(
-        names(motivos)[1],
-        paste0("motivo más frecuente de no levante (", motivos[[1]], " de ", n_incidencia, " incidencias)"),
-        es_texto = TRUE
-      )
-    }
-  ))
-}
-
-# Cuántos levantes del período traen cada observación sobre el contenedor.
-# Devuelve el total de levantes y un data.frame (condicion, n, prop) ordenado.
-conteo_condiciones <- function(df) {
-  lev <- df[df$Levantado %in% "S", ]
-  etiquetas <- strsplit(ifelse(is.na(lev$Condicion), "", lev$Condicion), ";", fixed = TRUE)
-  etiquetas <- lapply(etiquetas, trimws)
-  conteo <- vapply(CONDICIONES_CONTENEDOR, function(e) sum(vapply(etiquetas, function(x) e %in% x, logical(1))), integer(1))
-  conteo <- sort(conteo[conteo > 0], decreasing = TRUE)
-  list(
-    levantes = nrow(lev),
-    conteo = data.frame(
-      condicion = names(conteo),
-      n = unname(conteo),
-      prop = if (nrow(lev) > 0) unname(conteo) / nrow(lev) else numeric(0),
-      stringsAsFactors = FALSE
-    )
-  )
-}
-
-# Registros del período como se muestran en la tabla: del más reciente al más
-# antiguo, con S / N / NA traducidos a texto
-registros_para_tabla <- function(df) {
-  df %>%
-    mutate(
-      Fecha = as.Date(Fecha),
-      Levantado = case_when(
-        Levantado == "S" ~ "Sí",
-        Levantado == "N" ~ "No",
-        is.na(Levantado) ~ "No pasó",
-        TRUE             ~ as.character(Levantado)
-      )
-    ) %>%
-    arrange(desc(Fecha))
-}
-
-COLNAMES_REGISTROS <- c(
-  "Fecha plan.", "Circuito", "Posición", "Dirección", "¿Levantado?",
-  "Turno", "Fecha y Hora pasaje", "ID viaje", "Incidencia",
-  "% llenado", "Condición", "Activo"
-)
 
 # Popup de un contenedor en el mapa (vectorizado sobre las filas de df)
 popup_contenedor <- function(df, activo) {
@@ -487,68 +313,12 @@ popup_contenedor <- function(df, activo) {
   )
 }
 
-# --- CAPAS DEL MAPA (MapLibre) ---
-# Solo las columnas que usa el mapa, con el popup ya armado.
-capa_mapa_activos <- function(activos, ind) {
-  idx <- match(as.character(activos$GID), as.character(ind$gid))
-  activos$levantes   <- ifelse(is.na(idx), 0L, ind$levantes[idx])
-  activos$saturacion <- ind$saturacion[idx]
-  activos$p_no_paso  <- ind$p_no_paso[idx]
-  capa <- activos["GID"]
-  capa$GID        <- as.character(activos$GID)
-  capa$sat_pct    <- 100 * activos$saturacion
-  capa$nopaso_pct <- 100 * activos$p_no_paso
-  capa$popup      <- popup_contenedor(activos, activo = TRUE)
-  capa
-}
+# Línea de tiempo: una columna por día del rango. Altura = % de llenado,
+# color = qué pasó ese día. Días sin barra = no estaba programado.
+linea_tiempo <- function(df, desde, hasta) {
+  dias <- seq(desde, hasta, by = "day")
 
-capa_mapa_inactivos <- function(inactivos) {
-  capa <- inactivos["GID"]
-  capa$GID   <- as.character(inactivos$GID)
-  capa$popup <- popup_contenedor(inactivos, activo = FALSE)
-  capa
-}
-
-# Colores de los clusters (de pocos a muchos puntos), con el número en blanco
-COLORES_CLUSTER <- c("#4F8A6C", COL_LEVANTADO, "#1F4A36")
-
-# Estilo de los activos según el modo de color. El relleno es una expresión
-# MapLibre que se evalúa en el navegador: cambiar de modo no reenvía puntos.
-estilo_activos <- function(modo) {
-  if (is.null(modo) || modo == "estado") {
-    return(list(relleno = COL_LEVANTADO, borde = COL_LEVANTADO, opacidad = 0.7))
-  }
-  columna <- if (modo == "saturacion") "sat_pct" else "nopaso_pct"
-  rampa   <- if (modo == "saturacion") RAMPA_SATURACION else RAMPA_NO_PASO
-  cortes  <- CORTES_MAPA[2:(length(CORTES_MAPA) - 1)]
-  escalones <- unlist(lapply(seq_along(cortes), function(i) list(cortes[i], rampa[i + 1])), recursive = FALSE)
-  relleno <- list(
-    "case",
-    # Sin dato (null en el GeoJSON) -> blanco
-    list("==", list("typeof", list("get", columna)), "number"),
-    c(list("step", list("get", columna), rampa[1]), escalones),
-    COL_SIN_DATOS
-  )
-  list(relleno = relleno, borde = COL_TINTA, opacidad = 0.85)
-}
-
-agregar_leyenda <- function(mapa, modo) {
-  rampa <- if (modo == "saturacion") RAMPA_SATURACION else RAMPA_NO_PASO
-  add_legend(
-    mapa,
-    legend_title = if (modo == "saturacion") "Lleno al levantar" else "El camión no pasó",
-    values = c(paste0(head(CORTES_MAPA, -1), "–", CORTES_MAPA[-1], "%"),
-               if (modo == "saturacion") "Sin levantes" else "Sin programación"),
-    colors = c(rampa, COL_SIN_DATOS),
-    type = "categorical",
-    position = "bottom-left"
-  )
-}
-
-# Un registro por día con qué pasó ese día (levantado / incidencia / nopaso)
-# y el % de llenado medido. Lo usan la línea de tiempo y el PDF.
-resumen_por_dia <- function(df) {
-  df %>%
+  por_dia <- df %>%
     mutate(
       dia = as.Date(Fecha),
       # Solo los levantes miden llenado (un "N" puede venir con 0 % sin que nadie lo haya visto)
@@ -566,13 +336,6 @@ resumen_por_dia <- function(df) {
       incidencia = paste(unique(na.omit(Incidencia[Incidencia != ""])), collapse = ", "),
       .groups = "drop"
     )
-}
-
-# Línea de tiempo: una columna por día del rango. Altura = % de llenado,
-# color = qué pasó ese día. Días sin barra = no estaba programado.
-linea_tiempo <- function(df, desde, hasta) {
-  dias <- seq(desde, hasta, by = "day")
-  por_dia <- resumen_por_dia(df)
 
   texto_estado <- c(
     levantado  = "Levantado",
@@ -727,9 +490,15 @@ estilos <- tags$style(HTML("
   #seleccion_estado input:checked + span { background: var(--tinta); color: #fff; }
   #seleccion_estado input:focus-visible + span { outline: 2px solid var(--levantado); outline-offset: -2px; }
 
+  /* Clusters del mapa en la paleta de la app */
+  .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large { background-color: rgba(46, 106, 78, 0.22) !important; }
+  .marker-cluster div { background-color: var(--levantado) !important; color: #fff !important;
+                        font-family: var(--condensada); font-weight: 600; }
+
   /* Popups */
-  .maplibregl-map { font-family: inherit; }
-  .maplibregl-popup-content { border-radius: 8px; padding: 0.9rem 1rem; box-shadow: 0 2px 10px rgba(29, 42, 40, 0.18); }
+  .leaflet-container { font-family: inherit; }
+  .leaflet-popup-content-wrapper { border-radius: 8px; }
+  .leaflet-popup-content { margin: 0.9rem 1rem; }
   .pop { min-width: 210px; font-size: 0.875rem; color: var(--tinta); }
   .pop-cabecera { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
   .pop-gid { font-family: var(--condensada); font-weight: 700; font-size: 1.25rem; }
@@ -748,7 +517,6 @@ estilos <- tags$style(HTML("
   .historial { max-width: 1680px; margin: 0 auto; padding: 0 0.5rem 3rem; }
   .controles { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: flex-end;
                padding: 0.5rem 0 1.25rem; border-bottom: 1px solid var(--linea); margin-bottom: 1.75rem; }
-  .controles-accion { margin-left: auto; display: flex; flex-wrap: wrap; gap: 0.5rem; }
   #busqueda_gid { width: 11rem; font-family: var(--condensada); font-size: 1.15rem; font-weight: 600; }
 
   .ficha-cabecera { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
@@ -841,6 +609,10 @@ estilos <- tags$style(HTML("
   .cond-valor { font-variant-numeric: tabular-nums; color: var(--tinta-suave); }
   .cond-valor strong { color: var(--tinta); font-weight: 600; }
 
+  /* Leyenda de la capa de color del mapa */
+  .leaflet-control.info.legend { font-family: inherit; font-size: 0.8rem; color: var(--tinta);
+                                 border: 1px solid var(--linea); border-radius: 8px; box-shadow: none; }
+
   /* Filas clicables (contenedores críticos) */
   .tabla-clicable table.dataTable tbody tr { cursor: pointer; }
 
@@ -861,40 +633,6 @@ script_enter <- tags$script(HTML("
   });
   // Al cambiar de pestaña, arrancar desde arriba (sino se hereda el scroll de la anterior)
   $(document).on('shown.bs.tab', function() { window.scrollTo(0, 0); });
-
-  // Agrupar puntos cercanos: se activa o desactiva el clustering sobre las
-  // fuentes que el navegador ya tiene, sin volver a pedir los puntos.
-  // Una fuente que llega después (otro grupo, datos nuevos) toma el estado
-  // elegido al cargarse.
-  (function() {
-    var FUENTE_PUNTOS = /^(activos|inactivos)_/;
-    var agrupar = true;
-
-    function aplicar(mapa, id) {
-      var fuente = mapa.getSource(id);
-      if (!fuente || !fuente.setClusterOptions) return;
-      mapa._agrupado = mapa._agrupado || {};
-      if (mapa._agrupado[id] === agrupar) return;
-      mapa._agrupado[id] = agrupar;
-      fuente.setClusterOptions({ cluster: agrupar });
-    }
-
-    Shiny.addCustomMessageHandler('agrupar_puntos', function(msg) {
-      agrupar = msg.agrupar;
-      var widget = HTMLWidgets.find('#' + msg.mapa);
-      var mapa = widget && widget.getMap();
-      if (!mapa) return;
-      if (!mapa._escuchaAgrupar) {
-        mapa._escuchaAgrupar = true;
-        mapa.on('sourcedata', function(e) {
-          if (e.sourceId && FUENTE_PUNTOS.test(e.sourceId)) aplicar(mapa, e.sourceId);
-        });
-      }
-      Object.keys(mapa.getStyle().sources)
-        .filter(function(id) { return FUENTE_PUNTOS.test(id); })
-        .forEach(function(id) { aplicar(mapa, id); });
-    });
-  })();
 "))
 
 ui <- page_navbar(
@@ -909,7 +647,7 @@ ui <- page_navbar(
     "Mapa", value = "mapa",
     div(
       class = "mapa-wrap",
-      maplibreOutput("map", height = "100%"),
+      leafletOutput("map", height = "100%"),
       div(
         class = "mapa-panel",
         div(
@@ -957,12 +695,6 @@ ui <- page_navbar(
           format = "dd/mm/yyyy",
           separator = "a",
           language = "es"
-        ),
-        conditionalPanel(
-          "output.hay_registros",
-          class = "controles-accion",
-          downloadButton("descargar_pdf", "Descargar PDF", class = "btn-outline-primary"),
-          downloadButton("descargar_excel", "Descargar Excel", class = "btn-outline-primary")
         )
       ),
       uiOutput("ficha_historial"),
@@ -1035,138 +767,125 @@ server <- function(input, output, session) {
   })
 
   # Fecha máxima dinámica: se actualiza cuando datos() cambia
-  ultima_fecha_datos <- reactive({
-    req(datos())
-    max(as.Date(datos()$historico_llenado$Fecha), na.rm = TRUE)
-  })
-
-  primera_fecha_datos <- reactive({
-    req(datos())
-    min(as.Date(datos()$historico_llenado$Fecha), na.rm = TRUE)
-  })
-
-  # Los filtros de Período solo permiten elegir fechas con datos: cuando se
-  # cargan datos nuevos se ajustan los límites y la selección queda dentro de ellos.
-  observeEvent(list(primera_fecha_datos(), ultima_fecha_datos()), {
-    minimo <- primera_fecha_datos()
-    maximo <- ultima_fecha_datos()
-    acotar <- function(fecha) min(max(fecha, minimo), maximo)
-    for (id in c("rango_fechas_historico", "rango_fechas_circuitos")) {
-      rango <- isolate(input[[id]])
-      if (length(rango) != 2 || anyNA(rango)) rango <- c(minimo, maximo)
-      updateDateRangeInput(
-        session, id,
-        start = acotar(rango[1]), end = acotar(rango[2]),
-        min = minimo, max = maximo
-      )
-    }
-  })
-
   output$fecha_actualizacion <- renderText({
-    paste0("Datos al ", fmt_fecha(ultima_fecha_datos()))
+    req(datos())
+    fecha <- fmt_fecha(max(as.Date(datos()$historico_llenado$Fecha), na.rm = TRUE))
+    paste0("Datos al ", fecha)
   })
 
-  # --- Lógica del Mapa ---
-  # Mapa base vectorial (estilo CARTO Voyager sobre MapLibre GL, sin API key)
-  # y puntos dibujados con WebGL.
-  #
-  # Banderas: cada grupo (activos / inactivos) es una capa en el navegador y
-  # se guarda qué versión de datos ya se mandó de cada uno. Si el navegador ya
-  # la tiene, solo se muestra u oculta: los puntos no vuelven a viajar.
-  # El agrupamiento tampoco reenvía nada: se prende o apaga en el navegador
-  # sobre la misma fuente (manejador 'agrupar_puntos' en script_enter).
-  capas_enviadas <- new.env()
+  # --- Lógica del Mapa (Inicialización Base) ---
+  # El mapa base se renderiza una sola vez. Los marcadores se agregan dinámicamente con leafletProxy.
+  # Esto previene que el zoom del mapa se resetee cuando cambian los datos o filtros.
+  output$map <- renderLeaflet({
+    # Tiles de CARTO (basemap "voyager"): mapa claro y mucho más liviano que
+    # OpenStreetMap. Requiere API key de CARTO. maxZoom = 19 es el nivel de
+    # detalle nativo máximo de estos tiles; pedir más generaría tiles vacíos/rotos.
+    carto_key <- "cb1_2v24_1_3157bbb3b317c6d177c4d450"
+    leaflet(options = leafletOptions(maxZoom = 19)) %>%
+      addTiles(
+        urlTemplate = paste0(
+          "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=",
+          carto_key
+        ),
+        attribution = paste(
+          '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        ),
+        options = tileOptions(maxZoom = 19)
+      ) %>%
+      setView(lng = lng_mvd, lat = lat_mvd, zoom = 12)
+  })
 
-  clave_capa <- function(estado) {
-    if (identical(estado, "inact")) "inactivos" else "activos"
-  }
+  # Activos con los indicadores de los últimos DIAS_INDICADORES_MAPA días
+  # (para colorear el mapa y completar el popup)
+  activos_con_indicadores <- reactive({
+    ind <- datos()$indicadores_mapa
+    df <- datos()$activos
+    idx <- match(as.character(df$GID), as.character(ind$gid))
+    df$levantes   <- ifelse(is.na(idx), 0L, ind$levantes[idx])
+    df$saturacion <- ind$saturacion[idx]
+    df$p_no_paso  <- ind$p_no_paso[idx]
+    df
+  })
 
-  # Capas que MapLibre crea para un grupo (la de puntos y las de los clusters)
-  subcapas <- function(clave) {
-    id <- capas_enviadas[[clave]]$id
-    c(id, paste0(id, "-clusters"), paste0(id, "-cluster-count"))
-  }
+  # Actualización dinámica de marcadores mediante leafletProxy
+  observe({
+    req(datos())
+    proxy <- leafletProxy("map")
 
-  agregar_capa <- function(mapa, clave, d) {
-    message("📤 [Mapa] Enviando capa ", clave, " (datos ", d$version, ")")
-    id <- paste0(clave, "_", d$version)
-    # max_zoom = 16: desde zoom 17 los clusters se deshacen y cada GID queda clickeable
-    cluster <- cluster_options(max_zoom = 16, color_stops = COLORES_CLUSTER, text_color = "#FFFFFF")
-    # Activos: punto lleno. Inactivos: punto hueco (retirado).
-    mapa <- if (clave == "activos") {
-      e <- estilo_activos(isolate(input$color_mapa))
-      add_circle_layer(
-        mapa, id = id, source = d$capa_activos,
-        circle_radius = 5, circle_color = e$relleno, circle_opacity = e$opacidad,
-        circle_stroke_color = e$borde, circle_stroke_width = 1,
-        popup = "popup", tooltip = "GID", cluster_options = cluster
-      )
+    # Limpiamos grupos anteriores
+    proxy %>% clearGroup("activos") %>% clearGroup("inactivos")
+
+    # Configuración de clustering según checkbox de la UI.
+    # disableClusteringAtZoom: a partir de ese nivel de zoom los clusters se
+    # deshacen del todo y quedan los puntos individuales clickeables (sin esto,
+    # el círculo con el número puede seguir tapando el click a un GID puntual).
+    cluster_opts <- if (input$usar_clustering) {
+      markerClusterOptions(disableClusteringAtZoom = 17)
     } else {
-      add_circle_layer(
-        mapa, id = id, source = d$capa_inactivos,
-        circle_radius = 5, circle_color = "#FFFFFF", circle_opacity = 0.9,
-        circle_stroke_color = COL_TINTA, circle_stroke_width = 1.5,
-        popup = "popup", tooltip = "GID", cluster_options = cluster
-      )
-    }
-    capas_enviadas[[clave]] <- list(version = d$version, id = id)
-    mapa
-  }
-
-  # La capa inicial viaja junto con el mapa (así no se pierde si el mapa
-  # todavía no terminó de cargar cuando llegaría un mensaje por proxy).
-  output$map <- renderMaplibre({
-    d <- isolate(datos())
-    rm(list = ls(capas_enviadas), envir = capas_enviadas)  # mapa nuevo: el navegador no tiene nada
-    maplibre(style = carto_style("voyager"), center = c(lng_mvd, lat_mvd), zoom = 12) %>%
-      agregar_capa(clave_capa(isolate(input$seleccion_estado)), d)
-  })
-
-  # Cambio de grupo o datos nuevos
-  observeEvent(list(input$seleccion_estado, datos()$version), {
-    d <- datos()
-    clave <- clave_capa(input$seleccion_estado)
-    proxy <- maplibre_proxy("map")
-
-    previa <- capas_enviadas[[clave]]
-    if (!identical(previa$version, d$version)) {
-      # Nunca pedida o con datos viejos: se reemplaza (clear_layer también
-      # borra sus clusters y la fuente)
-      if (!is.null(previa)) clear_layer(proxy, previa$id)
-      agregar_capa(proxy, clave, d)
+      NULL
     }
 
-    for (otra in ls(capas_enviadas)) {
-      for (capa in subcapas(otra)) {
-        set_layout_property(proxy, capa, "visibility", if (otra == clave) "visible" else "none")
+    # Activos: punto lleno verde. Inactivos: punto hueco (retirado).
+    proxy %>% removeControl("leyenda_color")
+
+    if (input$seleccion_estado == "act") {
+      df <- activos_con_indicadores()
+      modo <- input$color_mapa
+      if (is.null(modo) || modo == "estado") {
+        relleno <- COL_LEVANTADO
+        borde <- COL_LEVANTADO
+      } else {
+        valor <- if (modo == "saturacion") df$saturacion else df$p_no_paso
+        rampa <- if (modo == "saturacion") RAMPA_SATURACION else RAMPA_NO_PASO
+        pal <- colorBin(rampa, domain = c(0, 100), bins = CORTES_MAPA, na.color = COL_SIN_DATOS)
+        relleno <- pal(100 * valor)
+        borde <- COL_TINTA
+        proxy %>%
+          addLegend(
+            position = "bottomleft",
+            layerId = "leyenda_color",
+            colors = c(rampa, COL_SIN_DATOS),
+            labels = c(paste0(head(CORTES_MAPA, -1), "–", CORTES_MAPA[-1], "%"),
+                       if (modo == "saturacion") "Sin levantes" else "Sin programación"),
+            title = if (modo == "saturacion") "Lleno al levantar" else "El camión no pasó",
+            opacity = 1
+          )
       }
+      proxy %>%
+        addCircleMarkers(
+          data = df,
+          group = "activos",
+          radius = 5,
+          color = borde,
+          weight = 1,
+          opacity = 0.9,
+          fillColor = relleno,
+          fillOpacity = if (identical(relleno, COL_LEVANTADO)) 0.7 else 0.85,
+          popup = popup_contenedor(df, activo = TRUE),
+          label = ~as.character(GID),
+          layerId = ~as.character(GID),
+          clusterOptions = cluster_opts
+        )
+    } else {
+      df <- datos()$inactivos
+      proxy %>%
+        addCircleMarkers(
+          data = df,
+          group = "inactivos",
+          radius = 5,
+          color = COL_TINTA,
+          weight = 1.5,
+          opacity = 0.9,
+          fillColor = "#FFFFFF",
+          fillOpacity = 0.9,
+          popup = popup_contenedor(df, activo = FALSE),
+          label = ~as.character(GID),
+          layerId = ~as.character(GID),
+          clusterOptions = cluster_opts
+        )
     }
-  }, ignoreInit = TRUE)
-
-  # Agrupar puntos cercanos: se resuelve en el navegador, sin reenviar puntos
-  observeEvent(input$usar_clustering, {
-    session$sendCustomMessage("agrupar_puntos", list(mapa = "map", agrupar = isTRUE(input$usar_clustering)))
-  }, ignoreInit = TRUE)
-
-  # Modo de color: solo cambia el estilo de la capa de activos ya enviada
-  observeEvent(input$color_mapa, {
-    req(capas_enviadas$activos)
-    e <- estilo_activos(input$color_mapa)
-    id <- capas_enviadas$activos$id
-    maplibre_proxy("map") %>%
-      set_paint_property(id, "circle-color", e$relleno) %>%
-      set_paint_property(id, "circle-opacity", e$opacidad) %>%
-      set_paint_property(id, "circle-stroke-color", e$borde)
-  }, ignoreInit = TRUE)
-
-  # Leyenda: solo para activos con un modo de color distinto de "estado"
-  observeEvent(list(input$color_mapa, input$seleccion_estado), {
-    proxy <- maplibre_proxy("map") %>% clear_legend()
-    modo <- input$color_mapa
-    if (identical(input$seleccion_estado, "act") && !is.null(modo) && modo != "estado") {
-      agregar_leyenda(proxy, modo)
-    }
-  }, ignoreInit = TRUE)
+  })
 
   # Redirección cruzada: al hacer click en "Ver historial" en el popup del mapa,
   # se cambia de pestaña y se rellena la búsqueda de GID automáticamente.
@@ -1178,8 +897,8 @@ server <- function(input, output, session) {
   # --- Búsqueda de GID en el mapa (Autofocus + Popup automático) ---
   buscar_gid_en_mapa <- function(gid_buscado) {
     # Buscar primero en activos, luego en inactivos
-    df_act  <- datos()$capa_activos
-    df_inac <- datos()$capa_inactivos
+    df_act  <- activos_con_indicadores()
+    df_inac <- datos()$inactivos
 
     encontrado <- df_act[as.character(df_act$GID) == gid_buscado, ]
     grupo <- "activos"
@@ -1205,12 +924,13 @@ server <- function(input, output, session) {
       updateRadioButtons(session, "seleccion_estado", selected = "inact")
     }
 
-    # Marcador sobre el GID encontrado; el popup (ya armado en la capa) se abre al tocarlo
-    punto <- unname(coords[1, 1:2])
-    maplibre_proxy("map") %>%
-      clear_markers() %>%
-      fly_to(center = punto, zoom = 18) %>%
-      add_markers(punto, color = COL_TINTA, popup = encontrado$popup[1])
+    leafletProxy("map") %>%
+      setView(lng = coords[1], lat = coords[2], zoom = 18) %>%
+      clearPopups() %>%
+      addPopups(
+        lng = coords[1], lat = coords[2],
+        popup = popup_contenedor(encontrado[1, ], activo = grupo == "activos")
+      )
   }
 
   # --- Buscador por dirección (geocodificación con Nominatim / OpenStreetMap) ---
@@ -1293,11 +1013,13 @@ server <- function(input, output, session) {
     lat <- as.numeric(hit$lat)
     lon <- as.numeric(hit$lon)
 
-    maplibre_proxy("map") %>%
-      clear_markers() %>%
-      fly_to(center = c(lon, lat), zoom = 18) %>%
-      add_markers(
-        c(lon, lat), color = COL_TINTA,
+    leafletProxy("map") %>%
+      clearGroup("geocode") %>%
+      setView(lng = lon, lat = lat, zoom = 18) %>%
+      addCircleMarkers(
+        lng = lon, lat = lat, group = "geocode",
+        radius = 10, color = COL_TINTA, weight = 3,
+        fillColor = "#FFFFFF", fillOpacity = 0.6,
         popup = paste0("<div class='pop'>", esc(hit$display_name), "</div>")
       )
 
@@ -1339,7 +1061,7 @@ server <- function(input, output, session) {
         as.Date(Fecha) <= fecha_hasta
       ) %>%
       mutate(
-        Hora_pasaje = ifelse(is.na(Fecha_hora_pasaje), "", format(as.POSIXct(Fecha_hora_pasaje), "%Y-%m-%d %H:%M:%S"))
+        Hora_pasaje = ifelse(is.na(Fecha_hora_pasaje), "", format(as.POSIXct(Fecha_hora_pasaje), "%H:%M:%S"))
       ) %>%
       select(
         Fecha, Circuito_corto, Posicion, Direccion, Levantado,
@@ -1355,65 +1077,151 @@ server <- function(input, output, session) {
 
   # Cabecera de la ficha: GID, estado actual y dónde está
   ficha_cabecera <- function(gid, df) {
-    ficha <- calcular_ficha(gid, df, datos()$activos, datos()$inactivos)
+    act  <- datos()$activos[as.character(datos()$activos$GID) == gid, ]
+    inac <- datos()$inactivos[as.character(datos()$inactivos$GID) == gid, ]
+    esta_activo <- nrow(act) > 0
+
+    # Datos de ubicación: el registro más reciente del período; si no hay, la capa del mapa
+    ultimo <- if (nrow(df) > 0) df[order(as.Date(df$Fecha), decreasing = TRUE)[1], ] else NULL
+    direccion <- if (!is.null(ultimo)) ultimo$Direccion else if (esta_activo) act$DIRECCION[1] else NA
+    circuito  <- if (!is.null(ultimo)) ultimo$Circuito_corto else if (esta_activo) act$COD_RECORRIDO[1] else if (nrow(inac) > 0) inac$COD_RECORRIDO[1] else NA
+    posicion  <- if (!is.null(ultimo)) ultimo$Posicion else if (esta_activo) act$POSICION[1] else NA
+
+    dato <- function(etiqueta, valor) {
+      if (length(valor) == 0 || is.na(valor) || !nzchar(as.character(valor))) return(NULL)
+      div(tags$dt(etiqueta), tags$dd(as.character(valor)))
+    }
+
     tagList(
       div(
         class = "ficha-cabecera",
         h1(class = "ficha-gid", span("GID"), gid),
-        if (!is.null(ficha$estado)) {
-          span(class = paste("estado", if (ficha$estado == "Activo") "estado-activo" else "estado-inactivo"), ficha$estado)
+        if (esta_activo) {
+          span(class = "estado estado-activo", "Activo")
+        } else if (nrow(inac) > 0) {
+          span(class = "estado estado-inactivo", "Inactivo")
         }
       ),
       tags$dl(
         class = "ficha-datos",
-        lapply(names(ficha$datos), function(etiqueta) {
-          div(tags$dt(etiqueta), tags$dd(ficha$datos[[etiqueta]]))
-        })
+        dato("Dirección", direccion),
+        dato("Circuito", circuito),
+        dato("Posición", posicion),
+        if (esta_activo) dato("En servicio desde", fmt_fecha(act$FECHA_DESDE[1])),
+        if (!esta_activo && nrow(inac) > 0) dato("Retirado el", fmt_fecha(inac$FECHA_HASTA[1]))
       )
     )
   }
 
-  # Resumen del período como una sola banda de datos
+  # Resumen del período: los mismos indicadores que antes, como una sola banda de datos
+  # Plan del circuito (fila de circuitos_periodo) o NULL si no hay
+  plan_circuito <- function(circuito) {
+    cp <- datos()$circuitos
+    if (is.null(cp) || length(circuito) == 0 || is.na(circuito)) return(NULL)
+    fila <- cp[cp$Circuito_corto == circuito, ]
+    if (nrow(fila) == 0) NULL else fila[1, ]
+  }
+
   resumen_periodo <- function(df, plan = NULL) {
+    total_programado <- nrow(df)
+
+    # Llenado promedio en el rango seleccionado, solo en los levantes: los "N"
+    # pueden venir con 0 % cuando el camión no llegó a revisar el contenedor.
+    llenado_prom <- mean(suppressWarnings(as.numeric(df$Porcentaje_llenado[df$Levantado %in% "S"])), na.rm = TRUE)
+    llenado_txt <- if (is.nan(llenado_prom)) "Sin datos" else paste0(fmt_num(llenado_prom), "%")
+
+    # Frecuencia promedio de levante: días entre fechas con levante
+    levantes <- df %>%
+      filter(Levantado == "S") %>%
+      mutate(Fecha = as.Date(Fecha)) %>%
+      arrange(Fecha)
+    fechas_unicas <- unique(levantes$Fecha)
+    frecuencia_txt <- if (length(fechas_unicas) >= 2) {
+      paste0(fmt_num(mean(as.numeric(diff(fechas_unicas), units = "days"))), " días")
+    } else {
+      "Sin datos"
+    }
+
+    # % de levantes en los que el contenedor estaba al 100%
+    saturacion_txt <- if (nrow(levantes) > 0) {
+      paste0(fmt_num(mean(as.numeric(levantes$Porcentaje_llenado) == 100, na.rm = TRUE) * 100, 0), "%")
+    } else {
+      "Sin datos"
+    }
+
+    # "N": el camión pasó pero no levantó, hay una Incidencia que lo justifica.
+    # NA: estaba programado en el circuito pero el camión no llegó a pasar (sin registro).
+    # Son dos fallas distintas, no se agrupan.
+    n_incidencia <- sum(df$Levantado == "N", na.rm = TRUE)
+    n_no_paso    <- sum(is.na(df$Levantado))
+
+    # Frecuencia planificada del circuito, para comparar con la real
+    frecuencia_nota <- "entre un levante y el siguiente, en promedio"
+    if (!is.null(plan) && !is.na(plan$Periodo)) {
+      frecuencia_nota <- paste0(
+        frecuencia_nota, ". Plan: cada ", fmt_num(plan$Periodo), " días",
+        if (!is.na(plan$Dias_recoleccion)) paste0(" (", plan$Dias_recoleccion, ")") else ""
+      )
+    }
+
+    # Motivo más frecuente de no levante
+    motivos <- sort(table(df$Incidencia[df$Levantado %in% "N"]), decreasing = TRUE)
+
+    dato <- function(valor, texto, muestra = NULL, clase = NULL) {
+      div(
+        class = "dato",
+        div(class = paste("dato-valor", clase), if (!is.null(muestra)) span(class = paste("muestra", muestra)), valor),
+        p(class = "dato-texto", texto)
+      )
+    }
+
     div(
       class = "resumen",
-      lapply(calcular_resumen(df, plan), function(d) {
-        div(
-          class = "dato",
-          div(
-            class = paste("dato-valor", if (d$es_texto) "dato-valor-texto"),
-            if (!is.null(d$muestra)) span(class = paste0("muestra muestra-", d$muestra)),
-            d$valor
-          ),
-          p(class = "dato-texto", d$texto)
+      dato(llenado_txt, "llenado promedio cuando se levanta"),
+      dato(frecuencia_txt, frecuencia_nota),
+      dato(saturacion_txt, "de los levantes lo encontraron lleno", "muestra-lleno"),
+      dato(
+        paste0(fmt_num(100 * n_incidencia / total_programado), "%"),
+        paste0("no se levantó por una incidencia (", n_incidencia, " de ", total_programado, " programados)"),
+        "muestra-incidencia"
+      ),
+      dato(
+        paste0(fmt_num(100 * n_no_paso / total_programado), "%"),
+        paste0("el camión no pasó (", n_no_paso, " de ", total_programado, " programados)"),
+        "muestra-nopaso"
+      ),
+      if (length(motivos) > 0) {
+        dato(
+          names(motivos)[1],
+          paste0("motivo más frecuente de no levante (", motivos[[1]], " de ", n_incidencia, " incidencias)"),
+          clase = "dato-valor-texto"
         )
-      })
+      }
     )
   }
 
   # % de los levantes del período con cada observación sobre el contenedor
   estado_contenedor <- function(df) {
-    cond <- conteo_condiciones(df)
-    if (cond$levantes == 0) return(p(class = "seccion-nota", "Sin levantes en el período."))
-    if (nrow(cond$conteo) == 0) {
-      return(p(class = "seccion-nota", paste0("Ninguna observación en los ", cond$levantes, " levantes del período.")))
+    lev <- df[df$Levantado %in% "S", ]
+    if (nrow(lev) == 0) return(p(class = "seccion-nota", "Sin levantes en el período."))
+    etiquetas <- strsplit(ifelse(is.na(lev$Condicion), "", lev$Condicion), ";", fixed = TRUE)
+    etiquetas <- lapply(etiquetas, trimws)
+    conteo <- vapply(CONDICIONES_CONTENEDOR, function(e) sum(vapply(etiquetas, function(x) e %in% x, logical(1))), integer(1))
+    conteo <- sort(conteo[conteo > 0], decreasing = TRUE)
+    if (length(conteo) == 0) {
+      return(p(class = "seccion-nota", paste0("Ninguna observación en los ", nrow(lev), " levantes del período.")))
     }
     div(
       class = "condiciones",
-      lapply(seq_len(nrow(cond$conteo)), function(i) {
-        fila <- cond$conteo[i, ]
+      lapply(names(conteo), function(e) {
+        prop <- conteo[[e]] / nrow(lev)
         tagList(
-          span(fila$condicion),
-          div(class = "cond-barra", span(style = sprintf("width:%s%%", round(100 * fila$prop, 1)))),
-          span(class = "cond-valor", strong(fmt_pct(fila$prop)), paste0(" (", fila$n, " de ", cond$levantes, " levantes)"))
+          span(e),
+          div(class = "cond-barra", span(style = sprintf("width:%s%%", round(100 * prop, 1)))),
+          span(class = "cond-valor", strong(fmt_pct(prop)), paste0(" (", conteo[[e]], " de ", nrow(lev), " levantes)"))
         )
       })
     )
-  }
-
-  # Circuito del registro más reciente del período (para comparar con su plan)
-  plan_del_periodo <- function(df) {
-    plan_circuito(datos()$circuitos, df$Circuito_corto[which.max(as.Date(df$Fecha))])
   }
 
   output$ficha_historial <- renderUI({
@@ -1461,14 +1269,13 @@ server <- function(input, output, session) {
       div(
         class = "seccion",
         h2(class = "seccion-titulo", "Llenado y levantes por día"),
-        # El eje termina en el último día con datos cargados, no en hoy
-        linea_tiempo(df, desde, min(hasta, ultima_fecha_datos())),
+        linea_tiempo(df, desde, hasta),
         leyenda_linea_tiempo
       ),
       div(
         class = "seccion",
         h2(class = "seccion-titulo", "Resumen del período"),
-        resumen_periodo(df, plan_del_periodo(df))
+        resumen_periodo(df, plan_circuito(df$Circuito_corto[which.max(as.Date(df$Fecha))]))
       ),
       div(
         class = "seccion",
@@ -1483,9 +1290,26 @@ server <- function(input, output, session) {
     df <- datos_filtrados()
     req(nrow(df) > 0)
 
+    # Ordenamos de más reciente a más antiguo y traducimos S / N / NA a texto
+    datos_ordenados <- df %>%
+      mutate(
+        Fecha = as.Date(Fecha),
+        Levantado = case_when(
+          Levantado == "S" ~ "Sí",
+          Levantado == "N" ~ "No",
+          is.na(Levantado) ~ "No pasó",
+          TRUE             ~ as.character(Levantado)
+        )
+      ) %>%
+      arrange(desc(Fecha))
+
     datatable(
-      registros_para_tabla(df),
-      colnames = COLNAMES_REGISTROS,
+      datos_ordenados,
+      colnames = c(
+        "Fecha", "Circuito", "Posición", "Dirección", "¿Levantado?",
+        "Turno", "Hora pasaje", "ID viaje GOL", "Incidencia",
+        "% llenado", "Condición", "Activo"
+      ),
       class = "compact hover",
       options = list(
         pageLength = 15,
@@ -1512,48 +1336,6 @@ server <- function(input, output, session) {
         backgroundColor = styleEqual(100, "rgba(217, 162, 31, 0.22)")
       )
   })
-
-  # Nombre de los archivos que se descargan:
-  # GID_desde_dd-mm-aaaa_hasta_dd-mm-aaaa.<extension> ("/" no se permite en nombres de archivo)
-  nombre_descarga <- function(extension) {
-    paste0(
-      gid_consultado(),
-      "_desde_", format(input$rango_fechas_historico[1], "%d-%m-%Y"),
-      "_hasta_", format(input$rango_fechas_historico[2], "%d-%m-%Y"), ".", extension
-    )
-  }
-
-  # Informe en PDF de lo que se ve en el Historial (ver informe_pdf.R)
-  output$descargar_pdf <- downloadHandler(
-    filename = function() nombre_descarga("pdf"),
-    content = function(file) {
-      df <- datos_filtrados()
-      gid <- gid_consultado()
-      withProgress(message = "Generando PDF…", value = 0.3, {
-        generar_pdf_historial(
-          archivo     = file,
-          gid         = gid,
-          desde       = input$rango_fechas_historico[1],
-          hasta       = input$rango_fechas_historico[2],
-          df          = df,
-          ficha       = calcular_ficha(gid, df, datos()$activos, datos()$inactivos),
-          resumen     = calcular_resumen(df, plan_del_periodo(df)),
-          condiciones = conteo_condiciones(df),
-          fecha_datos = ultima_fecha_datos()
-        )
-      })
-    }
-  )
-
-  # Registros del período como tabla de Excel (ver informe_excel.R)
-  output$descargar_excel <- downloadHandler(
-    filename = function() nombre_descarga("xlsx"),
-    content = function(file) {
-      withProgress(message = "Generando Excel…", value = 0.3, {
-        generar_excel_historial(file, gid_consultado(), datos_filtrados())
-      })
-    }
-  )
 
   # --- Lógica de Circuitos ---
 

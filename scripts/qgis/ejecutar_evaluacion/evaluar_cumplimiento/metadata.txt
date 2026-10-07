@@ -1,0 +1,13 @@
+[general]
+name=Evaluar Cumplimiento Intradomiciliario (GOL)
+qgisMinimumVersion=3.0
+description=Algoritmo de evaluacion de cumplimiento intradomiciliario con perfiles de minimos por zona y mapas Leaflet.
+version=0.1.15
+author=IMM / GOL
+email=desarrollo@imm.gub.uy
+about=Procesamiento espacial e intradiario de camiones GPS contra zonas operativas de recoleccion de residuos.
+tracker=https://intranet.imm.gub.uy
+repository=https://intranet.imm.gub.uy
+tags=gps, reiduos, cumplimiento, intranet, leaflet
+experimental=False
+deprecated=False

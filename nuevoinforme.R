@@ -104,22 +104,22 @@ ejecutar_python(python_venv, "vistas/informe_operativa/informeOP_generar_pdf.py"
 # de la corrida matutina. NO vuelve a correr actualizar_ayer.py: ese script
 # avanza el "archivo madre" al día siguiente y no está pensado para correrse
 # dos veces el mismo día.
-actualizar_mapas <- function() {
-  python_venv <- reticulate::virtualenv_python("r-reticulate")
-
-  cat("Recordá cerrar QGIS Desktop antes de correr esto: los scripts\n")
-  cat("qgis_mapa*.py necesitan escribir el .qgz y fallan si está abierto.\n\n")
-
-  ejecutar_python(python_venv, "vistas/informediario/reportes/generar_mapas.py")
-
-  ejecutar_python(python_venv, "scripts/qgis/qgis_mapaUNA.py")
-  ejecutar_python(python_venv, "scripts/qgis/qgis_mapaAtraso.py")
-  ejecutar_python(python_venv, "scripts/qgis/qgis_mapaRepetidos.py")
-}
-
-# Informe diario: primero actualiza los datos de ayer, luego genera los mapas
-ejecutar_python(python_venv, "vistas/informediario/reportes/actualizar_ayer.py")
-actualizar_mapas()
+# actualizar_mapas <- function() {
+#   python_venv <- reticulate::virtualenv_python("r-reticulate")
+# 
+#   cat("Recordá cerrar QGIS Desktop antes de correr esto: los scripts\n")
+#   cat("qgis_mapa*.py necesitan escribir el .qgz y fallan si está abierto.\n\n")
+# 
+#   ejecutar_python(python_venv, "vistas/informediario/reportes/generar_mapas.py")
+# 
+#   ejecutar_python(python_venv, "scripts/qgis/qgis_mapaUNA.py")
+#   ejecutar_python(python_venv, "scripts/qgis/qgis_mapaAtraso.py")
+#   ejecutar_python(python_venv, "scripts/qgis/qgis_mapaRepetidos.py")
+# }
+# 
+# # Informe diario: primero actualiza los datos de ayer, luego genera los mapas
+# ejecutar_python(python_venv, "vistas/informediario/reportes/actualizar_ayer.py")
+# actualizar_mapas()
 
 # ── 5. ACTUALIZAR APP SHINY ───────────────────────────────────────────────────
 
@@ -201,4 +201,8 @@ source("vistas/App_informe_llenado/limpieza_datos.R")
 
 
 
+    historico_llenado$Levantado %in% "S" &
+    historico_llenado$Fecha >= fecha_inicio &
+    historico_llenado$Fecha < fecha_fin,
+  c("Fecha", "Id_viaje_GOL", "gid")
 

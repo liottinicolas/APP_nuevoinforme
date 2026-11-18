@@ -9,6 +9,8 @@
 # EMPIEZA (ej. Nocturno 15/11 = noche del domingo 15 a la madrugada del lunes 16).
 # NO se aplica el "Criterio de Adrián" (+1 día al Nocturno).
 #
+# Solo Oficina == "IM" (Fideicomiso no se muestra).
+#
 # Salida: un Excel en salidas/ con 3 hojas (por día y turno, por día/turno/municipio,
 # y el detalle de los contenedores marcados "No Está").
 # ------------------------------------------------------------------------------
@@ -27,7 +29,7 @@ fin_fecha    <- NA
 fin_turno    <- "Nocturno"
 
 turnos   <- c("Matutino", "Vespertino", "Nocturno")
-oficinas <- c("IM", "Fideicomiso")
+oficinas <- c("IM")   # Solo IM: Fideicomiso queda fuera del informe
 motivo_no_esta <- "Contenedor No Está"
 
 motivos_con_visita <- c(
@@ -100,59 +102,47 @@ etiquetar <- function(df) {
     relocate(Dia, .after = Fecha)
 }
 
-por_oficina <- base %>%
-  group_by(Fecha, Turno, Oficina) %>%
-  resumir()
-
-total <- base %>%
+tabla_dia_turno <- base %>%
   group_by(Fecha, Turno) %>%
   resumir() %>%
-  mutate(Oficina = "Total")
-
-tabla_dia_turno <- bind_rows(por_oficina, total) %>%
   etiquetar() %>%
-  mutate(Oficina = factor(Oficina, levels = c(oficinas, "Total"))) %>%
-  arrange(Fecha, Turno, Oficina) %>%
-  select(Fecha, Dia, Turno, Oficina, Programado, Visitados, Vaciados, No_esta,
+  arrange(Fecha, Turno) %>%
+  select(Fecha, Dia, Turno, Programado, Visitados, Vaciados, No_esta,
          Pct_No_esta_sobre_visitados)
 
-# Fila de total del período por oficina
-total_periodo <- bind_rows(
-  base %>% group_by(Oficina) %>% resumir(),
-  base %>% resumir() %>% mutate(Oficina = "Total")
-) %>%
-  mutate(Fecha = as.Date(NA), Dia = "TOTAL PERÍODO", Turno = NA,
-         Oficina = factor(Oficina, levels = c(oficinas, "Total"))) %>%
-  arrange(Oficina) %>%
+# Fila de total del período
+total_periodo <- base %>%
+  resumir() %>%
+  mutate(Fecha = as.Date(NA), Dia = "TOTAL PERÍODO", Turno = NA) %>%
   select(names(tabla_dia_turno))
 
 tabla_dia_turno <- bind_rows(tabla_dia_turno, total_periodo)
 
 tabla_dia_turno_municipio <- base %>%
-  group_by(Fecha, Turno, Oficina, Municipio) %>%
+  group_by(Fecha, Turno, Municipio) %>%
   resumir() %>%
   etiquetar() %>%
-  arrange(Fecha, Turno, Oficina, Municipio) %>%
-  select(Fecha, Dia, Turno, Oficina, Municipio, Programado, Visitados, Vaciados,
+  arrange(Fecha, Turno, Municipio) %>%
+  select(Fecha, Dia, Turno, Municipio, Programado, Visitados, Vaciados,
          No_esta, Pct_No_esta_sobre_visitados)
 
 detalle_no_esta <- base %>%
   filter(No_esta) %>%
   etiquetar() %>%
-  arrange(Fecha, Turno, Oficina, Municipio, Circuito, Posicion) %>%
-  select(Fecha, Dia, Turno, Oficina, Municipio, Circuito, Posicion, Direccion, gid,
+  arrange(Fecha, Turno, Municipio, Circuito, Posicion) %>%
+  select(Fecha, Dia, Turno, Municipio, Circuito, Posicion, Direccion, gid,
          Fecha_hora_pasaje, Id_viaje_GOL)
 
 # --- Exportar -----------------------------------------------------------------
 dir.create(here("salidas"), showWarnings = FALSE)
 archivo <- here("salidas", sprintf(
-  "No_esta_por_turno_%s_%s_a_%s_%s.xlsx",
+  "No_esta_por_turno_IM_%s_%s_a_%s_%s.xlsx",
   format(inicio_fecha, "%Y%m%d"), inicio_turno, format(fin_fecha, "%Y%m%d"), fin_turno
 ))
 
 write_xlsx(
   list(
-    Dia_y_turno           = tabla_dia_turno %>% mutate(Turno = as.character(Turno), Oficina = as.character(Oficina)),
+    Dia_y_turno           = tabla_dia_turno %>% mutate(Turno = as.character(Turno)),
     Dia_turno_municipio   = tabla_dia_turno_municipio %>% mutate(Turno = as.character(Turno)),
     Detalle_No_esta       = detalle_no_esta %>% mutate(Turno = as.character(Turno),
                                                        Fecha_hora_pasaje = format(Fecha_hora_pasaje, "%Y-%m-%d %H:%M"))

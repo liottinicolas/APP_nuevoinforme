@@ -80,7 +80,8 @@ def buscar_archivo_contenedores():
     nombre = os.path.basename(ruta)  # e.g. Contenedores_20260415_1414.ods
     
     # Extraer fecha y hora del nombre: Contenedores_AAAAMMDD_HHMM.ods
-    m = re.match(r'Contenedores_(\d{8})_(\d{4})\.ods', nombre)
+    # Acepta también la extensión repetida (Contenedores_..._HHMM.ods.ods)
+    m = re.match(r'Contenedores_(\d{8})_(\d{4})(\.ods)+$', nombre, re.IGNORECASE)
     if not m:
         raise ValueError(
             f"El archivo '{nombre}' no tiene el formato esperado 'Contenedores_AAAAMMDD_HHMM.ods'"

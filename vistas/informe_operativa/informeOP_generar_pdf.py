@@ -80,7 +80,8 @@ def buscar_archivo_contenedores():
     nombre = os.path.basename(ruta)  # e.g. Contenedores_20260415_1414.ods
     
     # Extraer fecha y hora del nombre: Contenedores_AAAAMMDD_HHMM.ods
-    m = re.match(r'Contenedores_(\d{8})_(\d{4})\.ods', nombre)
+    # Acepta también la extensión repetida (Contenedores_..._HHMM.ods.ods)
+    m = re.match(r'Contenedores_(\d{8})_(\d{4})(\.ods)+$', nombre, re.IGNORECASE)
     if not m:
         raise ValueError(
             f"El archivo '{nombre}' no tiene el formato esperado 'Contenedores_AAAAMMDD_HHMM.ods'"
@@ -150,7 +151,9 @@ def procesar_atrasos(df):
     def categorizar(dias):
         if pd.isna(dias): return "Otros"
         d = int(dias)
-        if d >= 6: return ">=6"
+        if d >= 8: return ">=8"
+        elif d == 7: return "7"
+        elif d == 6: return "6"
         elif d == 5: return "5"
         elif d == 4: return "4"
         elif d == 3: return "3"
@@ -163,7 +166,7 @@ def procesar_atrasos(df):
     resumen = df_atrasos.groupby(['Municipio', 'Categoria_Atraso']).size().reset_index(name='conteo')
     pivot = resumen.pivot(index='Municipio', columns='Categoria_Atraso', values='conteo').fillna(0)
     
-    columnas_orden = [">=6", "5", "4", "3"]
+    columnas_orden = [">=8", "7", "6", "5", "4", "3"]
     for col in columnas_orden:
         if col not in pivot.columns:
             pivot[col] = 0
@@ -188,7 +191,7 @@ def procesar_atrasos(df):
     ).reset_index()
     
     # Ordenar por Municipio -> Atraso -> Cantidad Desc
-    orden_cat = {">=6": 0, "5": 1, "4": 2, "3": 3}
+    orden_cat = {">=8": 0, "7": 1, "6": 2, "5": 3, "4": 4, "3": 5}
     detalle['sort_cat'] = detalle['Categoria_Atraso'].map(orden_cat)
     detalle = detalle.sort_values(['Municipio', 'sort_cat', 'cantidad'], ascending=[True, True, False])
     detalle = detalle.drop('sort_cat', axis=1)
@@ -203,8 +206,24 @@ def procesar_atrasos(df):
         "tramos_posicion": "Tramos Posición",
         "fecha_levante": "Fecha Levante"
     })
-    
-    return tabla_final, detalle
+
+    # TABLA 3: Listado de contenedores con atraso >= 4 dias
+    listado = df_atrasos[df_atrasos['Acumulacion_dias_calendario'] >= 4].copy()
+    listado['pos_num'] = pd.to_numeric(listado['Posición'], errors='coerce')
+    listado = listado.sort_values(
+        ['Acumulacion_dias_calendario', 'Circuito', 'pos_num', 'Fecha Último Levante'],
+        ascending=[False, True, True, True]
+    )
+    listado = pd.DataFrame({
+        'gid': listado['GID'],
+        'circuito': listado['Circuito'],
+        'municipio': listado['Municipio'],
+        'posicion': listado['Posición'],
+        'atraso_dias': listado['Acumulacion_dias_calendario'].astype(int),
+        'fecha_ultimo_levante': listado['Fecha Último Levante'].dt.strftime('%d/%m/%y'),
+    }).reset_index(drop=True)
+
+    return tabla_final, detalle, listado
 
 def procesar_grua(df):
     MOTIVOS_GRUA = ["Roto (18)", "Sobrepeso (11)", "Fuera de Alcance (21)", "Buzonera Girada (24)", "Cruzado (23)", "Calle Cerrada (13)"]
@@ -381,7 +400,7 @@ def df_to_reportlab_table(df, title):
     for i, col in enumerate(df.columns):
         if col in ['Tramos Posición', 'Dirección']:
             col_widths[i] = base_w * 1.8
-        elif col in ['Cant.', 'Cantidad', 'Dias', '>=6', '5', '4', '3']:
+        elif col in ['Cant.', 'Cantidad', 'Dias', 'atraso_dias', '>=8', '7', '6', '5', '4', '3']:
             col_widths[i] = base_w * 0.6
             
     # Ajustar para que sumen exactamente 520
@@ -411,7 +430,7 @@ def df_to_reportlab_table(df, title):
     elements.append(PageBreak())
     return elements
 
-def export_to_pdf(tabla_final, detalle_at, resumen_grua, listado_grua, resumen_ne, resumen_fuego, detalle_ne, output_filename="Reporte_Operativa.pdf"):
+def export_to_pdf(tabla_final, detalle_at, listado_at, resumen_grua, listado_grua, resumen_ne, resumen_fuego, detalle_ne, output_filename="Reporte_Operativa.pdf"):
     print(f"Exportando a {output_filename}...")
     base_dir = os.path.dirname(os.path.abspath(__file__))
     out_path = os.path.join(base_dir, output_filename)
@@ -421,6 +440,7 @@ def export_to_pdf(tabla_final, detalle_at, resumen_grua, listado_grua, resumen_n
     
     story.extend(df_to_reportlab_table(tabla_final, "Resumen de Atrasos"))
     story.extend(df_to_reportlab_table(detalle_at, "Detalle de Atrasos por Circuito"))
+    story.extend(df_to_reportlab_table(listado_at, "Listado de Atrasos por Contenedor"))
     story.extend(df_to_reportlab_table(resumen_grua, "Resumen de Grúa"))
     story.extend(df_to_reportlab_table(listado_grua, "Listado Grúa"))
     story.extend(df_to_reportlab_table(resumen_ne, "Resumen de Contenedor no está"))
@@ -499,7 +519,7 @@ if __name__ == "__main__":
     df, dt_archivo = load_data()
     if not df.empty:
         print('Procesando Atrasos...')
-        tabla_final, detalle_at = procesar_atrasos(df)
+        tabla_final, detalle_at, listado_at = procesar_atrasos(df)
         print('Procesando Grua...')
         res_grua, listado_grua = procesar_grua(df)
         print('Procesando Fuego...')
@@ -522,12 +542,13 @@ if __name__ == "__main__":
         pdf_out = f"{nombre_base}.pdf"
         excel_out = f"{nombre_base}.xlsx"
 
-        export_to_pdf(tabla_final, detalle_at, res_grua, listado_grua, res_ne, res_fuego, det_ne, pdf_out)
+        export_to_pdf(tabla_final, detalle_at, listado_at, res_grua, listado_grua, res_ne, res_fuego, det_ne, pdf_out)
         
         # Diccionario relacionando nombre de hoja Excel con dataframe procesado (Mismo orden que R)
         dic_excel = {
             "Resumen_Atrasos": tabla_final,
             "Detalle_Atrasos": detalle_at,
+            "Listado_Atrasos": listado_at,
             "Resumen_Grua": res_grua,
             "Listado_Grua": listado_grua,
             "No_Esta": res_ne,

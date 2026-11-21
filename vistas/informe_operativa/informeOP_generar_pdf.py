@@ -164,8 +164,13 @@ def procesar_atrasos(df):
     
     # TABLA 1: Resumen de Atrasos
     resumen = df_atrasos.groupby(['Municipio', 'Categoria_Atraso']).size().reset_index(name='conteo')
-    pivot = resumen.pivot(index='Municipio', columns='Categoria_Atraso', values='conteo').fillna(0)
-    
+    pivot = resumen.pivot(index='Municipio', columns='Categoria_Atraso', values='conteo')
+
+    # Incluir todos los municipios del archivo, aunque no tengan atrasos (quedan en 0)
+    todos_municipios = sorted(df['Municipio'].dropna().unique())
+    pivot = pivot.reindex(todos_municipios).fillna(0)
+    pivot.index.name = 'Municipio'
+
     columnas_orden = [">=8", "7", "6", "5", "4", "3"]
     for col in columnas_orden:
         if col not in pivot.columns:

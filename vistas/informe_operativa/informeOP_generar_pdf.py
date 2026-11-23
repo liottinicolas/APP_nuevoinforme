@@ -260,6 +260,7 @@ def procesar_grua(df):
     listado = listado.sort_values(by=['Fecha Último Levante', 'Circuito', 'Posición'])
     listado['Fecha último levante'] = listado['Fecha Último Levante'].dt.strftime('%d/%m/%y')
     listado = listado.drop('Fecha Último Levante', axis=1)
+    listado.insert(2, 'Motivo', df_grua.loc[listado.index, 'Motivo No Levante'])
     
     return resumen, listado
 

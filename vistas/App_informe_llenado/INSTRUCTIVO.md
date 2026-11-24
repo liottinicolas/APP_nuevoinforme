@@ -27,6 +27,15 @@ publicada no toma sola los datos nuevos, recién los lee cuando se vuelve a publ
 source("vistas/App_informe_llenado/actualizar_datos_app.R")
 ```
 
+**Cuánto historial muestra la app:**
+- **En la web**: solo los **últimos 4 meses** (lo recorta `limpieza_datos.R`). Con más,
+  shinyapps.io se queda sin memoria (1 GB) y la app se desconecta.
+- **En tu PC** (`shiny::runApp(...)`, paso 3): **todo** el historial de
+  `db/GOL_reportes/historico_llenadoGol.rds`.
+
+Arriba a la derecha la app siempre dice desde y hasta qué fecha hay datos
+("Datos del ... al ...").
+
 ## 1. Lo que necesitás tener (una sola vez)
 
 Si trabajás en la PC de siempre (la del proyecto), esto ya está. Si es otra PC,
@@ -128,7 +137,8 @@ la app. **No corran el script dos personas a la vez.**
 5. Al final se abre el navegador con la app y en la consola aparece
    `✅ Listo. Datos subidos y app publicada`.
 6. Revisá en la app:
-   - arriba a la derecha dice **"Datos al"** con la fecha de ayer;
+   - arriba a la derecha dice **"Datos del ... al ..."**: la segunda fecha tiene que
+     ser la de ayer, y la primera, unos 4 meses antes;
    - el mapa muestra puntos;
    - en **Historial**, al buscar un GID aparecen datos;
    - en **Circuitos** aparece la tabla.
@@ -152,8 +162,9 @@ Sirve para ver si la app funciona antes de publicar, por ejemplo si alguien camb
    shiny::runApp("vistas/App_informe_llenado")
    ```
 
-2. Se abre la app en una ventana. La primera carga tarda entre 1 y 2 minutos: baja los
-   datos de GitHub. Hasta entonces el mapa queda vacío.
+2. Se abre la app en una ventana. La primera carga tarda entre 1 y 2 minutos: lee el
+   historial completo de `db/` y los contenedores de GitHub. Hasta entonces el mapa
+   queda vacío. Arriba a la derecha vas a ver todo el período que hay en la PC.
 3. Revisá lo mismo que en el punto 6 del paso 2.
 4. Para cerrarla: apretá **Esc** en la consola (o el botón rojo "Stop").
 

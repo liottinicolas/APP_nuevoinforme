@@ -2,7 +2,7 @@
 # (APP_nuevoinforme-data, ver limpieza_datos.R). Si esta carpeta llegara a
 # existir localmente al deployar, no debe subirse: si se empaqueta, queda
 # congelada en el servidor y App.R deja de leer datos frescos vía board_url().
-data/
+data
 
 # Versión anterior de la app (Leaflet), guardada solo como respaldo local
 App_v2.R
@@ -15,5 +15,5 @@ documentacion_analisis.md
 INSTRUCTIVO.md
 
 # Paquete independiente para otra PC (lo arma armar_paquete.R)
-paquete_independiente/
+paquete_independiente
 armar_paquete.R

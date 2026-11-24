@@ -136,12 +136,24 @@ procesar_csv_gol <- function(ruta) {
     select(any_of(COLUMNAS_HISTORICO))
 }
 
-# Deja solo los últimos 6 meses (182 días; mismo corte que limpieza_datos.R) y las columnas que usa la app.
-recortar_historico <- function(historico) {
+# Días de historial que se PUBLICAN (mismo corte que limpieza_datos.R). Más
+# días hacen que la app se quede sin memoria en shinyapps.io (1 GB).
+# En datos/ se guarda el historial completo: lo usa la app cuando se abre en
+# esta PC con shiny::runApp("app").
+DIAS_PUBLICADOS <- 122  # 4 meses
+
+# Deja solo las columnas que usa la app, sin filas repetidas (todas las fechas).
+seleccionar_columnas <- function(historico) {
   historico %>%
-    filter(as.Date(Fecha) >= (Sys.Date() - 182)) %>%
     select(any_of(COLUMNAS_HISTORICO)) %>%
     distinct()
+}
+
+# Deja solo los últimos DIAS_PUBLICADOS días y las columnas que usa la app.
+recortar_historico <- function(historico) {
+  historico %>%
+    filter(as.Date(Fecha) >= (Sys.Date() - DIAS_PUBLICADOS)) %>%
+    seleccionar_columnas()
 }
 
 # Suma al histórico todos los CSV de descargas/ que todavía no se procesaron.
@@ -171,7 +183,7 @@ actualizar_historico <- function(dir_datos = "datos", dir_descargas = "descargas
     ok <- c(ok, basename(ruta))
   }
 
-  historico <- recortar_historico(historico)
+  historico <- seleccionar_columnas(historico)  # completo: se recorta al publicar
   saveRDS(historico, ruta_hist)
   saveRDS(c(procesados, ok), ruta_proc)
   message("✅ Se sumaron ", length(ok), " CSV. El histórico llega hasta el ",

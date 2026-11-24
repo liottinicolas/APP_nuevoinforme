@@ -13,3 +13,7 @@ perfilado_datos.R
 actualizar_datos_app.R
 documentacion_analisis.md
 INSTRUCTIVO.md
+
+# Paquete independiente para otra PC (lo arma armar_paquete.R)
+paquete_independiente/
+armar_paquete.R

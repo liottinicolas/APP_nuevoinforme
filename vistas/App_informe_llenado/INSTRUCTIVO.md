@@ -14,6 +14,14 @@ App publicada: <https://datoseindicadores.shinyapps.io/App_informe_llenado/>
 > Adentro tiene su propio `LEEME.md`. Esa forma publica la app con los datos adentro
 > y no usa OneDrive ni GitHub. Al volver, publicá desde acá como siempre y la app
 > vuelve a leer los datos de GitHub.
+>
+> **Para que el zip lleve el token de shinyapps.io** (así la otra persona no lo pega):
+> copiá `vistas/App_informe_llenado/token_shinyapps_EJEMPLO.R` como
+> `token_shinyapps.R` en la misma carpeta, reemplazá la última línea por el comando
+> de shinyapps.io (Tokens → Show → Show Secret → Copy to clipboard) y volvé a correr
+> `armar_paquete(sobrescribir = TRUE)`. `token_shinyapps.R` está en `.gitignore`:
+> el repo es **público** y ese archivo no se tiene que subir nunca. Si el zip lleva el
+> token, mandalo solo por un canal privado.
 
 Este instructivo es para actualizar la app sin ayuda. Seguí los pasos en orden.
 

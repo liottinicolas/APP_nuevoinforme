@@ -40,6 +40,29 @@ pedir_credenciales <- function() {
   list(usuario = usuario, contrasena = contrasena)
 }
 
+# ── Cuenta de shinyapps.io ───────────────────────────────────────────────────
+# Si la PC ya tiene la cuenta 'datoseindicadores', no hace nada. Si no, y el
+# archivo del token existe (lo mete armar_paquete() en el zip), lo ejecuta:
+# rsconnect::setAccountInfo() guarda la cuenta en la PC para las próximas veces.
+configurar_cuenta_shinyapps <- function(archivo_token, cuenta = "datoseindicadores") {
+  tiene_cuenta <- function() cuenta %in% rsconnect::accounts()$name
+  if (tiene_cuenta()) return(invisible(TRUE))
+
+  if (file.exists(archivo_token)) {
+    if (any(grepl("PEGAR_TOKEN|PEGAR_SECRET", readLines(archivo_token, warn = FALSE)))) {
+      stop(archivo_token, " todavía tiene el texto de ejemplo: falta pegar el token real.")
+    }
+    message("🔑 Configurando la cuenta '", cuenta, "' de shinyapps.io con ", archivo_token, " ...")
+    source(archivo_token, local = new.env())
+  }
+
+  if (!tiene_cuenta()) {
+    stop("Falta configurar la cuenta '", cuenta, "' de shinyapps.io (LEEME.md, paso 1.3).")
+  }
+  message("✅ Cuenta '", cuenta, "' configurada en esta PC.")
+  invisible(TRUE)
+}
+
 # ── Python ───────────────────────────────────────────────────────────────────
 # Busca un Python que tenga Playwright: primero el entorno r-reticulate (si
 # existe en esta PC), después el lanzador "py" de Windows y por último "python".

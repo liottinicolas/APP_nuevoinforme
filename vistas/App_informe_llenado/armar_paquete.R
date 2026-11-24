@@ -92,7 +92,7 @@ armar_paquete <- function(destino = file.path(Sys.getenv("USERPROFILE"), "Deskto
   if (lleva_token) {
     message("🔑 El paquete LLEVA el token de shinyapps.io: mandalo solo por un canal privado.")
   } else {
-    message("ℹ️  El paquete no lleva el token: la otra persona lo pega a mano (LEEME.md, paso 1.3).",
+    message("ℹ️  El paquete no lleva el token: la otra persona lo pega a mano (LEEME.md, paso 1.4).",
             "\n   Para incluirlo, creá ", archivo_token, " (ver token_shinyapps_EJEMPLO.R).")
   }
 

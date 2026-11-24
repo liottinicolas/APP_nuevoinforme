@@ -28,17 +28,61 @@ publicarla. No necesitás OneDrive, GitHub ni el resto del proyecto.
 
 ## 1. Preparar la PC (una sola vez)
 
-### 1.1 Instalar R, RStudio y Python
+### 1.1 Instalar R y RStudio
 
 1. **R** (4.5 o más nuevo): <https://cran.r-project.org/bin/windows/base/>
 2. **RStudio**: <https://posit.co/download/rstudio-desktop/>
-3. **Python** (3.10 o más nuevo): <https://www.python.org/downloads/>. Durante la
-   instalación, marcá **"Add python.exe to PATH"**.
+3. **Python**: ver el paso 1.2.
 
-### 1.2 Instalar Playwright (lo usa el programa que baja los levantes)
+### 1.2 Instalar Python (paso a paso)
 
-Abrí **PowerShell** (menú Inicio → escribir "PowerShell") y corré estos dos comandos,
-uno por vez:
+Python se usa solo para el programa que baja los levantes de la intranet.
+
+**Antes de instalar, fijate si ya está:**
+
+1. Abrí **PowerShell**: menú Inicio → escribí `PowerShell` → Enter.
+2. Escribí esto y apretá Enter:
+
+   ```powershell
+   py --version
+   ```
+
+3. Si aparece algo como `Python 3.12.5` (3.10 o más nuevo), **ya está instalado**:
+   pasá al paso 1.3. Si dice que no reconoce `py`, o la versión es más vieja que
+   3.10, seguí con la instalación.
+
+**Instalación:**
+
+1. Entrá a <https://www.python.org/downloads/> y apretá el botón amarillo
+   **"Download Python 3.x.x"**. Se baja un archivo `python-3.x.x-amd64.exe`.
+2. Abrí ese archivo (doble clic en la carpeta Descargas).
+3. En la **primera pantalla** del instalador, **antes de apretar nada más**:
+   - marcá abajo **"Add python.exe to PATH"** (es lo más importante);
+   - si aparece **"Use admin privileges when installing py.exe"** y no tenés
+     permisos de administrador en la PC, **desmarcalo**.
+4. Apretá **"Install Now"** (instalación normal). No hace falta "Customize".
+5. Esperá a que termine. Si al final aparece **"Disable path length limit"**, apretalo
+   (si pide administrador y no tenés, no pasa nada: ignoralo).
+6. Apretá **"Close"**.
+7. **Cerrá PowerShell si estaba abierto** y abrilo de nuevo (si no, no ve el Python
+   recién instalado). Comprobá:
+
+   ```powershell
+   py --version
+   ```
+
+   Tiene que mostrar la versión. Si dice que no reconoce `py`, probá con
+   `python --version`. Si tampoco anda, reiniciá la PC y probá otra vez.
+
+**Si la PC es de la IMM y no te deja instalar** (pide contraseña de administrador o
+está bloqueado): pedí a Informática que instale **Python 3.12** "con la opción Add
+python.exe to PATH". También puede servir instalarlo desde **Microsoft Store**
+(buscar "Python 3.12"), que no pide administrador.
+
+### 1.3 Instalar Playwright (lo usa el programa que baja los levantes)
+
+En **PowerShell** corré estos dos comandos, uno por vez (cada uno tarda un par de
+minutos):
 
 ```powershell
 py -m pip install playwright
@@ -48,7 +92,12 @@ py -m pip install playwright
 py -m playwright install chromium
 ```
 
-### 1.3 Instalar los paquetes de R y configurar shinyapps.io
+El primero instala Playwright; el segundo baja el navegador que usa para entrar a la
+intranet. Si `py` no anda pero `python` sí, usá `python` en lugar de `py` en los dos.
+Si sale un error de permisos, agregá `--user` al primero:
+`py -m pip install --user playwright`.
+
+### 1.4 Instalar los paquetes de R y configurar shinyapps.io
 
 1. Abrí `App_informe_llenado_paquete.Rproj` con doble clic. Se abre RStudio.
 2. En la **consola** (abajo a la izquierda) escribí y apretá Enter:
@@ -122,19 +171,12 @@ paso 4. La primera carga tarda un poco más. Para cerrarla, apretá **Esc** en l
 | Mensaje o problema | Qué hacer |
 |---|---|
 | `Abrí App_informe_llenado_paquete.Rproj ...` | Cerrá RStudio, abrí el `.Rproj` con doble clic y volvé a correr. |
-| `Falta configurar la cuenta 'datoseindicadores'` | Hacé el paso 1.3. |
+| `Falta configurar la cuenta 'datoseindicadores'` | Hacé el paso 1.4. |
 | `Este script se corre desde RStudio` | Abrilo con RStudio, no con R solo. |
-| `No encontré Python con Playwright` | Hacé el paso 1.2. Si igual falla, cerrá y abrí RStudio de nuevo. |
+| `No encontré Python con Playwright` | Hacé los pasos 1.2 y 1.3. Si igual falla, cerrá y abrí RStudio de nuevo. |
 | `Falló la descarga del ...` | La intranet no respondió o la contraseña está mal. El script sigue y publica con lo que pudo bajar. En `descargas/capturas/` hay una imagen de dónde se trabó. Probá entrar a la intranet desde el navegador y volvé a correr más tarde: retoma desde el día que falló. |
 | `GeoServer: usuario o contraseña incorrectos (401)` | Revisá usuario y contraseña. Si están bien, tu usuario no tiene permiso en el GeoServer. Abrí `actualizar_y_publicar.R`, cambiá `DESCARGAR_CONTENEDORES <- TRUE` por `FALSE`, guardá y volvé a correr: se publica con los contenedores de la última vez (cambian poco). |
 | `No encontré la capa ...` o `Error descargando ...` | Se dejan los contenedores de la última vez y el script sigue. |
 | `No se pudo borrar app/data` | Cerrá la app si la tenés abierta (paso 3) y volvé a correr. |
 | Falla el paso 5 (publicar) | Los datos quedaron actualizados. Para publicar sin volver a bajar nada, en `actualizar_y_publicar.R` poné `DESCARGAR_LEVANTES <- FALSE` y `DESCARGAR_CONTENEDORES <- FALSE`, guardá y volvé a correr. Después volvelos a `TRUE`. |
 | La app publicada muestra un error gris | En <https://www.shinyapps.io> → Applications → `App_informe_llenado` → **Logs**. |
-
-## 5. Cuando vuelva el responsable de la app
-
-Esta forma de publicar lleva los datos **dentro** de la app. El responsable vuelve a
-su forma habitual simplemente publicando desde su proyecto. Antes de eso conviene que
-corra su actualización normal, para que su histórico tenga los días que se bajaron
-acá. Los `.rds` de esta carpeta (`datos/`) le sirven de respaldo.

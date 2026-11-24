@@ -57,7 +57,7 @@ configurar_cuenta_shinyapps <- function(archivo_token, cuenta = "datoseindicador
   }
 
   if (!tiene_cuenta()) {
-    stop("Falta configurar la cuenta '", cuenta, "' de shinyapps.io (LEEME.md, paso 1.3).")
+    stop("Falta configurar la cuenta '", cuenta, "' de shinyapps.io (LEEME.md, paso 1.4).")
   }
   message("✅ Cuenta '", cuenta, "' configurada en esta PC.")
   invisible(TRUE)
@@ -80,7 +80,7 @@ buscar_python <- function() {
     if (identical(ok, 0L)) return(py)
   }
   stop(
-    "No encontré Python con Playwright. Seguí la sección 1 del LEEME.md ",
+    "No encontré Python con Playwright. Seguí los pasos 1.2 y 1.3 del LEEME.md ",
     "(instalar Python y Playwright) y volvé a correr."
   )
 }

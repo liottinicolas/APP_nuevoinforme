@@ -71,6 +71,7 @@ Ver el detalle completo de cada uno en `docs/modules/`:
 - [08 · App Levantes de Camiones](docs/modules/08-app-levantes-camiones.md) — Streamlit + PDF por turno (Criterio Adrián)
 - [09 · App Informe Operativa](docs/modules/09-app-informe-operativa.md) — atrasos/grúa/fuego/no está
 - [10 · App Informe de Llenado](docs/modules/10-app-informe-llenado.md) — Shiny + mapa de GIDs
+- [11 · Análisis de servicios, capacidad y flota](docs/modules/11-analisis-servicios-y-flota.md) — servicios por día y turno de B_101–103/CH/C, calidad, flota de ~30 camiones y opciones de frecuencia
 
 ## ⚙️ Dependencias
 

@@ -195,14 +195,3 @@ source("vistas/App_informe_llenado/limpieza_datos.R")
 # )
 # 
 # cat("¡Archivo 'Resumen_GOL_Filtrado.xlsx' generado con éxito, ordenado y sin tildes!\n")
-
-
-
-
-
-
-    historico_llenado$Levantado %in% "S" &
-    historico_llenado$Fecha >= fecha_inicio &
-    historico_llenado$Fecha < fecha_fin,
-  c("Fecha", "Id_viaje_GOL", "gid")
-

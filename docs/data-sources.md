@@ -62,6 +62,7 @@
 | `db/10393_ubicaciones/` | `historico_ubicaciones.rds`, `archivos_aplicados_historico_ubicaciones.rds` | `funciones_db_ubicaciones.R` + `cargaDeDatos.R` |
 | `db/10450_pesadas/` | CSV de pesadas de báscula | descarga manual/externa |
 | `db/DFR/` | `RDS/*.rds` (una por capa DFR) + `GPKG/capas.gpkg` | `conexionDFR.R` |
+| `db/disponibilidad/` | `disponibilidad_camiones.csv`: camiones al inicio y usados, choferes y auxiliares por fecha y turno | `descargar_disponibilidad()` (`scripts/analisis_servicios/flota_funciones.R`) desde Google Sheets |
 | `db/GOL_reportes/` | `historico_llenadoGol.rds`, `archivos_aplicados_historico_llenadoGol.rds` | `funciones_db_golReportesDiarios.R` + `cargaDeDatos.R` |
 | `db/planificados/` | `planificacion_V1.rds`, `planificacion_V2.rds`, `versiones_planificacion.rds` | mantenimiento manual de plantillas |
 | `db/POSTGRES/` | `RDS/*.rds` + `GPKG/capas.gpkg` + `df_barrido_unido.parquet` | `conexionPOSTGRES.R`, `scripts/barrido/barrido.R` |
@@ -74,5 +75,6 @@
 | GeoServer WFS `montevideo.gub.uy` / `geoserver.montevideo.gub.uy` | Capas públicas (municipios, contenedores, vías) | Sin autenticación |
 | WMS `montevideo.gub.uy/app/geowebcache` | Mapa base cartográfico | Sin autenticación |
 | API intranet `visor-vehiculos-v2` | Posiciones GPS de flota | Ninguna visible (red interna) |
+| Google Sheets "Información" (hoja Disponibilidad, export CSV `gid=0`) | Camiones al inicio y usados por turno, para el análisis de flota (módulo 11) | Acceso por enlace; en Windows `curl` puede requerir `--ssl-no-revoke` |
 | API intranet `limpieza-gestion-operativa` | Circuitos y contenedores (GeoJSON) | Ninguna visible |
 | IMAP `imap.imm.gub.uy` | Conteo de correos por remitente | Usuario/contraseña hardcodeados |

@@ -41,6 +41,12 @@ armar_paquete <- function(destino = file.path(Sys.getenv("USERPROFILE"), "Deskto
       stop("Ya existe ", destino, ". Borrala, elegí otra carpeta o usá sobrescribir = TRUE.")
     }
     unlink(destino, recursive = TRUE, force = TRUE)
+    # unlink() no avisa si Windows no deja borrar algo (carpeta abierta en el
+    # Explorador, archivo abierto): sin este control quedan restos en el zip.
+    if (dir.exists(destino)) {
+      stop("No se pudo borrar ", destino, " por completo. Cerrá las ventanas o ",
+           "programas que la tengan abierta, borrala a mano y volvé a correr.")
+    }
   }
 
   # Carpetas

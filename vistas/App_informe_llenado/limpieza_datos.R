@@ -57,15 +57,15 @@ historico_llenado_web <- readRDS(ruta_origen_llenado)
 circuitos_periodo     <- readRDS(ruta_origen_circuitos)
 message("✅ Datos cargados.")
 
-# --- 3. Recortar el histórico de llenado (retención de 12 meses) ---
+# --- 3. Recortar el histórico de llenado (retención de 4 meses) ---
 # La app solo consulta el estado reciente de un GID; se limita a los últimos
-# 12 meses y a las columnas que App.R realmente usa para reducir el peso del
+# 4 meses (122 días) y a las columnas que App.R realmente usa para reducir el peso del
 # pin (impacta directamente en el tiempo de carga en frío de la Shiny app).
-message("✂️  Recortando histórico de llenado a los últimos 12 meses...")
+message("✂️  Recortando histórico de llenado a los últimos 4 meses...")
 peso_original_mb <- round(object.size(historico_llenado_web) / 1024^2, 1)
 
 historico_llenado_web <- historico_llenado_web %>%
-  filter(as.Date(Fecha) >= (Sys.Date() - 365)) %>%
+  filter(as.Date(Fecha) >= (Sys.Date() - 122)) %>%
   select(
     gid, Fecha, Fecha_hora_pasaje, Municipio, Oficina, Circuito_corto,
     Posicion, Direccion, Levantado, Turno_levantado, Id_viaje_GOL,

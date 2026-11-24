@@ -23,6 +23,34 @@ library(openxlsx)
 REPO_DATOS <- "liottinicolas/APP_nuevoinforme-data"
 url_github <- paste0("https://raw.githubusercontent.com/", REPO_DATOS, "/master/data/")
 
+# --- HISTORIAL COMPLETO EN LA PC ---
+# Lo que se publica trae solo los últimos meses del historial (ver
+# limpieza_datos.R), para que la app no se quede sin memoria en shinyapps.io.
+# Cuando la app corre en una PC que tiene el historial completo, lee ese archivo
+# entero. Estas rutas son relativas a la carpeta de la app y no existen en el
+# servidor, así que la app publicada sigue usando los datos recortados.
+RUTAS_HISTORICO_COMPLETO <- c(
+  "../datos/historico_llenado.rds",                  # paquete independiente
+  "../../db/GOL_reportes/historico_llenadoGol.rds"   # proyecto APP_nuevoinforme
+)
+COLUMNAS_HISTORICO <- c(
+  "gid", "Fecha", "Fecha_hora_pasaje", "Municipio", "Oficina", "Circuito_corto",
+  "Posicion", "Direccion", "Levantado", "Turno_levantado", "Id_viaje_GOL",
+  "Incidencia", "Porcentaje_llenado", "Condicion", "contenedor_activo"
+)
+
+ruta_historico_completo <- function() {
+  existe <- RUTAS_HISTORICO_COMPLETO[file.exists(RUTAS_HISTORICO_COMPLETO)]
+  if (length(existe) > 0) existe[1] else NA_character_
+}
+
+leer_historico <- function(board) {
+  ruta <- ruta_historico_completo()
+  if (is.na(ruta)) return(pin_read(board, "historico_llenado_web"))
+  message("📂 Historial completo local: ", normalizePath(ruta))
+  readRDS(ruta) %>% select(any_of(COLUMNAS_HISTORICO))
+}
+
 # Función de preprocesamiento (se define una vez al inicio, no depende de los datos)
 preprocesar_datos <- function(df) {
   if (!inherits(df, "sf")) {
@@ -181,10 +209,7 @@ INTERVALO_RECARGA_MS <- 10 * 60 * 1000
 # Se evalúa en el inicio de la app y luego busca actualizaciones cada 10 minutos.
 # checkFunc utiliza la API ligera de GitHub (con un timeout corto) en producción,
 # lo que evita recargas y cálculos innecesarios del st_transform si los datos no cambiaron.
-datos_compartidos <- reactivePoll(
-  intervalMillis = INTERVALO_RECARGA_MS,
-  session = NULL,
-  checkFunc = function() {
+chequeo_origen <- function() {
     if (dir.exists("data")) {
       files <- list.files("data", recursive = TRUE, full.names = TRUE)
       if (length(files) > 0) {
@@ -211,6 +236,15 @@ datos_compartidos <- reactivePoll(
       })
       return(floor(as.numeric(Sys.time()) / 3600))
     }
+}
+
+datos_compartidos <- reactivePoll(
+  intervalMillis = INTERVALO_RECARGA_MS,
+  session = NULL,
+  # Si hay historial completo local, también se recarga cuando ese archivo cambia.
+  checkFunc = function() {
+    ruta <- ruta_historico_completo()
+    paste(chequeo_origen(), if (!is.na(ruta)) file.info(ruta)$mtime)
   },
   valueFunc = function() {
     message("🔄 [Carga Global] Descargando y preprocesando datos (pins + st_transform)...")
@@ -230,7 +264,7 @@ datos_compartidos <- reactivePoll(
         NULL
       }
     )
-    historico <- completar_historico(pin_read(current_board, "historico_llenado_web"), circuitos)
+    historico <- completar_historico(leer_historico(current_board), circuitos)
     activos   <- preprocesar_datos(pin_read(current_board, "GID_activos"))
     inactivos <- preprocesar_datos(pin_read(current_board, "GID_inactivos"))
     indicadores_mapa <- indicadores_por_gid(historico, DIAS_INDICADORES_MAPA)
@@ -1063,7 +1097,9 @@ server <- function(input, output, session) {
   })
 
   output$fecha_actualizacion <- renderText({
-    paste0("Datos al ", fmt_fecha(ultima_fecha_datos()))
+    # Muestra desde cuándo hay historial: la versión publicada trae solo los
+    # últimos meses; la local, todo lo que haya en la PC.
+    paste0("Datos del ", fmt_fecha(primera_fecha_datos()), " al ", fmt_fecha(ultima_fecha_datos()))
   })
 
   # --- Lógica del Mapa ---

@@ -5,6 +5,15 @@ App publicada: <https://datoseindicadores.shinyapps.io/App_informe_llenado/>
 Esta carpeta tiene todo lo necesario para actualizar los datos de la app y volver a
 publicarla. No necesitás OneDrive, GitHub ni el resto del proyecto.
 
+> **Cuánto historial muestra la app:**
+> - **En la web** (publicada): solo los **últimos 4 meses**. Con más, el servidor se
+>   queda sin memoria y la app se desconecta.
+> - **En esta PC** (`shiny::runApp("app")`, paso 3): **todo** el historial de
+>   `datos/historico_llenado.rds`.
+>
+> Arriba a la derecha la app siempre dice desde y hasta qué fecha hay datos
+> ("Datos del ... al ...").
+
 ## Qué hay en la carpeta
 
 | Carpeta o archivo | Qué es |
@@ -12,7 +21,7 @@ publicarla. No necesitás OneDrive, GitHub ni el resto del proyecto.
 | `App_informe_llenado_paquete.Rproj` | Abre todo en RStudio. **Empezá siempre por acá.** |
 | `actualizar_y_publicar.R` | El script que hace todo (paso 2) |
 | `instalar_paquetes.R` | Instala lo que necesita R (una sola vez) |
-| `datos/` | Los datos (`.rds`). El script los actualiza solo. **No borrar.** |
+| `datos/` | Los datos (`.rds`), con el historial completo. El script los actualiza solo. **No borrar.** |
 | `app/` | La app que se publica. `app/rsconnect/` indica a qué app se publica: **no borrar.** |
 | `descargas/` | El programa que baja los levantes de la intranet y los CSV que va bajando |
 | `funciones/` | Código que usa el script. No hace falta abrirlo. |
@@ -81,11 +90,12 @@ py -m playwright install chromium
    1. Baja de la intranet los levantes que faltan, uno por día, hasta ayer.
    2. Los suma a `datos/historico_llenado.rds`.
    3. Baja del GeoServer los contenedores activos e inactivos.
-   4. Prepara los datos para la app.
+   4. Prepara los datos para la app (los últimos 4 meses).
    5. Publica la app. Si pregunta si querés actualizar la app existente, contestá `Y`.
       Tarda entre 5 y 15 minutos.
 5. Al final se abre el navegador con la app. Revisá:
-   - arriba a la derecha dice **"Datos al"** con la fecha de ayer;
+   - arriba a la derecha dice **"Datos del ... al ..."**: la segunda fecha tiene que
+     ser la de ayer, y la primera, unos 4 meses antes;
    - el mapa muestra puntos;
    - en **Historial**, al buscar un GID aparecen datos;
    - en **Circuitos** aparece la tabla.
@@ -99,8 +109,9 @@ faltan.
 shiny::runApp("app")
 ```
 
-Usa los datos de `app/data/`, que se arman en el paso 4. Para cerrarla, apretá **Esc**
-en la consola.
+En esta PC la app lee **todo** el historial de `datos/historico_llenado.rds` (no solo
+los 4 meses que se publican). Los contenedores salen de `app/data/`, que se arma en el
+paso 4. La primera carga tarda un poco más. Para cerrarla, apretá **Esc** en la consola.
 
 ## 4. Si algo falla
 

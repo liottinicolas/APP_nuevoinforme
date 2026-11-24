@@ -15,7 +15,8 @@
 #   - el descargador de levantes (archivos/descargar_datos_reportesGOL.py)
 #   - los datos actuales, en datos/:
 #       historico_llenado.rds   <- db/GOL_reportes/historico_llenadoGol.rds
-#                                  (solo últimos 12 meses y columnas de la app)
+#                                  (historial completo, solo las columnas de la app;
+#                                   al publicar se suben los últimos 4 meses)
 #       GID_activos.rds         <- db/DFR/RDS/dfr_E_DF_POSICIONES_RECORRIDO.rds
 #       GID_inactivos.rds       <- db/DFR/RDS/dfr_C_DF_POSICIONES_RECORRIDO_HISTORICO.rds
 #       circuitos_periodo.rds   <- UNA_POR_CIRCUITO/rds/circuitos_periodo.rds
@@ -60,7 +61,7 @@ armar_paquete <- function(destino = file.path(Sys.getenv("USERPROFILE"), "Deskto
   # Datos
   message("Copiando datos...")
   source(file.path(plantilla, "funciones", "funciones_paquete.R"), local = TRUE, encoding = "UTF-8")
-  hist <- recortar_historico(readRDS("db/GOL_reportes/historico_llenadoGol.rds"))
+  hist <- seleccionar_columnas(readRDS("db/GOL_reportes/historico_llenadoGol.rds"))
   saveRDS(hist, file.path(destino, "datos", "historico_llenado.rds"))
   file.copy("db/DFR/RDS/dfr_E_DF_POSICIONES_RECORRIDO.rds",
             file.path(destino, "datos", "GID_activos.rds"))

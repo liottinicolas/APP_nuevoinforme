@@ -12,7 +12,7 @@ __pycache__/
 /python
 
 # --- Secretos ---
-# .Renviron tiene el GITHUB_PAT
+# .Renviron: variables locales (GITHUB_PAT, URL_DISPONIBILIDAD de la planilla)
 .Renviron
 .env
 # Perfil de correo con credenciales en texto plano
@@ -28,6 +28,8 @@ __pycache__/
 *.ods
 *.csv
 *.parquet
+# intermedios de scripts/analisis_servicios/*.py (gol.pkl, eq_all.pkl)
+*.pkl
 *.rds
 *.gpkg
 *.shp

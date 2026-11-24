@@ -21,7 +21,10 @@
 #       GID_inactivos.rds       <- db/DFR/RDS/dfr_C_DF_POSICIONES_RECORRIDO_HISTORICO.rds
 #       circuitos_periodo.rds   <- UNA_POR_CIRCUITO/rds/circuitos_periodo.rds
 #
-# No copia contraseñas ni el token de shinyapps.io: eso se configura en la otra PC.
+# Token de shinyapps.io: si existe vistas/App_informe_llenado/token_shinyapps.R
+# (ver token_shinyapps_EJEMPLO.R), se copia al paquete y la otra PC lo usa sola.
+# Ese archivo está en .gitignore. Si va el token, mandá el zip por un canal privado.
+# No copia contraseñas de la IMM: esas se escriben en cada corrida.
 # ==============================================================================
 
 armar_paquete <- function(destino = file.path(Sys.getenv("USERPROFILE"), "Desktop",
@@ -71,9 +74,21 @@ armar_paquete <- function(destino = file.path(Sys.getenv("USERPROFILE"), "Deskto
             file.path(destino, "datos", "circuitos_periodo.rds"))
   saveRDS(character(0), file.path(destino, "datos", "csv_procesados.rds"))
 
+  # Token de shinyapps.io (opcional, nunca versionado)
+  archivo_token <- file.path(dir_app, "token_shinyapps.R")
+  lleva_token <- file.exists(archivo_token) &&
+    !any(grepl("PEGAR_TOKEN|PEGAR_SECRET", readLines(archivo_token, warn = FALSE)))
+  if (lleva_token) file.copy(archivo_token, file.path(destino, "token_shinyapps.R"))
+
   message("✅ Paquete armado en: ", normalizePath(destino),
           "\n   Datos hasta el ", format(max(as.Date(hist$Fecha), na.rm = TRUE), "%d/%m/%Y"),
           " (", nrow(hist), " filas).")
+  if (lleva_token) {
+    message("🔑 El paquete LLEVA el token de shinyapps.io: mandalo solo por un canal privado.")
+  } else {
+    message("ℹ️  El paquete no lleva el token: la otra persona lo pega a mano (LEEME.md, paso 1.3).",
+            "\n   Para incluirlo, creá ", archivo_token, " (ver token_shinyapps_EJEMPLO.R).")
+  }
 
   if (hacer_zip) {
     archivo_zip <- paste0(destino, ".zip")

@@ -17,3 +17,7 @@ INSTRUCTIVO.md
 # Paquete independiente para otra PC (lo arma armar_paquete.R)
 paquete_independiente
 armar_paquete.R
+
+# Token de shinyapps.io: nunca se publica con la app
+token_shinyapps.R
+token_shinyapps_EJEMPLO.R

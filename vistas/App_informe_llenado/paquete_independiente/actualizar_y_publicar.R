@@ -29,10 +29,9 @@ if (!file.exists("actualizar_y_publicar.R") || !dir.exists("app")) {
 paso <- function(n, texto) message("\n========== PASO ", n, " de 5: ", texto, " ==========")
 source("funciones/funciones_paquete.R", encoding = "UTF-8")
 
-# Si la cuenta de shinyapps.io no está configurada, se avisa antes de descargar.
-if (PUBLICAR && !"datoseindicadores" %in% rsconnect::accounts()$name) {
-  stop("Falta configurar la cuenta 'datoseindicadores' de shinyapps.io (LEEME.md, paso 1.3).")
-}
+# Cuenta de shinyapps.io: si la PC no la tiene y el paquete trae el token
+# (token_shinyapps.R), se configura sola y queda guardada en la PC.
+if (PUBLICAR) configurar_cuenta_shinyapps("token_shinyapps.R")
 
 cred <- if (DESCARGAR_LEVANTES || DESCARGAR_CONTENEDORES) pedir_credenciales() else NULL
 

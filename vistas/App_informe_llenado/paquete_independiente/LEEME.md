@@ -59,8 +59,12 @@ py -m playwright install chromium
 
    Tarda unos minutos. Tiene que terminar con `✅ Están todos los paquetes.`
 
-3. Pegá en la consola el comando con el token de shinyapps.io que te pasaron y apretá
-   Enter. Tiene esta forma:
+3. **Si en la carpeta hay un archivo `token_shinyapps.R`, salteá este punto y el 4:**
+   el script configura la cuenta solo la primera vez que lo corrés. Ese archivo es
+   secreto: no lo compartas ni lo subas a ningún lado.
+
+   Si no está, pegá en la consola el comando con el token de shinyapps.io que te
+   pasaron y apretá Enter. Tiene esta forma:
 
    ```r
    rsconnect::setAccountInfo(name = "datoseindicadores", token = "...", secret = "...")

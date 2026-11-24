@@ -136,10 +136,10 @@ procesar_csv_gol <- function(ruta) {
     select(any_of(COLUMNAS_HISTORICO))
 }
 
-# Deja solo los últimos 12 meses y las columnas que usa la app.
+# Deja solo los últimos 6 meses (182 días; mismo corte que limpieza_datos.R) y las columnas que usa la app.
 recortar_historico <- function(historico) {
   historico %>%
-    filter(as.Date(Fecha) >= (Sys.Date() - 365)) %>%
+    filter(as.Date(Fecha) >= (Sys.Date() - 182)) %>%
     select(any_of(COLUMNAS_HISTORICO)) %>%
     distinct()
 }

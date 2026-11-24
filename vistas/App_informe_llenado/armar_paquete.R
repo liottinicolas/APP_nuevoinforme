@@ -15,7 +15,7 @@
 #   - el descargador de levantes (archivos/descargar_datos_reportesGOL.py)
 #   - los datos actuales, en datos/:
 #       historico_llenado.rds   <- db/GOL_reportes/historico_llenadoGol.rds
-#                                  (solo últimos 12 meses y columnas de la app)
+#                                  (solo últimos 6 meses y columnas de la app)
 #       GID_activos.rds         <- db/DFR/RDS/dfr_E_DF_POSICIONES_RECORRIDO.rds
 #       GID_inactivos.rds       <- db/DFR/RDS/dfr_C_DF_POSICIONES_RECORRIDO_HISTORICO.rds
 #       circuitos_periodo.rds   <- UNA_POR_CIRCUITO/rds/circuitos_periodo.rds

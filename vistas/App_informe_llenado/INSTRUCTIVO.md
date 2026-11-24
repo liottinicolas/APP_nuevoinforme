@@ -16,12 +16,12 @@ source("vistas/App_informe_llenado/actualizar_datos_app.R")
 
 ## 1. Lo que necesitás tener (una sola vez)
 
-Si trabajás en la PC de siempre (la del proyecto), esto ya está. Si es una PC nueva,
+Si trabajás en la PC de siempre (la del proyecto), esto ya está. Si es otra PC,
 revisá cada punto.
 
 1. **R 4.6** y **RStudio** instalados.
-2. La carpeta del proyecto `APP_nuevoinforme` (está en OneDrive:
-   `OneDrive\Trabajo IM\APP_nuevoinforme`).
+2. Las carpetas `APP_nuevoinforme` y `APP_nuevoinforme-data` en tu OneDrive, con los
+   datos (`.rds` y CSV). Ver paso 1.2.
 3. **Usuario y contraseña de la IMM** con acceso a la intranet (reportes GOL) y al
    GeoServer (`geoserver-ed.imm.gub.uy`). El script los pide en una ventana; no se
    guardan en ningún archivo.
@@ -43,18 +43,54 @@ rsconnect::accounts()
 
 Si aparece `datoseindicadores` con `shinyapps.io`, ya está. Si no aparece (PC nueva):
 
-1. Entrá a <https://www.shinyapps.io> con un usuario que tenga acceso a la cuenta
-   `datoseindicadores` (pedile al dueño que te invite como miembro de la cuenta).
-2. Arriba a la derecha: tu nombre → **Tokens** → **Show** (o **Add Token** si no hay).
-3. Apretá **Show Secret** y después **Copy to clipboard**. Copia un comando como este:
+1. Conseguí el comando con el token de la cuenta `datoseindicadores`. Es el mismo
+   token que usa todo el equipo. Hay dos formas:
+   - pedírselo al responsable de la app por un canal privado; o
+   - entrar a <https://www.shinyapps.io> con la cuenta `datoseindicadores`, ir a tu
+     nombre (arriba a la derecha) → **Tokens** → **Show** → **Show Secret** →
+     **Copy to clipboard**.
+
+   El comando tiene esta forma:
 
    ```r
    rsconnect::setAccountInfo(name = "datoseindicadores", token = "...", secret = "...")
    ```
 
-4. Pegalo en la consola de RStudio y apretá Enter.
-5. **No guardes el token ni el secret en ningún archivo** ni los mandes por correo.
-6. Comprobá con `rsconnect::accounts()` que ahora aparece `datoseindicadores`.
+2. Pegalo en la consola de RStudio y apretá Enter. Queda guardado en la PC y no hay
+   que repetirlo.
+3. **No guardes el token ni el secret en ningún archivo del proyecto** (OneDrive y
+   GitHub los ven todos). Tampoco los pegues en el código.
+4. Comprobá con `rsconnect::accounts()` que ahora aparece `datoseindicadores`.
+
+### 1.2 Tener los datos (`.rds` y CSV) en tu PC (una sola vez)
+
+Los datos **no están en GitHub**: están solo en la carpeta de OneDrive del responsable
+de la app. Son unos 850 MB. El script usa estos:
+
+| Archivo o carpeta | Qué es |
+|---|---|
+| `db/GOL_reportes/historico_llenadoGol.rds` | Histórico de levantes (unos 110 MB) |
+| `db/GOL_reportes/archivos_aplicados_historico_llenadoGol.rds` | Lista de CSV ya sumados al histórico (evita duplicar) |
+| `archivos/GOL_reportes/` | CSV diarios de levantes. El script mira el último para saber desde qué día descargar. |
+| `db/DFR/RDS/*.rds` | Contenedores activos e inactivos (se vuelven a bajar en cada corrida) |
+| `UNA_POR_CIRCUITO/rds/circuitos_periodo.rds` | Frecuencia de cada circuito |
+| `archivos/10393_ubicaciones/` y `db/10393_ubicaciones/` | Ubicaciones de camiones (`cargaDeDatos.R` también las procesa) |
+
+Por eso se comparte la carpeta entera, no archivos sueltos:
+
+1. **El responsable** comparte en OneDrive, con permiso de **edición**, las dos
+   carpetas: `Trabajo IM\APP_nuevoinforme` y `Trabajo IM\APP_nuevoinforme-data`
+   (clic derecho → **Compartir** → escribir el correo → **Puede editar**).
+2. **Vos**, en OneDrive en el navegador → **Compartido** → en cada carpeta,
+   **Agregar acceso directo a Mis archivos**. Poné **las dos en la misma carpeta**:
+   `limpieza_datos.R` busca `APP_nuevoinforme-data` al lado de `APP_nuevoinforme`.
+3. Esperá a que OneDrive termine de sincronizar (icono de la nube sin flechas). En el
+   Explorador, clic derecho en cada carpeta → **Conservar siempre en este dispositivo**.
+   Si no, OneDrive deja archivos "solo en línea" y git o R fallan al leerlos.
+4. Abrí `APP_nuevoinforme.Rproj` desde esa carpeta.
+
+Como la carpeta es compartida, lo que actualices vos también le llega al responsable de
+la app. **No corran el script dos personas a la vez.**
 
 ## 2. Actualizar y publicar la app
 

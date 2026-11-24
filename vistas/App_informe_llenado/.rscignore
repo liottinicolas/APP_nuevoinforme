@@ -6,3 +6,10 @@ data/
 
 # Versión anterior de la app (Leaflet), guardada solo como respaldo local
 App_v2.R
+
+# Scripts y documentos que se corren o leen en la PC, no en el servidor
+limpieza_datos.R
+perfilado_datos.R
+actualizar_datos_app.R
+documentacion_analisis.md
+INSTRUCTIVO.md

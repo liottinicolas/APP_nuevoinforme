@@ -2,6 +2,19 @@
 
 App publicada: <https://datoseindicadores.shinyapps.io/App_informe_llenado/>
 
+> **¿La va a actualizar otra persona desde su propia PC, sin este proyecto?**
+> No sigas este instructivo. Armá un paquete independiente (carpeta + `.zip` con la
+> app, los `.rds` y un script) y mandale el `.zip`:
+>
+> ```r
+> source("vistas/App_informe_llenado/armar_paquete.R")
+> armar_paquete()   # deja App_informe_llenado_paquete.zip en el Escritorio
+> ```
+>
+> Adentro tiene su propio `LEEME.md`. Esa forma publica la app con los datos adentro
+> y no usa OneDrive ni GitHub. Al volver, publicá desde acá como siempre y la app
+> vuelve a leer los datos de GitHub.
+
 Este instructivo es para actualizar la app sin ayuda. Seguí los pasos en orden.
 
 ## 0. Resumen
